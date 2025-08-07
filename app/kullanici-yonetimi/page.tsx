@@ -1,0 +1,634 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import { 
+  Users,
+  Search,
+  Filter,
+  Plus,
+  Edit,
+  Trash2,
+  Shield,
+  UserCheck,
+  UserX,
+  Mail,
+  Phone,
+  Calendar,
+  Download,
+  Upload,
+  MoreVertical,
+  ChevronDown,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Eye,
+  Settings,
+  ArrowLeft
+} from "lucide-react"
+
+export default function KullaniciYonetimiPage() {
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedFilter, setSelectedFilter] = useState("all")
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
+  const [showNewUserModal, setShowNewUserModal] = useState(false)
+  const [showEditUserModal, setShowEditUserModal] = useState(false)
+  const [editingUser, setEditingUser] = useState<any>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const [newUserData, setNewUserData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    isAdmin: false,
+    subscription: "Free"
+  })
+  
+  // Demo kullanıcı verileri
+  const [users, setUsers] = useState([
+    {
+      id: "1",
+      name: "Ahmet Yılmaz",
+      email: "ahmet@qart.app",
+      phone: "+90 555 123 4567",
+      isActive: true,
+      isAdmin: false,
+      emailVerified: true,
+      subscription: "Pro",
+      profileSlug: "ahmet-yilmaz",
+      lastLogin: "2025-01-07 14:30",
+      createdAt: "2024-12-01",
+      totalViews: 4567,
+      totalLeads: 234
+    },
+    {
+      id: "2",
+      name: "Zeynep Kaya",
+      email: "zeynep@example.com",
+      phone: "+90 555 987 6543",
+      isActive: true,
+      isAdmin: false,
+      emailVerified: true,
+      subscription: "QART Lifetime",
+      profileSlug: "zeynep-kaya",
+      lastLogin: "2025-01-07 12:15",
+      createdAt: "2024-11-15",
+      totalViews: 2890,
+      totalLeads: 156
+    },
+    {
+      id: "3",
+      name: "Mehmet Demir",
+      email: "mehmet@example.com",
+      phone: "+90 555 456 7890",
+      isActive: false,
+      isAdmin: false,
+      emailVerified: false,
+      subscription: "Free",
+      profileSlug: "mehmet-demir",
+      lastLogin: "2025-01-05 09:20",
+      createdAt: "2024-10-20",
+      totalViews: 1234,
+      totalLeads: 67
+    },
+    {
+      id: "4",
+      name: "Admin User",
+      email: "admin@qart.app",
+      phone: "+90 555 000 0000",
+      isActive: true,
+      isAdmin: true,
+      emailVerified: true,
+      subscription: "QART Lifetime",
+      profileSlug: "admin-user",
+      lastLogin: "2025-01-07 15:45",
+      createdAt: "2024-01-01",
+      totalViews: 0,
+      totalLeads: 0
+    },
+    // Daha fazla test verisi
+    ...Array.from({length: 20}, (_, i) => ({
+      id: `${i + 5}`,
+      name: `Test User ${i + 5}`,
+      email: `test${i + 5}@example.com`,
+      phone: `+90 555 ${String(i + 5).padStart(3, '0')} 0000`,
+      isActive: Math.random() > 0.3,
+      isAdmin: false,
+      emailVerified: Math.random() > 0.4,
+      subscription: ['Free', 'Pro', 'QART Lifetime'][Math.floor(Math.random() * 3)],
+      profileSlug: `test-user-${i + 5}`,
+      lastLogin: `2025-01-0${Math.floor(Math.random() * 7) + 1} ${Math.floor(Math.random() * 24)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
+      createdAt: `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
+      totalViews: Math.floor(Math.random() * 10000),
+      totalLeads: Math.floor(Math.random() * 500)
+    }))
+  ])
+
+  const stats = {
+    totalUsers: users.length,
+    activeUsers: users.filter(u => u.isActive).length,
+    adminUsers: users.filter(u => u.isAdmin).length,
+    verifiedUsers: users.filter(u => u.emailVerified).length,
+    proUsers: users.filter(u => u.subscription === 'Pro').length,
+    businessUsers: users.filter(u => u.subscription === 'Business').length,
+    freeUsers: users.filter(u => u.subscription === 'Free').length
+  }
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user")
+    if (savedUser) {
+      const userData = JSON.parse(savedUser)
+      if (!userData.isAdmin) {
+        window.location.href = "/admin-panel"
+        return
+      }
+      setUser(userData)
+    } else {
+      window.location.href = "/login"
+      return
+    }
+    setLoading(false)
+  }, [])
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    const matchesFilter = selectedFilter === "all" ? true :
+                         selectedFilter === "active" ? user.isActive :
+                         selectedFilter === "inactive" ? !user.isActive :
+                         selectedFilter === "admin" ? user.isAdmin :
+                         selectedFilter === "verified" ? user.emailVerified :
+                         selectedFilter === "unverified" ? !user.emailVerified :
+                         true
+    
+    return matchesSearch && matchesFilter
+  })
+
+  // Pagination hesaplamaları
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber)
+  }
+
+  const handleNewUser = () => {
+    setShowNewUserModal(true)
+  }
+
+  const handleEditUser = (user: any) => {
+    setEditingUser({...user})
+    setShowEditUserModal(true)
+  }
+
+  const toggleUserStatus = (userId: string) => {
+    setUsers(users.map(user => 
+      user.id === userId ? {...user, isActive: !user.isActive} : user
+    ))
+  }
+
+  const deleteUser = (userId: string) => {
+    if (confirm("Bu kullanıcıyı silmek istediğinizden emin misiniz?")) {
+      setUsers(users.filter(user => user.id !== userId))
+    }
+  }
+
+  const saveNewUser = () => {
+    if (!newUserData.name || !newUserData.email) {
+      alert("Lütfen gerekli alanları doldurun!")
+      return
+    }
+
+    const newUser = {
+      id: String(users.length + 1),
+      ...newUserData,
+      isActive: true,
+      emailVerified: false,
+      profileSlug: newUserData.name.toLowerCase().replace(/\s+/g, '-'),
+      lastLogin: "Henüz giriş yapmadı",
+      createdAt: new Date().toISOString().split('T')[0],
+      totalViews: 0,
+      totalLeads: 0
+    }
+
+    setUsers([...users, newUser])
+    setShowNewUserModal(false)
+    setNewUserData({
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      isAdmin: false,
+      subscription: "Free"
+    })
+    alert("Kullanıcı başarıyla eklendi!")
+  }
+
+  const saveEditUser = () => {
+    if (!editingUser.name || !editingUser.email) {
+      alert("Lütfen gerekli alanları doldurun!")
+      return
+    }
+
+    setUsers(users.map(user => 
+      user.id === editingUser.id ? editingUser : user
+    ))
+    setShowEditUserModal(false)
+    setEditingUser(null)
+    alert("Kullanıcı başarıyla güncellendi!")
+  }
+
+  const getSubscriptionColor = (subscription: string) => {
+    switch(subscription) {
+      case 'Free': return 'bg-gray-800 text-gray-300 border border-gray-700'
+      case 'Pro': return 'bg-blue-900/30 text-blue-400 border border-blue-800'
+      case 'Business': return 'bg-purple-900/30 text-purple-400 border border-purple-800'
+      case 'Enterprise': return 'bg-orange-900/30 text-orange-400 border border-orange-800'
+      case 'QART Lifetime': return 'bg-gradient-to-r from-yellow-900/30 to-orange-900/30 text-yellow-400 border border-yellow-800'
+      default: return 'bg-gray-800 text-gray-300 border border-gray-700'
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+      {/* Header */}
+      <div className="bg-black/50 backdrop-blur-md border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <Link href="/admin-panel" className="text-2xl font-bold text-blue-500 hover:text-blue-400">
+                QART
+              </Link>
+              <div className="h-6 w-px bg-gray-700"></div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Kullanıcı Yönetimi</h1>
+                <p className="text-sm text-gray-400 mt-1">Sistem kullanıcılarını yönetin</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <button className="bg-gray-800 border border-gray-700 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2">
+                <Download className="h-4 w-4" />
+                <span>Export</span>
+              </button>
+              <button className="bg-gray-800 border border-gray-700 text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2">
+                <Upload className="h-4 w-4" />
+                <span>Import</span>
+              </button>
+              <button 
+                onClick={handleNewUser}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Yeni Kullanıcı</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+          <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-4">
+            <div className="flex items-center">
+              <Users className="h-8 w-8 text-blue-400" />
+              <div className="ml-3">
+                <p className="text-sm text-gray-400">Toplam</p>
+                <p className="text-lg font-semibold text-white">{stats.totalUsers.toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-4">
+            <div className="flex items-center">
+              <UserCheck className="h-8 w-8 text-green-400" />
+              <div className="ml-3">
+                <p className="text-sm text-gray-400">Aktif</p>
+                <p className="text-lg font-semibold text-green-400">{stats.activeUsers}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-4">
+            <div className="flex items-center">
+              <Shield className="h-8 w-8 text-red-400" />
+              <div className="ml-3">
+                <p className="text-sm text-gray-400">Admin</p>
+                <p className="text-lg font-semibold text-red-400">{stats.adminUsers}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-4">
+            <div className="flex items-center">
+              <Mail className="h-8 w-8 text-purple-400" />
+              <div className="ml-3">
+                <p className="text-sm text-gray-400">Doğrulanmış</p>
+                <p className="text-lg font-semibold text-purple-400">{stats.verifiedUsers}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-4">
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-blue-900/30 rounded flex items-center justify-center border border-blue-800">
+                <span className="text-blue-400 font-semibold text-sm">P</span>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-gray-400">Pro</p>
+                <p className="text-lg font-semibold text-blue-400">{stats.proUsers}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-4">
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-purple-900/30 rounded flex items-center justify-center border border-purple-800">
+                <span className="text-purple-400 font-semibold text-sm">B</span>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-gray-400">Business</p>
+                <p className="text-lg font-semibold text-purple-400">{stats.businessUsers}</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-4">
+            <div className="flex items-center">
+              <div className="h-8 w-8 bg-gray-800 rounded flex items-center justify-center border border-gray-700">
+                <span className="text-gray-400 font-semibold text-sm">F</span>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-gray-400">Free</p>
+                <p className="text-lg font-semibold text-gray-300">{stats.freeUsers}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters and Search */}
+        <div className="bg-gray-900/50 rounded-lg border border-gray-800 mb-6">
+          <div className="p-6 border-b border-gray-800">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
+                  <input
+                    type="text"
+                    placeholder="Kullanıcı ara (isim, email)..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <select
+                  value={selectedFilter}
+                  onChange={(e) => setSelectedFilter(e.target.value)}
+                  className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">Tüm Kullanıcılar</option>
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Pasif</option>
+                  <option value="admin">Admin</option>
+                  <option value="verified">Email Doğrulanmış</option>
+                  <option value="unverified">Email Doğrulanmamış</option>
+                </select>
+                <button className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 text-white flex items-center space-x-2">
+                  <Filter className="h-4 w-4" />
+                  <span>Filtrele</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-gray-800">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    <input type="checkbox" className="rounded bg-gray-700 border-gray-600" />
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Kullanıcı
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    İletişim
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Durum
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Abonelik
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    İstatistikler
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    Son Giriş
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                    İşlemler
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-gray-900 divide-y divide-gray-800">
+                {currentUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-gray-800/50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input type="checkbox" className="rounded bg-gray-700 border-gray-600" />
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                          <span className="text-white font-medium text-sm">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="ml-4">
+                          <div className="flex items-center space-x-2">
+                            <button 
+                              onClick={() => window.location.href = `/kullanici-detay/${user.id}`}
+                              className="text-sm font-medium text-white hover:text-blue-400 transition"
+                            >
+                              {user.name}
+                            </button>
+                            {user.isAdmin && (
+                              <Shield className="h-4 w-4 text-red-400" title="Admin" />
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-400">/{user.profileSlug}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-300">{user.email}</div>
+                      <div className="text-sm text-gray-500">{user.phone}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col space-y-1">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.isActive 
+                            ? 'bg-green-900/30 text-green-400 border border-green-800' 
+                            : 'bg-red-900/30 text-red-400 border border-red-800'
+                        }`}>
+                          {user.isActive ? (
+                            <>
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Aktif
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Pasif
+                            </>
+                          )}
+                        </span>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.emailVerified 
+                            ? 'bg-blue-900/30 text-blue-400 border border-blue-800' 
+                            : 'bg-yellow-900/30 text-yellow-400 border border-yellow-800'
+                        }`}>
+                          {user.emailVerified ? (
+                            <>
+                              <Mail className="h-3 w-3 mr-1" />
+                              Doğrulanmış
+                            </>
+                          ) : (
+                            <>
+                              <AlertTriangle className="h-3 w-3 mr-1" />
+                              Bekliyor
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-3 py-1 rounded-lg text-xs font-medium ${getSubscriptionColor(user.subscription)}`}>
+                        {user.subscription}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-300">
+                        <div>{user.totalViews.toLocaleString()} görüntülenme</div>
+                        <div className="text-gray-500">{user.totalLeads} lead</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                      {user.lastLogin}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex space-x-2">
+                        <button 
+                          onClick={() => window.location.href = `/kullanici-detay/${user.id}`}
+                          className="text-blue-400 hover:text-blue-300" 
+                          title="Görüntüle"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleEditUser(user)}
+                          className="text-green-400 hover:text-green-300" 
+                          title="Düzenle"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={() => toggleUserStatus(user.id)}
+                          className={`${user.isActive ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300'}`}
+                          title={user.isActive ? 'Devre Dışı Bırak' : 'Aktif Et'}
+                        >
+                          {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                        </button>
+                        <button 
+                          onClick={() => deleteUser(user.id)}
+                          className="text-red-400 hover:text-red-300"
+                          title="Sil"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        <button className="text-gray-400 hover:text-gray-300">
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="px-6 py-3 border-t border-gray-800">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-400">
+                Toplam <span className="font-medium text-white">{filteredUsers.length}</span> kullanıcıdan{' '}
+                <span className="font-medium text-white">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredUsers.length)}</span> gösteriliyor
+              </div>
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 bg-gray-800 border border-gray-700 text-gray-300 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Önceki
+                </button>
+                
+                {/* Page Numbers */}
+                <div className="flex space-x-1">
+                  {[...Array(totalPages)].map((_, index) => {
+                    const pageNumber = index + 1
+                    const showPage = 
+                      pageNumber === 1 || 
+                      pageNumber === totalPages || 
+                      (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                    
+                    if (!showPage && pageNumber === currentPage - 2) {
+                      return <span key={pageNumber} className="px-2 text-gray-500">...</span>
+                    }
+                    if (!showPage && pageNumber === currentPage + 2) {
+                      return <span key={pageNumber} className="px-2 text-gray-500">...</span>
+                    }
+                    if (!showPage) return null
+                    
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`px-3 py-1 rounded ${
+                          pageNumber === currentPage
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    )
+                  })}
+                </div>
+                
+                <button 
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 bg-gray-800 border border-gray-700 text-gray-300 rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Sonraki
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

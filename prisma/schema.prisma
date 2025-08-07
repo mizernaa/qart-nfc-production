@@ -1,0 +1,230 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  name              String
+  isActive          Boolean   @default(true)
+  isAdmin           Boolean   @default(false)
+  emailVerified     Boolean   @default(false)
+  twoFactorEnabled  Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+  subscription      Subscription?
+  profile           Profile?
+  cards             Card[]
+  teams             Team[]    @relation("TeamMembers")
+  ownedTeam         Team?     @relation("TeamOwner")
+  apiKeys           ApiKey[]
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model Profile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug              String    @unique
+  companyName       String?
+  title             String?
+  bio               String?
+  phone             String?
+  whatsapp          String?
+  email             String?
+  address           String?
+  latitude          Float?
+  longitude         Float?
+  taxNumber         String?
+  invoiceAddress    String?
+  website           String?
+  logoUrl           String?
+  coverImageUrl     String?
+  themeId           String    @default("default")
+  theme             Theme     @relation(fields: [themeId], references: [id])
+  customDomain      String?   @unique
+  language          String    @default("tr")
+  timezone          String    @default("Europe/Istanbul")
+  socialLinks       SocialLink[]
+  analytics         Analytics[]
+  leadForms         LeadForm[]
+  customFields      CustomField[]
+  gallery           Gallery[]
+  services          Service[]
+  testimonials      Testimonial[]
+  qrCodeStyle       Json?
+  isPublic          Boolean   @default(true)
+  enableLeadCapture Boolean   @default(false)
+  enableAnalytics   Boolean   @default(true)
+  enableCalendar    Boolean   @default(false)
+  calendarLink      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model SocialLink {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  platform    String
+  url         String
+  isVisible   Boolean   @default(true)
+  order       Int
+  clickCount  Int       @default(0)
+}
+
+model Card {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nfcId           String    @unique
+  qrCode          String
+  isActive        Boolean   @default(true)
+  activatedAt     DateTime?
+  lastScannedAt   DateTime?
+  scanCount       Int       @default(0)
+  createdAt       DateTime  @default(now())
+}
+
+model Analytics {
+  id              String    @id @default(cuid())
+  profileId       String
+  profile         Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  viewedAt        DateTime  @default(now())
+  viewerIp        String?
+  viewerCountry   String?
+  viewerCity      String?
+  viewerDevice    String?
+  viewerBrowser   String?
+  linkClicked     String?
+  duration        Int?
+  referrer        String?
+}
+
+model Theme {
+  id              String    @id @default(cuid())
+  name            String
+  primaryColor    String
+  secondaryColor  String
+  backgroundColor String
+  textColor       String
+  font            String
+  layout          String
+  customCss       String?
+  isDefault       Boolean   @default(false)
+  profiles        Profile[]
+}
+
+model LeadForm {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  phone       String?
+  message     String?
+  createdAt   DateTime  @default(now())
+}
+
+model Team {
+  id          String    @id @default(cuid())
+  name        String
+  ownerId     String    @unique
+  owner       User      @relation("TeamOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     User[]    @relation("TeamMembers")
+  maxMembers  Int       @default(5)
+  createdAt   DateTime  @default(now())
+}
+
+model Subscription {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            String
+  status          String
+  currentPeriodEnd DateTime
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key         String    @unique
+  name        String
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model CustomField {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  label       String
+  value       String
+  icon        String?
+  order       Int
+  isVisible   Boolean   @default(true)
+}
+
+model Gallery {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  imageUrl    String
+  caption     String?
+  order       Int
+}
+
+model Service {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  price       String?
+  image       String?
+  order       Int
+}
+
+model Testimonial {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  title       String?
+  content     String
+  image       String?
+  rating      Int?
+  order       Int
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+}

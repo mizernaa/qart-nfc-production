@@ -106,11 +106,6 @@ export default function LoginForm() {
         </button>
       </form>
 
-      <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-        <h3 className="font-semibold mb-2">Test Hesapları:</h3>
-        <p><strong>Admin:</strong> admin@qart.app / admin123</p>
-        <p><strong>Demo:</strong> demo@qart.app / demo123</p>
-      </div>
     </div>
   )
 }

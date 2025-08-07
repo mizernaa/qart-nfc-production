@@ -81,6 +81,39 @@ export function getTokenFromRequest(request: NextRequest): string | null {
 
 // Kullanıcı authentication
 export async function authenticateUser(email: string, password: string): Promise<AuthUser | null> {
+  // GEÇİCİ: Database bağlantısı kurulana kadar hardcoded kullanıcılar
+  const tempUsers = [
+    {
+      id: '1',
+      email: 'admin@qart.app',
+      password: 'SecureAdmin2025!',
+      name: 'Admin User',
+      isAdmin: true,
+      isActive: true
+    },
+    {
+      id: '2',
+      email: 'demo@qart.app',
+      password: 'DemoUser2025!',
+      name: 'Demo User',
+      isAdmin: false,
+      isActive: true
+    }
+  ]
+
+  // Temp user kontrolü
+  const tempUser = tempUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
+  if (tempUser && tempUser.password === password) {
+    return {
+      id: tempUser.id,
+      email: tempUser.email,
+      name: tempUser.name,
+      isAdmin: tempUser.isAdmin,
+      isActive: tempUser.isActive
+    }
+  }
+
+  // Database kontrolü (bağlantı kurulduğunda çalışacak)
   try {
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() }

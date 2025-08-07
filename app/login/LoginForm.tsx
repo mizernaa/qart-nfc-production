@@ -106,6 +106,16 @@ export default function LoginForm() {
         </button>
       </form>
 
+      {/* Kayıt Ol Linki */}
+      <div className="mt-6 text-center">
+        <p className="text-gray-600">
+          Henüz hesabınız yok mu?{" "}
+          <Link href="/kayit-ol" className="text-blue-600 hover:text-blue-800 font-semibold">
+            Kayıt Ol
+          </Link>
+        </p>
+      </div>
+
     </div>
   )
 }

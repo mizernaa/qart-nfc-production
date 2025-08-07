@@ -44,3 +44,6 @@ prisma/*.db
 nul
 debug.html
 test.html
+
+.vercel
+.env*.local

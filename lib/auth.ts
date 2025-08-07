@@ -98,6 +98,14 @@ export async function authenticateUser(email: string, password: string): Promise
       name: 'Demo User',
       isAdmin: false,
       isActive: true
+    },
+    {
+      id: '3',
+      email: 'user@qart.app',
+      password: 'TestUser2025!',
+      name: 'Test User',
+      isAdmin: false,
+      isActive: true
     }
   ]
 

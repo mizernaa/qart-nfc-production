@@ -199,35 +199,70 @@ export default function KullaniciYonetimiPage() {
     }
   }
 
-  const saveNewUser = () => {
-    if (!newUserData.name || !newUserData.email) {
-      alert("Lütfen gerekli alanları doldurun!")
+  const saveNewUser = async () => {
+    if (!newUserData.name || !newUserData.email || !newUserData.password) {
+      alert("Lütfen tüm zorunlu alanları doldurun!")
       return
     }
 
-    const newUser = {
-      id: String(users.length + 1),
-      ...newUserData,
-      isActive: true,
-      emailVerified: false,
-      profileSlug: newUserData.name.toLowerCase().replace(/\s+/g, '-'),
-      lastLogin: "Henüz giriş yapmadı",
-      createdAt: new Date().toISOString().split('T')[0],
-      totalViews: 0,
-      totalLeads: 0
+    if (newUserData.password.length < 6) {
+      alert("Şifre en az 6 karakter olmalıdır!")
+      return
     }
 
-    setUsers([...users, newUser])
-    setShowNewUserModal(false)
-    setNewUserData({
-      name: "",
-      email: "",
-      phone: "",
-      password: "",
-      isAdmin: false,
-      subscription: "Free"
-    })
-    alert("Kullanıcı başarıyla eklendi!")
+    try {
+      const response = await fetch("/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newUserData.name,
+          email: newUserData.email,
+          password: newUserData.password,
+          isAdmin: newUserData.isAdmin
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(data.message || "Kullanıcı eklenemedi!")
+        return
+      }
+
+      if (data.success) {
+        // Yeni kullanıcıyı listeye ekle
+        const newUser = {
+          id: data.user.id,
+          ...newUserData,
+          isActive: true,
+          emailVerified: false,
+          profileSlug: newUserData.name.toLowerCase().replace(/\s+/g, '-'),
+          lastLogin: "Henüz giriş yapmadı",
+          createdAt: new Date().toISOString().split('T')[0],
+          totalViews: 0,
+          totalLeads: 0
+        }
+
+        setUsers([...users, newUser])
+        setShowNewUserModal(false)
+        setNewUserData({
+          name: "",
+          email: "",
+          phone: "",
+          password: "",
+          isAdmin: false,
+          subscription: "Free"
+        })
+        alert("Kullanıcı başarıyla eklendi! Artık giriş yapabilir.")
+      } else {
+        alert(data.message || "Kullanıcı eklenemedi!")
+      }
+    } catch (error) {
+      console.error("Kullanıcı ekleme hatası:", error)
+      alert("Bir hata oluştu!")
+    }
   }
 
   const saveEditUser = () => {
@@ -629,6 +664,115 @@ export default function KullaniciYonetimiPage() {
           </div>
         </div>
       </div>
+
+      {/* Yeni Kullanıcı Modal */}
+      {showNewUserModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-white">Yeni Kullanıcı Ekle</h2>
+              <button 
+                onClick={() => setShowNewUserModal(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <XCircle className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Ad Soyad *
+                </label>
+                <input
+                  type="text"
+                  value={newUserData.name}
+                  onChange={(e) => setNewUserData({...newUserData, name: e.target.value})}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  placeholder="Örn: Ahmet Yılmaz"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={newUserData.email}
+                  onChange={(e) => setNewUserData({...newUserData, email: e.target.value})}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  placeholder="ornek@email.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Şifre *
+                </label>
+                <input
+                  type="password"
+                  value={newUserData.password}
+                  onChange={(e) => setNewUserData({...newUserData, password: e.target.value})}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  placeholder="En az 6 karakter"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Telefon
+                </label>
+                <input
+                  type="tel"
+                  value={newUserData.phone}
+                  onChange={(e) => setNewUserData({...newUserData, phone: e.target.value})}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  placeholder="0555 555 5555"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center space-x-2 text-gray-300">
+                  <input
+                    type="checkbox"
+                    checked={newUserData.isAdmin}
+                    onChange={(e) => setNewUserData({...newUserData, isAdmin: e.target.checked})}
+                    className="rounded bg-gray-800 border-gray-700"
+                  />
+                  <span>Admin Yetkisi</span>
+                </label>
+
+                <select
+                  value={newUserData.subscription}
+                  onChange={(e) => setNewUserData({...newUserData, subscription: e.target.value})}
+                  className="px-3 py-1 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                >
+                  <option value="Free">Free</option>
+                  <option value="Pro">Pro</option>
+                  <option value="Business">Business</option>
+                  <option value="QART Lifetime">QART Lifetime</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={() => setShowNewUserModal(false)}
+                className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 text-gray-300 rounded-lg hover:bg-gray-700"
+              >
+                İptal
+              </button>
+              <button
+                onClick={saveNewUser}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Kullanıcı Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

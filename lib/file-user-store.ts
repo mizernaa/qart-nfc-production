@@ -34,31 +34,34 @@ class FileUserStore {
     this.initDB()
   }
 
+  private getDefaultData(): UsersDB {
+    return {
+      users: [
+        {
+          id: '1',
+          email: 'admin@qart.app',
+          password: '$2b$12$gGAbDTg.q9wBElTchW9CB.mUbQ880qTZlkp65KSwTcPJSLL8sYkPy',
+          name: 'Admin User',
+          isAdmin: true,
+          isActive: true,
+          createdAt: '2024-01-01T00:00:00.000Z'
+        },
+        {
+          id: '2',
+          email: 'demo@qart.app',
+          password: '$2b$12$YR/Qq7LByMYjyVXrLrioA.qfjcgYqA20DnrkZS/EpuluUliQ.5mWO',
+          name: 'Demo User',
+          isAdmin: false,
+          isActive: true,
+          createdAt: '2024-01-01T00:00:00.000Z'
+        }
+      ]
+    }
+  }
+
   private initDB() {
     if (!fs.existsSync(this.dbPath)) {
-      const initialData: UsersDB = {
-        users: [
-          {
-            id: '1',
-            email: 'admin@qart.app',
-            password: '$2b$12$gGAbDTg.q9wBElTchW9CB.mUbQ880qTZlkp65KSwTcPJSLL8sYkPy',
-            name: 'Admin User',
-            isAdmin: true,
-            isActive: true,
-            createdAt: '2024-01-01T00:00:00.000Z'
-          },
-          {
-            id: '2',
-            email: 'demo@qart.app',
-            password: '$2b$12$YR/Qq7LByMYjyVXrLrioA.qfjcgYqA20DnrkZS/EpuluUliQ.5mWO',
-            name: 'Demo User',
-            isAdmin: false,
-            isActive: true,
-            createdAt: '2024-01-01T00:00:00.000Z'
-          }
-        ]
-      }
-      this.saveDB(initialData)
+      this.saveDB(this.getDefaultData())
     }
   }
 
@@ -69,28 +72,7 @@ class FileUserStore {
     } catch (error) {
       console.error('Error loading database:', error)
       // Hata durumunda varsayılan veriyi döndür
-      return {
-        users: [
-          {
-            id: '1',
-            email: 'admin@qart.app',
-            password: '$2b$12$gGAbDTg.q9wBElTchW9CB.mUbQ880qTZlkp65KSwTcPJSLL8sYkPy',
-            name: 'Admin User',
-            isAdmin: true,
-            isActive: true,
-            createdAt: '2024-01-01T00:00:00.000Z'
-          },
-          {
-            id: '2',
-            email: 'demo@qart.app',
-            password: '$2b$12$YR/Qq7LByMYjyVXrLrioA.qfjcgYqA20DnrkZS/EpuluUliQ.5mWO',
-            name: 'Demo User',
-            isAdmin: false,
-            isActive: true,
-            createdAt: '2024-01-01T00:00:00.000Z'
-          }
-        ]
-      }
+      return this.getDefaultData()
     }
   }
 

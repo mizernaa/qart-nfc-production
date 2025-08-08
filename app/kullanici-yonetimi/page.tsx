@@ -24,7 +24,8 @@ import {
   XCircle,
   Eye,
   Settings,
-  ArrowLeft
+  ArrowLeft,
+  Link
 } from "lucide-react"
 
 export default function KullaniciYonetimiPage() {
@@ -38,6 +39,7 @@ export default function KullaniciYonetimiPage() {
   const [editingUser, setEditingUser] = useState<any>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null)
   const [newUserData, setNewUserData] = useState({
     name: "",
     email: "",
@@ -104,6 +106,23 @@ export default function KullaniciYonetimiPage() {
     setLoading(false)
   }, [])
 
+  // Dropdown dışına tıklandığında kapat
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownOpen) {
+        setDropdownOpen(null)
+      }
+    }
+    
+    if (dropdownOpen) {
+      document.addEventListener('click', handleClickOutside)
+    }
+    
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [dropdownOpen])
+
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -148,6 +167,25 @@ export default function KullaniciYonetimiPage() {
     if (confirm("Bu kullanıcıyı silmek istediğinizden emin misiniz?")) {
       setUsers(users.filter(user => user.id !== userId))
     }
+  }
+
+  const viewUser = (user: any) => {
+    // Kullanıcı detay sayfasına yönlendir
+    window.location.href = `/kullanici-detay/${user.id}`
+  }
+
+  const viewUserProfile = (user: any) => {
+    // Kullanıcının public profiline git
+    const slug = user.name.toLowerCase()
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c')
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '-')
+    window.open(`/${slug}`, '_blank')
   }
 
   const saveNewUser = async () => {
@@ -543,9 +581,78 @@ export default function KullaniciYonetimiPage() {
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
-                        <button className="text-gray-400 hover:text-gray-300">
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
+                        <div className="relative">
+                          <button 
+                            onClick={() => setDropdownOpen(dropdownOpen === user.id ? null : user.id)}
+                            className="text-gray-400 hover:text-gray-300"
+                            title="Daha fazla seçenek"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </button>
+                          
+                          {dropdownOpen === user.id && (
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-10">
+                              <button
+                                onClick={() => {
+                                  viewUserProfile(user)
+                                  setDropdownOpen(null)
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 rounded-t-lg flex items-center"
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Public Profilini Görüntüle
+                              </button>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`${window.location.origin}/${user.name.toLowerCase().replace(/\s+/g, '-')}`)
+                                  alert('Profil linki kopyalandı!')
+                                  setDropdownOpen(null)
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 flex items-center"
+                              >
+                                <Link className="h-4 w-4 mr-2" />
+                                Profil Linkini Kopyala
+                              </button>
+                              <button
+                                onClick={() => {
+                                  window.location.href = `mailto:${user.email}`
+                                  setDropdownOpen(null)
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 flex items-center"
+                              >
+                                <Mail className="h-4 w-4 mr-2" />
+                                E-posta Gönder
+                              </button>
+                              <div className="border-t border-gray-600 my-1"></div>
+                              <button
+                                onClick={() => {
+                                  if(confirm(`${user.name} kullanıcısını ${user.isActive ? 'devre dışı bırak' : 'aktif et'}?`)) {
+                                    toggleUserStatus(user.id)
+                                  }
+                                  setDropdownOpen(null)
+                                }}
+                                className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-700 flex items-center ${
+                                  user.isActive ? 'text-red-400' : 'text-green-400'
+                                }`}
+                              >
+                                {user.isActive ? <UserX className="h-4 w-4 mr-2" /> : <UserCheck className="h-4 w-4 mr-2" />}
+                                {user.isActive ? 'Devre Dışı Bırak' : 'Aktif Et'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if(confirm(`${user.name} kullanıcısını kalıcı olarak sil?`)) {
+                                    deleteUser(user.id)
+                                  }
+                                  setDropdownOpen(null)
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-700 rounded-b-lg flex items-center"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Kullanıcıyı Sil
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>

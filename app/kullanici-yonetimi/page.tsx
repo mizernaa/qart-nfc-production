@@ -47,94 +47,44 @@ export default function KullaniciYonetimiPage() {
     subscription: "Free"
   })
   
-  // Demo kullanıcı verileri
-  const [users, setUsers] = useState([
-    {
-      id: "1",
-      name: "Ahmet Yılmaz",
-      email: "ahmet@qart.app",
-      phone: "+90 555 123 4567",
-      isActive: true,
-      isAdmin: false,
-      emailVerified: true,
-      subscription: "Pro",
-      profileSlug: "ahmet-yilmaz",
-      lastLogin: "2025-01-07 14:30",
-      createdAt: "2024-12-01",
-      totalViews: 4567,
-      totalLeads: 234
-    },
-    {
-      id: "2",
-      name: "Zeynep Kaya",
-      email: "zeynep@example.com",
-      phone: "+90 555 987 6543",
-      isActive: true,
-      isAdmin: false,
-      emailVerified: true,
-      subscription: "QART Lifetime",
-      profileSlug: "zeynep-kaya",
-      lastLogin: "2025-01-07 12:15",
-      createdAt: "2024-11-15",
-      totalViews: 2890,
-      totalLeads: 156
-    },
-    {
-      id: "3",
-      name: "Mehmet Demir",
-      email: "mehmet@example.com",
-      phone: "+90 555 456 7890",
-      isActive: false,
-      isAdmin: false,
-      emailVerified: false,
-      subscription: "Free",
-      profileSlug: "mehmet-demir",
-      lastLogin: "2025-01-05 09:20",
-      createdAt: "2024-10-20",
-      totalViews: 1234,
-      totalLeads: 67
-    },
-    {
-      id: "4",
-      name: "Admin User",
-      email: "admin@qart.app",
-      phone: "+90 555 000 0000",
-      isActive: true,
-      isAdmin: true,
-      emailVerified: true,
-      subscription: "QART Lifetime",
-      profileSlug: "admin-user",
-      lastLogin: "2025-01-07 15:45",
-      createdAt: "2024-01-01",
-      totalViews: 0,
-      totalLeads: 0
-    },
-    // Daha fazla test verisi
-    ...Array.from({length: 20}, (_, i) => ({
-      id: `${i + 5}`,
-      name: `Test User ${i + 5}`,
-      email: `test${i + 5}@example.com`,
-      phone: `+90 555 ${String(i + 5).padStart(3, '0')} 0000`,
-      isActive: Math.random() > 0.3,
-      isAdmin: false,
-      emailVerified: Math.random() > 0.4,
-      subscription: ['Free', 'Pro', 'QART Lifetime'][Math.floor(Math.random() * 3)],
-      profileSlug: `test-user-${i + 5}`,
-      lastLogin: `2025-01-0${Math.floor(Math.random() * 7) + 1} ${Math.floor(Math.random() * 24)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
-      createdAt: `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-      totalViews: Math.floor(Math.random() * 10000),
-      totalLeads: Math.floor(Math.random() * 500)
-    }))
-  ])
+  // Gerçek kullanıcı verileri API'den çekilecek
+  const [users, setUsers] = useState<any[]>([])
 
   const stats = {
     totalUsers: users.length,
     activeUsers: users.filter(u => u.isActive).length,
     adminUsers: users.filter(u => u.isAdmin).length,
-    verifiedUsers: users.filter(u => u.emailVerified).length,
+    verifiedUsers: users.filter(u => u.emailVerified || u.email).length,
     proUsers: users.filter(u => u.subscription === 'Pro').length,
     businessUsers: users.filter(u => u.subscription === 'Business').length,
     freeUsers: users.filter(u => u.subscription === 'Free').length
+  }
+
+  // API'den kullanıcıları çek
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('/api/users/register')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.users) {
+          // API'den gelen kullanıcıları formatla
+          const formattedUsers = data.users.map((user: any) => ({
+            ...user,
+            profileSlug: user.name?.toLowerCase().replace(/\s+/g, '-') || 'user',
+            subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
+            totalViews: 0,
+            totalLeads: 0,
+            lastLogin: user.createdAt || new Date().toISOString(),
+            emailVerified: true
+          }))
+          setUsers(formattedUsers)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -146,6 +96,7 @@ export default function KullaniciYonetimiPage() {
         return
       }
       setUser(userData)
+      fetchUsers() // Admin ise kullanıcıları çek
     } else {
       window.location.href = "/login"
       return

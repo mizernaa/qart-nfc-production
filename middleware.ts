@@ -72,6 +72,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/static') ||
     pathname === '/' ||
     pathname === '/login' ||
+    pathname === '/kayit-ol' ||
+    pathname === '/api/users/register' ||
     pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js|woff|woff2|ttf|eot)$/)
   ) {
     return response

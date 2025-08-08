@@ -71,40 +71,13 @@ export default function MainDashboardPage() {
   const [copySuccess, setCopySuccess] = useState(false)
   const qrRef = useRef<HTMLDivElement>(null)
 
-  // Profil Data
-  const [profile, setProfile] = useState({
-    // Üyelik Bilgileri
-    isPremium: true,
-    subscriptionPlan: "QART Lifetime",
-    subscriptionDate: "2024-12-01",
-    
-    // Şirket Bilgileri
-    companyName: "HD Elektrik",
-    companyLegalName: "HD Elektrik Limited Şirketi",
-    taxOffice: "Kadıköy Vergi Dairesi",
-    taxNumber: "9876543210",
-    
-    // Kişisel Bilgiler
-    name: "Hüseyin Demir",
-    title: "Elektrik Mühendisi",
-    bio: "20+ yıllık deneyimli Elektrik Mühendisi. Endüstriyel elektrik ve otomasyon sistemleri uzmanı.",
-    
-    // İletişim
-    phone: "+90 555 987 6543",
-    whatsapp: "+90 555 987 6543",
-    email: "huseyin@hdelektrik.com",
-    website: "https://hdelektrik.com",
-    
-    // Adres
-    address: "Bağdat Caddesi, Elektrikçiler Sokak No:23",
-    city: "İstanbul",
-    country: "Türkiye",
-    
-    // Diğer
-    slug: "huseyin-demir",
-    profileImage: "/api/placeholder/150/150",
-    theme: "modern",
-    isPublic: true
+  // Profil Data - API'den çekilir
+  const [profile, setProfile] = useState<any>({
+    name: "",
+    email: "",
+    slug: "",
+    isPremium: false,
+    subscriptionPlan: "Free"
   })
 
   // Detaylı Analytics Verileri - API'den çekilir
@@ -175,6 +148,21 @@ export default function MainDashboardPage() {
     ]
   })
 
+  // Kullanıcı profilini API'den çek
+  const fetchUserProfile = async (userEmail: string) => {
+    try {
+      const response = await fetch(`/api/user/profile?email=${encodeURIComponent(userEmail)}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setProfile(data.profile)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  }
+
   // Kullanıcı analitiklerini API'den çek
   const fetchUserAnalytics = async (userEmail: string) => {
     try {
@@ -210,6 +198,7 @@ export default function MainDashboardPage() {
         } else {
           // Normal kullanıcı
           setUser(userData)
+          fetchUserProfile(userData.email) // Kullanıcı profilini çek
           fetchUserAnalytics(userData.email) // Kullanıcı analitiklerini çek
         }
       } catch (error) {
@@ -245,6 +234,7 @@ export default function MainDashboardPage() {
   const handleRefresh = async () => {
     setRefreshing(true)
     if (user?.email) {
+      await fetchUserProfile(user.email) // Profili yenile
       await fetchUserAnalytics(user.email) // Analitikleri yenile
     }
     await new Promise(resolve => setTimeout(resolve, 1000))

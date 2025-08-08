@@ -92,8 +92,56 @@ export default function PublicProfilePage() {
   const [showAllServices, setShowAllServices] = useState(false)
   const [activeTestimonial, setActiveTestimonial] = useState(0)
   
-  // Profil verileri - Visibility ayarları ile birlikte
-  const [profile] = useState({
+  // Profil verileri - API'den çekilir
+  const [profile, setProfile] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Profil verilerini API'den çek
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!slug) return
+      
+      try {
+        const response = await fetch(`/api/profile/${slug}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            setProfile(data.profile)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProfile()
+  }, [slug])
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    )
+  }
+
+  // Profile not found
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-2">Profil Bulunamadı</h1>
+          <p className="text-gray-400">Bu profil mevcut değil.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Hardcoded visibility settings for now
+  const defaultProfile = {
     slug: slug,
     // Üyelik Bilgileri
     isPremium: true,

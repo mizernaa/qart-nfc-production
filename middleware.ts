@@ -66,8 +66,8 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Stats API routes - dashboard internal kullanımı için public
-  if (pathname === '/api/stats' || pathname.startsWith('/api/user/stats')) {
+  // Stats ve Profile API routes - dashboard internal kullanımı için public
+  if (pathname === '/api/stats' || pathname.startsWith('/api/user/stats') || pathname.startsWith('/api/user/profile') || pathname.startsWith('/api/profile/')) {
     return response
   }
 

@@ -48,52 +48,58 @@ export default function AdminPanel() {
   const [selectedPeriod, setSelectedPeriod] = useState("today")
   const [refreshing, setRefreshing] = useState(false)
 
-  // Admin istatistikleri
-  const stats = {
+  // Admin istatistikleri - API'den çekilir
+  const [stats, setStats] = useState({
     users: {
-      total: 127,
-      active: 89,
-      inactive: 38,
-      premium: 42,
-      growth: 12.5
+      total: 0,
+      active: 0,
+      inactive: 0,
+      premium: 0,
+      growth: 0
     },
     revenue: {
-      total: 98750,
-      monthly: 15600,
-      today: 2399,
-      growth: 8.3
+      total: 0,
+      monthly: 0,
+      today: 0,
+      growth: 0
     },
     system: {
       uptime: 99.9,
-      cpu: 45,
-      memory: 62,
-      storage: 73,
-      requests: 1234567
+      cpu: 0,
+      memory: 0,
+      storage: 0,
+      requests: 0
     },
     activities: {
-      newUsers: 7,
-      newOrders: 12,
-      supportTickets: 5,
-      systemAlerts: 2
+      newUsers: 0,
+      newOrders: 0,
+      supportTickets: 0,
+      systemAlerts: 0
+    }
+  })
+
+  // Son kullanıcı aktiviteleri - API'den çekilir
+  const [recentActivities, setRecentActivities] = useState<any[]>([])
+
+  // Son siparişler - API'den çekilir
+  const [recentOrders, setRecentOrders] = useState<any[]>([])
+
+  // İstatistikleri API'den çek
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/stats')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setStats(data.stats)
+          setRecentActivities(data.stats.recentActivities || [])
+          setRecentOrders(data.stats.recentOrders || [])
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error)
     }
   }
-
-  // Son kullanıcı aktiviteleri
-  const recentActivities = [
-    { id: 1, user: "Ahmet Yılmaz", action: "Yeni hesap oluşturdu", time: "5 dk önce", type: "success" },
-    { id: 2, user: "Mehmet Demir", action: "Premium plan satın aldı", time: "15 dk önce", type: "premium" },
-    { id: 3, user: "Ayşe Kaya", action: "Profil güncelledi", time: "1 saat önce", type: "info" },
-    { id: 4, user: "Fatma Öz", action: "Destek talebi açtı", time: "2 saat önce", type: "warning" },
-    { id: 5, user: "Ali Çelik", action: "Hesabını kapattı", time: "3 saat önce", type: "danger" }
-  ]
-
-  // Son siparişler
-  const recentOrders = [
-    { id: "#12345", customer: "Hüseyin Demir", plan: "QART Lifetime", amount: 799, status: "completed", date: "2024-01-15" },
-    { id: "#12344", customer: "Zeynep Ak", plan: "QART Lifetime", amount: 799, status: "pending", date: "2024-01-15" },
-    { id: "#12343", customer: "Mustafa Yıldız", plan: "QART Lifetime", amount: 799, status: "completed", date: "2024-01-14" },
-    { id: "#12342", customer: "Elif Kara", plan: "QART Lifetime", amount: 799, status: "refunded", date: "2024-01-14" }
-  ]
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user")
@@ -104,6 +110,7 @@ export default function AdminPanel() {
         return
       }
       setUser(userData)
+      fetchStats() // İstatistikleri çek
     } else {
       router.push("/login")
       return
@@ -113,6 +120,7 @@ export default function AdminPanel() {
 
   const handleRefresh = async () => {
     setRefreshing(true)
+    await fetchStats() // İstatistikleri yenile
     await new Promise(resolve => setTimeout(resolve, 1000))
     setRefreshing(false)
   }

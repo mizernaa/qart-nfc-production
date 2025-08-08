@@ -107,72 +107,87 @@ export default function MainDashboardPage() {
     isPublic: true
   })
 
-  // Detaylı Analytics Verileri
-  const analytics = {
+  // Detaylı Analytics Verileri - API'den çekilir
+  const [analytics, setAnalytics] = useState({
     // Özet İstatistikler
     overview: {
-      totalViews: 4567,
-      viewsToday: 123,
-      viewsThisWeek: 789,
-      viewsThisMonth: 2345,
-      uniqueVisitors: 3456,
-      averageSessionDuration: 145,
-      bounceRate: 32.5,
-      conversionRate: 5.1,
-      profileShares: 89,
-      contactClicks: 567,
+      totalViews: 0,
+      viewsToday: 0,
+      viewsThisWeek: 0,
+      viewsThisMonth: 0,
+      uniqueVisitors: 0,
+      averageSessionDuration: 0,
+      bounceRate: 0,
+      conversionRate: 0,
+      profileShares: 0,
+      contactClicks: 0,
       growth: {
-        views: 12.5,
-        visitors: 8.3,
-        clicks: 15.2,
-        duration: -5.1
+        views: 0,
+        visitors: 0,
+        clicks: 0,
+        duration: 0
       }
     },
 
     // Son 7 günlük trend
     viewsTrend: [
-      { date: "Pzt", views: 95, visitors: 78 },
-      { date: "Sal", views: 102, visitors: 85 },
-      { date: "Çrş", views: 87, visitors: 71 },
-      { date: "Prş", views: 134, visitors: 98 },
-      { date: "Cum", views: 156, visitors: 112 },
-      { date: "Cmt", views: 178, visitors: 134 },
-      { date: "Paz", views: 123, visitors: 95 }
+      { date: "Pzt", views: 0, visitors: 0 },
+      { date: "Sal", views: 0, visitors: 0 },
+      { date: "Çrş", views: 0, visitors: 0 },
+      { date: "Prş", views: 0, visitors: 0 },
+      { date: "Cum", views: 0, visitors: 0 },
+      { date: "Cmt", views: 0, visitors: 0 },
+      { date: "Paz", views: 0, visitors: 0 }
     ],
 
     // Cihaz dağılımı
     deviceStats: [
-      { device: "Mobil", views: 2890, percentage: 63.3, icon: Smartphone, color: "bg-blue-500" },
-      { device: "Masaüstü", views: 1456, percentage: 31.9, icon: Monitor, color: "bg-gray-500" },
-      { device: "Tablet", views: 221, percentage: 4.8, icon: Tablet, color: "bg-purple-500" }
+      { device: "Mobil", views: 0, percentage: 0, icon: Smartphone, color: "bg-blue-500" },
+      { device: "Masaüstü", views: 0, percentage: 0, icon: Monitor, color: "bg-gray-500" },
+      { device: "Tablet", views: 0, percentage: 0, icon: Tablet, color: "bg-purple-500" }
     ],
 
     // Ülke dağılımı
     countryStats: [
-      { country: "Türkiye", views: 2345, percentage: 51.3, flag: "🇹🇷" },
-      { country: "Almanya", views: 987, percentage: 21.6, flag: "🇩🇪" },
-      { country: "ABD", views: 567, percentage: 12.4, flag: "🇺🇸" },
-      { country: "İngiltere", views: 234, percentage: 5.1, flag: "🇬🇧" },
-      { country: "Fransa", views: 178, percentage: 3.9, flag: "🇫🇷" }
+      { country: "Türkiye", views: 0, percentage: 0, flag: "🇹🇷" },
+      { country: "Almanya", views: 0, percentage: 0, flag: "🇩🇪" },
+      { country: "ABD", views: 0, percentage: 0, flag: "🇺🇸" },
+      { country: "İngiltere", views: 0, percentage: 0, flag: "🇬🇧" },
+      { country: "Fransa", views: 0, percentage: 0, flag: "🇫🇷" }
     ],
 
     // Sosyal medya tıklamaları
     socialClicks: [
-      { platform: "LinkedIn", clicks: 234, percentage: 35.2, icon: Linkedin, color: "text-blue-600" },
-      { platform: "Instagram", clicks: 178, percentage: 26.8, icon: Instagram, color: "text-pink-600" },
-      { platform: "WhatsApp", clicks: 134, percentage: 20.2, icon: Phone, color: "text-green-600" },
-      { platform: "GitHub", clicks: 78, percentage: 11.7, icon: Github, color: "text-gray-800" },
-      { platform: "Twitter", clicks: 41, percentage: 6.1, icon: Twitter, color: "text-sky-500" }
+      { platform: "LinkedIn", clicks: 0, percentage: 0, icon: Linkedin, color: "text-blue-600" },
+      { platform: "Instagram", clicks: 0, percentage: 0, icon: Instagram, color: "text-pink-600" },
+      { platform: "WhatsApp", clicks: 0, percentage: 0, icon: Phone, color: "text-green-600" },
+      { platform: "GitHub", clicks: 0, percentage: 0, icon: Github, color: "text-gray-800" },
+      { platform: "Twitter", clicks: 0, percentage: 0, icon: Twitter, color: "text-sky-500" }
     ],
 
     // Trafik kaynakları
     referrerStats: [
-      { source: "Direkt Erişim", views: 1567, percentage: 34.3 },
-      { source: "QR Kod", views: 1234, percentage: 27.0 },
-      { source: "LinkedIn", views: 789, percentage: 17.3 },
-      { source: "Instagram", views: 456, percentage: 10.0 },
-      { source: "Google", views: 234, percentage: 5.1 }
+      { source: "Direkt Erişim", views: 0, percentage: 0 },
+      { source: "QR Kod", views: 0, percentage: 0 },
+      { source: "LinkedIn", views: 0, percentage: 0 },
+      { source: "Instagram", views: 0, percentage: 0 },
+      { source: "Google", views: 0, percentage: 0 }
     ]
+  })
+
+  // Kullanıcı analitiklerini API'den çek
+  const fetchUserAnalytics = async (userEmail: string) => {
+    try {
+      const response = await fetch(`/api/user/stats?email=${encodeURIComponent(userEmail)}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setAnalytics(data.analytics)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user analytics:', error)
+    }
   }
 
   useEffect(() => {
@@ -195,6 +210,7 @@ export default function MainDashboardPage() {
         } else {
           // Normal kullanıcı
           setUser(userData)
+          fetchUserAnalytics(userData.email) // Kullanıcı analitiklerini çek
         }
       } catch (error) {
         console.error("Error parsing user data:", error)
@@ -228,6 +244,9 @@ export default function MainDashboardPage() {
 
   const handleRefresh = async () => {
     setRefreshing(true)
+    if (user?.email) {
+      await fetchUserAnalytics(user.email) // Analitikleri yenile
+    }
     await new Promise(resolve => setTimeout(resolve, 1000))
     setRefreshing(false)
   }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { userStore } from "@/lib/user-store"
+import { fileUserStore } from "@/lib/file-user-store"
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     console.log("🔐 Login attempt:", email)
 
     // Kullanıcı doğrulama
-    const user = await userStore.verifyPassword(email, password)
+    const user = await fileUserStore.verifyPassword(email, password)
     
     if (!user) {
       console.log("❌ Invalid credentials for:", email)

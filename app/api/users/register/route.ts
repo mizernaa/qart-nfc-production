@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { userStore } from "@/lib/user-store"
+import { fileUserStore } from "@/lib/file-user-store"
 
 // Validation schema
 const registerSchema = z.object({
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const { email, password, name, isAdmin } = validation.data
 
     // Email kontrolü
-    const existingUser = userStore.findByEmail(email)
+    const existingUser = fileUserStore.findByEmail(email)
     if (existingUser) {
       return NextResponse.json(
         { success: false, message: "Bu email zaten kullanımda" },
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Yeni kullanıcı oluştur
-    const newUser = await userStore.addUser({
+    const newUser = await fileUserStore.addUser({
       email,
       password,
       name,
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 // Tüm kullanıcıları getir (admin için)
 export async function GET(request: NextRequest) {
   try {
-    const users = userStore.getAllUsers()
+    const users = fileUserStore.getAllUsers()
 
     return NextResponse.json({
       success: true,

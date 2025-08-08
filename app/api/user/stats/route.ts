@@ -74,9 +74,9 @@ export async function GET(request: NextRequest) {
       
       // Cihaz dağılımı
       deviceStats: [
-        { device: "Mobil", views: Math.floor(Math.random() * 100) + 50, percentage: 65, color: "bg-blue-500" },
-        { device: "Masaüstü", views: Math.floor(Math.random() * 60) + 20, percentage: 25, color: "bg-gray-500" },
-        { device: "Tablet", views: Math.floor(Math.random() * 30) + 5, percentage: 10, color: "bg-purple-500" }
+        { device: "Mobil", views: Math.floor(Math.random() * 100) + 50, percentage: 65 },
+        { device: "Masaüstü", views: Math.floor(Math.random() * 60) + 20, percentage: 25 },
+        { device: "Tablet", views: Math.floor(Math.random() * 30) + 5, percentage: 10 }
       ],
       
       // Ülke dağılımı

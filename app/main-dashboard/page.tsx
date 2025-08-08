@@ -750,7 +750,27 @@ export default function MainDashboardPage() {
                 </h3>
                 <div className="space-y-4">
                   {analytics.deviceStats.map((device) => {
-                    const Icon = device.icon
+                    const getDeviceIcon = (deviceName: string) => {
+                      switch(deviceName) {
+                        case 'Mobil': return Smartphone
+                        case 'Masaüstü': return Monitor  
+                        case 'Tablet': return Tablet
+                        default: return Monitor
+                      }
+                    }
+                    
+                    const getDeviceColor = (deviceName: string) => {
+                      switch(deviceName) {
+                        case 'Mobil': return 'bg-blue-500'
+                        case 'Masaüstü': return 'bg-gray-500'
+                        case 'Tablet': return 'bg-purple-500'
+                        default: return 'bg-gray-500'
+                      }
+                    }
+                    
+                    const Icon = getDeviceIcon(device.device)
+                    const colorClass = getDeviceColor(device.device)
+                    
                     return (
                       <div key={device.device}>
                         <div className="flex items-center justify-between mb-2">
@@ -762,7 +782,7 @@ export default function MainDashboardPage() {
                         </div>
                         <div className="w-full bg-gray-800 rounded-full h-2">
                           <div 
-                            className={`h-2 rounded-full ${device.color}`}
+                            className={`h-2 rounded-full ${colorClass}`}
                             style={{ width: `${device.percentage}%` }}
                           />
                         </div>
@@ -805,11 +825,35 @@ export default function MainDashboardPage() {
                 </h3>
                 <div className="space-y-3">
                   {analytics.socialClicks.map((social) => {
-                    const Icon = social.icon
+                    const getSocialIcon = (platform: string) => {
+                      switch(platform) {
+                        case 'LinkedIn': return Linkedin
+                        case 'Instagram': return Instagram
+                        case 'WhatsApp': return Phone
+                        case 'GitHub': return Github
+                        case 'Twitter': return Twitter
+                        default: return Link2
+                      }
+                    }
+                    
+                    const getSocialColor = (platform: string) => {
+                      switch(platform) {
+                        case 'LinkedIn': return 'text-blue-600'
+                        case 'Instagram': return 'text-pink-600'
+                        case 'WhatsApp': return 'text-green-600'
+                        case 'GitHub': return 'text-gray-400'
+                        case 'Twitter': return 'text-sky-500'
+                        default: return 'text-gray-400'
+                      }
+                    }
+                    
+                    const Icon = getSocialIcon(social.platform)
+                    const colorClass = getSocialColor(social.platform)
+                    
                     return (
                       <div key={social.platform} className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <Icon className={`h-4 w-4 mr-2 ${social.color}`} />
+                          <Icon className={`h-4 w-4 mr-2 ${colorClass}`} />
                           <span className="text-sm text-gray-300">{social.platform}</span>
                         </div>
                         <div className="text-right">

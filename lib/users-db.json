@@ -17,6 +17,15 @@
       "isAdmin": false,
       "isActive": true,
       "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "1754666422379",
+      "email": "omeraytac@gmail.com",
+      "password": "$2b$12$okOJwKsKgPvdKfqeKOLjBefniE/2TKkL.HnJ00iZRKajqWHH2AH3.",
+      "name": "omer",
+      "isAdmin": false,
+      "isActive": true,
+      "createdAt": "2025-08-08T15:20:22.379Z"
     }
   ]
 }

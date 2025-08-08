@@ -338,7 +338,7 @@ export default function AdminPanel() {
             </div>
             <div className="p-4">
               <div className="space-y-3">
-                {recentActivities.map((activity) => (
+                {recentActivities && recentActivities.length > 0 ? recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div className={`p-2 rounded-lg ${
@@ -361,7 +361,11 @@ export default function AdminPanel() {
                     </div>
                     <span className="text-xs text-gray-500">{activity.time}</span>
                   </div>
-                ))}
+                )) : (
+                  <div className="p-3 text-center text-gray-400">
+                    Henüz aktivite yok
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -379,7 +383,7 @@ export default function AdminPanel() {
             </div>
             <div className="p-4">
               <div className="space-y-3">
-                {recentOrders.map((order) => (
+                {recentOrders && recentOrders.length > 0 ? recentOrders.map((order) => (
                   <div key={order.id} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                     <div className="flex items-center space-x-3">
                       <div>
@@ -399,7 +403,11 @@ export default function AdminPanel() {
                       </span>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="p-3 text-center text-gray-400">
+                    Henüz sipariş yok
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import Link from "next/link"
 import QRCode from "qrcode"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
@@ -170,7 +171,35 @@ export default function MainDashboardPage() {
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
-          setAnalytics(data.analytics)
+          // API'den gelen veriyi mevcut analytics ile birleştir
+          setAnalytics(prevAnalytics => ({
+            ...prevAnalytics,
+            ...data.analytics,
+            // Device stats'i doğru icon mapping ile güncelle
+            deviceStats: data.analytics.deviceStats?.map((device: any) => ({
+              ...device,
+              icon: device.device === 'Mobil' ? Smartphone : 
+                    device.device === 'Masaüstü' ? Monitor : 
+                    device.device === 'Tablet' ? Tablet : Monitor,
+              color: device.device === 'Mobil' ? 'bg-blue-500' : 
+                     device.device === 'Masaüstü' ? 'bg-gray-500' : 
+                     device.device === 'Tablet' ? 'bg-purple-500' : 'bg-gray-500'
+            })) || prevAnalytics.deviceStats,
+            // Social clicks'i doğru icon mapping ile güncelle
+            socialClicks: data.analytics.socialClicks?.map((social: any) => ({
+              ...social,
+              icon: social.platform === 'LinkedIn' ? Linkedin : 
+                    social.platform === 'Instagram' ? Instagram : 
+                    social.platform === 'WhatsApp' ? Phone : 
+                    social.platform === 'GitHub' ? Github : 
+                    social.platform === 'Twitter' ? Twitter : Link2,
+              color: social.platform === 'LinkedIn' ? 'text-blue-600' : 
+                     social.platform === 'Instagram' ? 'text-pink-600' : 
+                     social.platform === 'WhatsApp' ? 'text-green-600' : 
+                     social.platform === 'GitHub' ? 'text-gray-400' : 
+                     social.platform === 'Twitter' ? 'text-sky-500' : 'text-gray-400'
+            })) || prevAnalytics.socialClicks
+          }))
         }
       }
     } catch (error) {
@@ -433,7 +462,7 @@ export default function MainDashboardPage() {
       <div className="bg-black/50 backdrop-blur-md border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <div className="flex items-center space-x-4">
+            <Link href="/main-dashboard" className="flex items-center space-x-4 hover:bg-gray-800/30 rounded-lg p-2 transition">
               <div className="h-10 w-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Zap className="h-6 w-6 text-white" />
               </div>
@@ -441,7 +470,7 @@ export default function MainDashboardPage() {
                 <h1 className="text-2xl font-bold text-white">QART Dashboard</h1>
                 <p className="text-gray-400 text-sm">Profesyonel Dijital Kartvizit Yönetimi</p>
               </div>
-            </div>
+            </Link>
             <div className="flex items-center space-x-3">
               <button
                 onClick={handleRefresh}

@@ -11,9 +11,10 @@ import {
 } from "lucide-react"
 
 export default function ProfileManagementPage() {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState("personal")
+  const [user, setUser] = useState<any>(null)
 
   // Comprehensive Profile Data
   const [profileData, setProfileData] = useState({
@@ -27,44 +28,44 @@ export default function ProfileManagementPage() {
     
     // Kişisel Bilgiler
     personal: {
-      name: "Hüseyin Demir",
-      title: "Elektrik Mühendisi",
-      bio: "20+ yıllık deneyimli Elektrik Mühendisi. Endüstriyel elektrik ve otomasyon sistemleri uzmanı.",
+      name: "",
+      title: "",
+      bio: "",
       profileImage: "",
       coverImage: ""
     },
 
     // Şirket Bilgileri
     company: {
-      name: "HD Elektrik",
-      legalName: "HD Elektrik Limited Şirketi",
+      name: "",
+      legalName: "",
       logo: "",
-      slogan: "Güvenilir Elektrik Çözümleri",
-      description: "2005'ten beri kaliteli elektrik ve otomasyon hizmetleri",
-      foundedYear: "2005",
-      employeeCount: "15+",
-      sector: "Elektrik & Otomasyon"
+      slogan: "",
+      description: "",
+      foundedYear: "",
+      employeeCount: "",
+      sector: ""
     },
 
     // İletişim Bilgileri
     contact: {
-      phone: "+90 555 987 6543",
-      alternativePhone: "+90 212 555 6789",
-      whatsapp: "+90 555 987 6543",
-      email: "huseyin@hdelektrik.com",
-      alternativeEmail: "info@hdelektrik.com",
-      website: "https://hdelektrik.com",
+      phone: "",
+      alternativePhone: "",
+      whatsapp: "",
+      email: "",
+      alternativeEmail: "",
+      website: "",
       addToContactsEnabled: true
     },
 
     // Adres & Lokasyon
     location: {
-      address: "Bağdat Caddesi, Elektrikçiler Sokak No:23",
-      city: "İstanbul",
-      district: "Kadıköy",
+      address: "",
+      city: "",
+      district: "",
       country: "Türkiye",
-      postalCode: "34710",
-      googleMapsUrl: "https://maps.google.com/?q=40.9849,29.0293",
+      postalCode: "",
+      googleMapsUrl: "",
       workingHours: {
         weekdays: "09:00 - 18:00",
         saturday: "09:00 - 14:00",
@@ -74,11 +75,11 @@ export default function ProfileManagementPage() {
 
     // Sosyal Medya
     socialMedia: [
-      { platform: "LinkedIn", url: "https://linkedin.com/company/hdelektrik", enabled: true },
-      { platform: "Instagram", url: "https://instagram.com/hdelektrik", enabled: true },
-      { platform: "Facebook", url: "https://facebook.com/hdelektrik", enabled: true },
-      { platform: "Twitter", url: "https://twitter.com/hdelektrik", enabled: false },
-      { platform: "YouTube", url: "https://youtube.com/hdelektrik", enabled: true },
+      { platform: "LinkedIn", url: "", enabled: false },
+      { platform: "Instagram", url: "", enabled: false },
+      { platform: "Facebook", url: "", enabled: false },
+      { platform: "Twitter", url: "", enabled: false },
+      { platform: "YouTube", url: "", enabled: false },
       { platform: "GitHub", url: "", enabled: false }
     ],
 
@@ -92,11 +93,11 @@ export default function ProfileManagementPage() {
 
     // Google İşletme
     googleBusiness: {
-      reviewsUrl: "https://g.page/hdelektrik/review",
-      rating: 4.8,
-      reviewCount: 127,
-      embedded: true,
-      showReviews: true
+      reviewsUrl: "",
+      rating: 0,
+      reviewCount: 0,
+      embedded: false,
+      showReviews: false
     },
 
     // E-Ticaret
@@ -104,99 +105,114 @@ export default function ProfileManagementPage() {
       shopUrl: "",
       products: [],
       catalogUrl: "",
-      whatsappCatalog: true
+      whatsappCatalog: false
     },
 
     // Fatura Bilgileri
     billing: {
-      companyTitle: "HD Elektrik Limited Şirketi",
-      taxOffice: "Kadıköy Vergi Dairesi",
-      taxNumber: "9876543210",
-      tradeRegisterNo: "654321",
-      mersisNo: "5432109876543210",
-      address: "Bağdat Cad. No:23 Kadıköy/İstanbul"
+      companyTitle: "",
+      taxOffice: "",
+      taxNumber: "",
+      tradeRegisterNo: "",
+      mersisNo: "",
+      address: ""
     },
 
     // Banka Bilgileri
     banking: [
-      { bankName: "Ziraat Bankası", iban: "TR12 3456 7890 1234 5678 9012 34", accountName: "HD Elektrik Ltd. Şti.", enabled: true },
-      { bankName: "İş Bankası", iban: "TR98 7654 3210 9876 5432 1098 76", accountName: "HD Elektrik Ltd. Şti.", enabled: true },
-      { bankName: "Garanti BBVA", iban: "", accountName: "", enabled: false }
+      { bankName: "", iban: "", accountName: "", enabled: false },
+      { bankName: "", iban: "", accountName: "", enabled: false },
+      { bankName: "", iban: "", accountName: "", enabled: false }
     ],
 
     // Deneyim & Eğitim
-    experience: [
-      { 
-        title: "Kurucu & Genel Müdür",
-        company: "HD Elektrik",
-        period: "2005 - Devam",
-        description: "Elektrik tesisat ve otomasyon projeleri yönetimi"
-      },
-      {
-        title: "Proje Müdürü",
-        company: "Mega Elektrik A.Ş.",
-        period: "2000 - 2005",
-        description: "Endüstriyel elektrik projeleri"
-      }
-    ],
+    experience: [],
 
-    education: [
-      {
-        degree: "Elektrik Mühendisliği",
-        school: "İstanbul Teknik Üniversitesi",
-        year: "1995 - 2000"
-      },
-      {
-        degree: "Yüksek Lisans - Otomasyon Sistemleri",
-        school: "Yıldız Teknik Üniversitesi",
-        year: "2002 - 2004"
-      }
-    ],
+    education: [],
 
     // Şirket Özellikleri
-    features: [
-      { icon: "shield", title: "Sigortalı Hizmet", description: "Tüm işlerimiz sigortalıdır" },
-      { icon: "award", title: "Lisanslı Ekip", description: "EMO belgeli mühendisler" },
-      { icon: "clock", title: "7/24 Destek", description: "Acil durum hizmeti" },
-      { icon: "check", title: "Garanti", description: "2 yıl işçilik garantisi" }
-    ],
+    features: [],
 
     // Hizmetler
-    services: [
-      { 
-        title: "Elektrik Tesisatı",
-        description: "Komple elektrik tesisatı kurulumu",
-        price: "Fiyat alın",
-        icon: "zap"
-      },
-      {
-        title: "Otomasyon Sistemleri",
-        description: "Akıllı ev ve endüstriyel otomasyon",
-        price: "Proje bazlı",
-        icon: "cpu"
-      },
-      {
-        title: "Arıza Tespit & Onarım",
-        description: "7/24 arıza müdahale",
-        price: "₺500'den başlayan",
-        icon: "tool"
-      },
-      {
-        title: "Periyodik Bakım",
-        description: "Yıllık bakım anlaşmaları",
-        price: "Yıllık anlaşma",
-        icon: "calendar"
-      }
-    ]
+    services: []
   })
 
-  const handleSave = async () => {
-    setLoading(true)
-    // Simulated save
-    await new Promise(resolve => setTimeout(resolve, 1000))
+  // Kullanıcı ve profil verilerini çek
+  const fetchUserProfile = async (userEmail: string) => {
+    try {
+      const response = await fetch(`/api/user/profile?email=${encodeURIComponent(userEmail)}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          // API'den gelen temel profil bilgilerini set et
+          setProfileData(prevData => ({
+            ...prevData,
+            personal: {
+              ...prevData.personal,
+              name: data.profile.name || "",
+              title: data.profile.title || "",
+              bio: data.profile.bio || ""
+            },
+            contact: {
+              ...prevData.contact,
+              email: data.profile.email || ""
+            },
+            subscription: {
+              ...prevData.subscription,
+              isPremium: data.profile.isPremium || false,
+              plan: data.profile.subscriptionPlan || "Free"
+            }
+          }))
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  }
+
+  // Component mount olduğunda kullanıcı verilerini çek
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user")
+    
+    if (savedUser) {
+      try {
+        const userData = JSON.parse(savedUser)
+        setUser(userData)
+        
+        // Kullanıcı profil bilgilerini API'den çek
+        fetchUserProfile(userData.email)
+      } catch (error) {
+        console.error("Error parsing user data:", error)
+        window.location.href = "/login"
+        return
+      }
+    } else {
+      window.location.href = "/login"
+      return
+    }
+    
     setLoading(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+  }, [])
+
+  const handleSave = async () => {
+    if (!user?.email) return
+    
+    setLoading(true)
+    try {
+      // Profil güncelleme API çağrısı (gelecekte implementasyon)
+      console.log("Saving profile data:", profileData)
+      
+      // Simulated save for now
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch (error) {
+      console.error("Error saving profile:", error)
+      alert("Profil kaydedilirken bir hata oluştu!")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const tabs = [
@@ -215,6 +231,18 @@ export default function ProfileManagementPage() {
     { id: "features", label: "Özellikler", icon: Award },
     { id: "services", label: "Hizmetler", icon: Package }
   ]
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          <p className="text-gray-400">Profil bilgileri yükleniyor...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">

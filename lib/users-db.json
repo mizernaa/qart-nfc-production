@@ -26,6 +26,24 @@
       "isAdmin": false,
       "isActive": true,
       "createdAt": "2025-08-08T15:20:22.379Z"
+    },
+    {
+      "id": "1754669613010",
+      "email": "omer.aytac@hotmail.com",
+      "password": "$2b$12$FZDJaucuRJql9AZ0uB9zCu2ZRI7bLE/MgL5PwX6uz6tJnbr7wxrbu",
+      "name": "ömer aytaç",
+      "isAdmin": false,
+      "isActive": true,
+      "createdAt": "2025-08-08T16:13:33.010Z"
+    },
+    {
+      "id": "1754680654240",
+      "email": "omeraytac@gmail.com.tr",
+      "password": "$2b$12$teH48MrZfCRMVYE3n8MVaemnthcpRDL71D5dFSXCkhDvKDfgNH8Em",
+      "name": "ömer aytaç",
+      "isAdmin": false,
+      "isActive": true,
+      "createdAt": "2025-08-08T19:17:34.240Z"
     }
   ]
 }

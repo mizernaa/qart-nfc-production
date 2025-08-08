@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { 
   Users, 
   BarChart3, 
@@ -146,15 +147,15 @@ export default function AdminPanel() {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-red-600/20 rounded-lg">
-                  <Shield className="h-6 w-6 text-red-500" />
+              <Link href="/admin-panel" className="flex items-center space-x-3 hover:bg-gray-800/50 rounded-lg p-2 transition">
+                <div className="p-2 bg-blue-600/20 rounded-lg">
+                  <Zap className="h-6 w-6 text-blue-400" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-white">Admin Panel</h1>
+                  <h1 className="text-xl font-bold text-white">QART Admin</h1>
                   <p className="text-xs text-gray-400">Sistem Yönetimi</p>
                 </div>
-              </div>
+              </Link>
             </div>
 
             <div className="flex items-center space-x-4">
@@ -290,30 +291,34 @@ export default function AdminPanel() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <a href="/kullanici-yonetimi" className="bg-gray-900/50 hover:bg-gray-900/70 rounded-xl p-4 border border-gray-800 transition group">
+          <Link href="/kullanici-yonetimi" className="bg-gray-900/50 hover:bg-gray-900/70 rounded-xl p-4 border border-gray-800 transition group">
             <div className="flex items-center space-x-3">
               <Users className="h-5 w-5 text-blue-400 group-hover:scale-110 transition" />
               <span className="text-sm font-medium text-gray-300">Kullanıcı Yönetimi</span>
             </div>
-          </a>
-          <a href="/sistem-ayarlari" className="bg-gray-900/50 hover:bg-gray-900/70 rounded-xl p-4 border border-gray-800 transition group">
+          </Link>
+          <Link href="/sistem-ayarlari" className="bg-gray-900/50 hover:bg-gray-900/70 rounded-xl p-4 border border-gray-800 transition group">
             <div className="flex items-center space-x-3">
               <Settings className="h-5 w-5 text-purple-400 group-hover:scale-110 transition" />
               <span className="text-sm font-medium text-gray-300">Sistem Ayarları</span>
             </div>
-          </a>
-          <a href="/detayli-analiz" className="bg-gray-900/50 hover:bg-gray-900/70 rounded-xl p-4 border border-gray-800 transition group">
+          </Link>
+          <Link href="/detayli-analiz" className="bg-gray-900/50 hover:bg-gray-900/70 rounded-xl p-4 border border-gray-800 transition group">
             <div className="flex items-center space-x-3">
               <BarChart3 className="h-5 w-5 text-green-400 group-hover:scale-110 transition" />
               <span className="text-sm font-medium text-gray-300">Detaylı Analiz</span>
             </div>
-          </a>
+          </Link>
           <button 
             onClick={() => {
-              // Admin'i geçici olarak normal kullanıcı gibi davranması için işaretle
-              const user = JSON.parse(localStorage.getItem("user") || "{}")
-              localStorage.setItem("adminViewAsCustomer", "true")
-              window.location.href = "/customer-view"
+              // Admin müşteri görünümünü görmek için main dashboard'a yönlendir
+              const currentUser = JSON.parse(localStorage.getItem("user") || "{}")
+              // Geçici kullanıcı olarak işaretle
+              localStorage.setItem("tempUser", JSON.stringify(currentUser))
+              // Demo user olarak görünümü ayarla
+              const demoUser = { ...currentUser, isAdmin: false, name: "Demo User", email: "demo@qart.app" }
+              localStorage.setItem("user", JSON.stringify(demoUser))
+              router.push("/main-dashboard")
             }}
             className="bg-gray-900/50 hover:bg-gray-900/70 rounded-xl p-4 border border-gray-800 transition group"
           >
@@ -333,7 +338,12 @@ export default function AdminPanel() {
                   <Activity className="h-5 w-5 mr-2 text-blue-400" />
                   Son Aktiviteler
                 </h2>
-                <button className="text-xs text-gray-400 hover:text-gray-300">Tümünü Gör</button>
+                <button 
+                  onClick={() => router.push("/kullanici-yonetimi")}
+                  className="text-xs text-gray-400 hover:text-gray-300 transition"
+                >
+                  Tümünü Gör
+                </button>
               </div>
             </div>
             <div className="p-4">
@@ -378,7 +388,12 @@ export default function AdminPanel() {
                   <CreditCard className="h-5 w-5 mr-2 text-green-400" />
                   Son Siparişler
                 </h2>
-                <button className="text-xs text-gray-400 hover:text-gray-300">Tümünü Gör</button>
+                <button 
+                  onClick={() => router.push("/kullanici-yonetimi")}
+                  className="text-xs text-gray-400 hover:text-gray-300 transition"
+                >
+                  Tümünü Gör
+                </button>
               </div>
             </div>
             <div className="p-4">

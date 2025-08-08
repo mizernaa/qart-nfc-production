@@ -208,6 +208,45 @@ export default function MainDashboardPage() {
   }
 
   useEffect(() => {
+    // State'leri her zaman sıfırla
+    setAnalytics({
+      overview: {
+        totalViews: 0,
+        viewsToday: 0,
+        viewsThisWeek: 0,
+        viewsThisMonth: 0,
+        uniqueVisitors: 0,
+        averageSessionDuration: 0,
+        bounceRate: 0,
+        conversionRate: 0,
+        profileShares: 0,
+        contactClicks: 0,
+        growth: { views: 0, visitors: 0, clicks: 0, duration: 0 }
+      },
+      viewsTrend: [],
+      deviceStats: [],
+      countryStats: [],
+      socialClicks: [],
+      referrerStats: []
+    })
+    
+    setProfile({
+      name: "",
+      title: "",
+      bio: "",
+      companyName: "",
+      phone: "",
+      email: "",
+      website: "",
+      address: "",
+      city: "",
+      country: "",
+      slug: "",
+      isPremium: false,
+      isPublic: true,
+      profileImage: ""
+    })
+    
     const savedUser = localStorage.getItem("user")
     const tempUser = localStorage.getItem("tempUser")
     
@@ -220,6 +259,10 @@ export default function MainDashboardPage() {
           const originalUser = JSON.parse(tempUser)
           // Geçici kullanıcı verisini kullan ama admin olduğunu hatırla
           setUser({ ...userData, wasAdmin: true, originalUser })
+          if (userData.email) {
+            fetchUserProfile(userData.email)
+            fetchUserAnalytics(userData.email)
+          }
         } else if (userData.isAdmin) {
           // Normal admin girişi, admin paneline yönlendir
           window.location.href = "/admin-panel"
@@ -227,8 +270,10 @@ export default function MainDashboardPage() {
         } else {
           // Normal kullanıcı
           setUser(userData)
-          fetchUserProfile(userData.email) // Kullanıcı profilini çek
-          fetchUserAnalytics(userData.email) // Kullanıcı analitiklerini çek
+          if (userData.email) {
+            fetchUserProfile(userData.email) // Kullanıcı profilini çek
+            fetchUserAnalytics(userData.email) // Kullanıcı analitiklerini çek
+          }
         }
       } catch (error) {
         console.error("Error parsing user data:", error)
@@ -240,7 +285,7 @@ export default function MainDashboardPage() {
     }
     
     setLoading(false)
-  }, [])
+  }, []) // Her mount'da çalışacak ve fresh data çekecek
 
   const handleLogout = () => {
     localStorage.removeItem("user")

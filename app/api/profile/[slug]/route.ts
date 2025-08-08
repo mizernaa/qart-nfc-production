@@ -33,83 +33,42 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
     const user = users.find(u => createSlug(u.name) === slug)
     
     if (!user) {
-      // Hardcoded demo profil için fallback
-      if (slug === 'huseyin-demir') {
-        return NextResponse.json({
-          success: true,
-          profile: {
-            name: "Hüseyin Demir",
-            title: "Elektrik Mühendisi",
-            bio: "20+ yıllık deneyimli Elektrik Mühendisi. Endüstriyel elektrik ve otomasyon sistemleri uzmanı.",
-            companyName: "HD Elektrik",
-            phone: "+90 555 987 6543",
-            email: "huseyin@hdelektrik.com",
-            website: "https://hdelektrik.com",
-            address: "Bağdat Caddesi, Elektrikçiler Sokak No:23",
-            city: "İstanbul",
-            country: "Türkiye",
-            slug: "huseyin-demir",
-            isPremium: true,
-            isPublic: true,
-            profileImage: "/api/placeholder/150/150"
-          }
-        })
-      }
-      
       return NextResponse.json(
         { success: false, message: 'Profil bulunamadı' },
         { status: 404 }
       )
     }
     
-    // Gerçek kullanıcı profili oluştur
+    // Temiz kullanıcı profili - sadece temel bilgiler
     const profile = {
       name: user.name,
       title: user.isAdmin ? "Sistem Yöneticisi" : "QART Kullanıcısı",
       bio: `${user.name} - QART dijital kartvizit kullanıcısı`,
-      companyName: user.isAdmin ? "QART Team" : user.name,
-      phone: "+90 555 000 0000",
+      companyName: user.name,
+      phone: "",
       email: user.email,
       website: "",
       address: "",
-      city: "İstanbul",
-      country: "Türkiye",
+      city: "",
+      country: "",
       slug: createSlug(user.name),
       isPremium: user.isAdmin,
       isPublic: true,
-      profileImage: "/api/placeholder/150/150",
+      profileImage: "",
       
-      // İstatistikler
+      // Boş istatistikler
       stats: {
-        customers: user.isAdmin ? "300+" : "50+",
-        experience: user.isAdmin ? "5+ yıl" : "2+ yıl",
-        projects: user.isAdmin ? "500+" : "100+",
-        employees: user.isAdmin ? "15+" : "5+"
+        customers: "",
+        experience: "",
+        projects: "",
+        employees: ""
       },
       
-      // Hizmetler
-      services: [
-        {
-          title: user.isAdmin ? "Sistem Yönetimi" : "Dijital Kartvizit",
-          description: user.isAdmin ? "Profesyonel sistem yönetimi hizmetleri" : "Modern dijital kartvizit çözümleri"
-        },
-        {
-          title: "Destek Hizmetleri",
-          description: "7/24 teknik destek ve danışmanlık"
-        },
-        {
-          title: "Özelleştirme",
-          description: "İhtiyaca özel çözümler"
-        }
-      ],
+      // Boş hizmetler
+      services: [],
       
-      // Özellikler
-      features: [
-        user.isAdmin ? "Deneyimli Ekip" : "Güvenilir Hizmet",
-        user.isAdmin ? "7/24 Destek" : "Hızlı Çözüm",
-        "2 Yıl Garanti",
-        "Ücretsiz Keşif"
-      ]
+      // Boş özellikler
+      features: []
     }
     
     return NextResponse.json({

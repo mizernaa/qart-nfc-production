@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import DocumentUpload from "@/components/DocumentUpload"
 import { 
   User, Save, ArrowLeft, Building, Phone, Mail, Globe, MapPin,
   Instagram, Linkedin, Twitter, Facebook, Youtube, Github,
@@ -1035,65 +1036,38 @@ export default function ProfileManagementPage() {
                   </h2>
                   
                   <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2">CV / Özgeçmiş</label>
-                      <div className="flex items-center space-x-4">
-                        <input
-                          type="url"
-                          value={profileData.documents.cvUrl}
-                          onChange={(e) => setProfileData({
-                            ...profileData,
-                            documents: { ...profileData.documents, cvUrl: e.target.value }
-                          })}
-                          className="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500"
-                          placeholder="CV dosya linki (Google Drive, Dropbox vb.)"
-                        />
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
-                          <Upload className="h-4 w-4" />
-                          <span>Yükle</span>
-                        </button>
-                      </div>
-                    </div>
+                    <DocumentUpload
+                      label="CV / Özgeçmiş"
+                      value={profileData.documents.cvUrl}
+                      onChange={(url) => setProfileData({
+                        ...profileData,
+                        documents: { ...profileData.documents, cvUrl: url }
+                      })}
+                      placeholder="CV dosya linki (Google Drive, Dropbox vb.)"
+                      type="cv"
+                    />
                     
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2">Portfolyo / Katalog</label>
-                      <div className="flex items-center space-x-4">
-                        <input
-                          type="url"
-                          value={profileData.documents.portfolio}
-                          onChange={(e) => setProfileData({
-                            ...profileData,
-                            documents: { ...profileData.documents, portfolio: e.target.value }
-                          })}
-                          className="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500"
-                          placeholder="Portfolyo dosya linki"
-                        />
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
-                          <Upload className="h-4 w-4" />
-                          <span>Yükle</span>
-                        </button>
-                      </div>
-                    </div>
+                    <DocumentUpload
+                      label="Portfolyo / Katalog"
+                      value={profileData.documents.portfolio}
+                      onChange={(url) => setProfileData({
+                        ...profileData,
+                        documents: { ...profileData.documents, portfolio: url }
+                      })}
+                      placeholder="Portfolyo dosya linki"
+                      type="portfolio"
+                    />
                     
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2">Şirket Broşürü</label>
-                      <div className="flex items-center space-x-4">
-                        <input
-                          type="url"
-                          value={profileData.documents.brochure}
-                          onChange={(e) => setProfileData({
-                            ...profileData,
-                            documents: { ...profileData.documents, brochure: e.target.value }
-                          })}
-                          className="flex-1 px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500"
-                          placeholder="Broşür dosya linki"
-                        />
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
-                          <Upload className="h-4 w-4" />
-                          <span>Yükle</span>
-                        </button>
-                      </div>
-                    </div>
+                    <DocumentUpload
+                      label="Şirket Broşürü"
+                      value={profileData.documents.brochure}
+                      onChange={(url) => setProfileData({
+                        ...profileData,
+                        documents: { ...profileData.documents, brochure: url }
+                      })}
+                      placeholder="Broşür dosya linki"
+                      type="brochure"
+                    />
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-400 mb-2">Sertifikalar</label>

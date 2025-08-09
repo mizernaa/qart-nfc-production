@@ -16,6 +16,14 @@ export default function PageLayoutPage() {
   const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState("visibility")
   const [previewMode, setPreviewMode] = useState("desktop")
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>({
+    name: "Kullanıcı",
+    title: "Pozisyon",
+    companyName: "Şirket",
+    email: "email@example.com",
+    phone: "+90 555 000 0000"
+  })
   
   // Theme Settings
   const [themeSettings, setThemeSettings] = useState({
@@ -83,6 +91,23 @@ export default function PageLayoutPage() {
       services: true
     }
   })
+
+  // Fetch user profile on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user")
+    if (savedUser) {
+      const userData = JSON.parse(savedUser)
+      setUser(userData)
+      // Fetch profile data
+      fetch(`/api/user/profile?email=${encodeURIComponent(userData.email)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.profile) {
+            setProfile(data.profile)
+          }
+        })
+    }
+  }, [])
 
   // Available Themes
   const themes = [
@@ -840,7 +865,7 @@ export default function PageLayoutPage() {
                             {visibilitySettings.personal.name && (
                               <h1 className={`text-xl font-bold ${
                                 themeSettings.selectedTheme === "elegant-light" ? "text-gray-900" : "text-white"
-                              }`}>HD Elektrik</h1>
+                              }`}>{profile.companyName || profile.name || "Kullanıcı"}</h1>
                             )}
                             <BadgeCheck className="h-5 w-5 text-blue-500" />
                           </div>

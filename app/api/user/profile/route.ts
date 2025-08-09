@@ -38,7 +38,15 @@ export async function GET(request: NextRequest) {
       createdAt: user.createdAt,
       
       // Profile bilgileri (varsa)
-      slug: user.profile?.slug || user.name.toLowerCase().replace(/\s+/g, '-'),
+      slug: user.profile?.slug || user.name.toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-'),
       title: user.profile?.title || (user.isAdmin ? "Sistem Yöneticisi" : "Kullanıcı"),
       bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
       phone: user.profile?.phone || "+90 555 000 0000",

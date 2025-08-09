@@ -78,7 +78,10 @@ export default function MainDashboardPage() {
     email: "",
     slug: "",
     isPremium: false,
-    subscriptionPlan: "Free"
+    subscriptionPlan: "Free",
+    title: "",
+    companyName: "",
+    bio: ""
   })
 
   // Detaylı Analytics Verileri - API'den çekilir
@@ -155,8 +158,21 @@ export default function MainDashboardPage() {
       const response = await fetch(`/api/user/profile?email=${encodeURIComponent(userEmail)}`)
       if (response.ok) {
         const data = await response.json()
-        if (data.success) {
-          setProfile(data.profile)
+        if (data.success && data.profile) {
+          // Eğer slug yoksa, name'den oluştur
+          const profileData = {
+            ...data.profile,
+            slug: data.profile.slug || data.profile.name?.toLowerCase()
+              .replace(/ğ/g, 'g')
+              .replace(/ü/g, 'u')
+              .replace(/ş/g, 's')
+              .replace(/ı/g, 'i')
+              .replace(/ö/g, 'o')
+              .replace(/ç/g, 'c')
+              .replace(/[^a-z0-9\s]/g, '')
+              .replace(/\s+/g, '-') || 'user'
+          }
+          setProfile(profileData)
         }
       }
     } catch (error) {
@@ -304,7 +320,7 @@ export default function MainDashboardPage() {
   useEffect(() => {
     const generateQR = async () => {
       try {
-        const url = `https://qart.app/${user?.isAdmin ? 'admin-profile' : profile.slug}`
+        const url = `https://qart-nfc-production.vercel.app/${profile.slug || 'profile'}`
         const qrDataUrl = await QRCode.toDataURL(url, {
           width: 256,
           margin: 2,
@@ -370,7 +386,7 @@ export default function MainDashboardPage() {
     pdf.text('Isim: ' + profile.name, 20, 55)
     pdf.text('Sirket: ' + profile.companyName, 20, 65)
     pdf.text('E-posta: ' + (user?.email || 'Belirtilmemis'), 20, 75)
-    pdf.text('URL: https://qart.app/' + (user?.isAdmin ? 'admin-profile' : profile.slug), 20, 85)
+    pdf.text('URL: https://qart-nfc-production.vercel.app/' + (profile.slug || 'profile'), 20, 85)
     pdf.text('Premium Uyelik: ' + (profile.isPremium ? 'Aktif' : 'Pasif') + ' (' + profile.subscriptionPlan + ')', 20, 95)
     
     // İstatistikler başlığı
@@ -639,7 +655,7 @@ export default function MainDashboardPage() {
                 <div className="flex items-center space-x-2 mb-4">
                   <input
                     type="text"
-                    value={`https://qart.app/${user.isAdmin ? 'admin-profile' : profile.slug}`}
+                    value={`https://qart-nfc-production.vercel.app/${profile.slug || 'profile'}`}
                     readOnly
                     className="flex-1 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg font-mono text-sm border border-gray-700"
                   />

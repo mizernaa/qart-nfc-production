@@ -27,6 +27,7 @@ import {
   ArrowLeft,
   Link as LinkIcon
 } from "lucide-react"
+import EditUserModal from "@/components/EditUserModal"
 
 export default function KullaniciYonetimiPage() {
   const [user, setUser] = useState<any>(null)
@@ -760,6 +761,15 @@ export default function KullaniciYonetimiPage() {
           </div>
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      {showEditUserModal && editingUser && (
+        <EditUserModal 
+          user={editingUser}
+          onClose={() => setShowEditUserModal(false)}
+          onSave={fetchUsers}
+        />
+      )}
 
       {/* Yeni Kullanıcı Modal */}
       {showNewUserModal && (

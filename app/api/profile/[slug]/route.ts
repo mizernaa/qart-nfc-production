@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fileUserStore } from '@/lib/file-user-store'
+import { prismaUserStore } from '@/lib/prisma-user-store'
 
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
   try {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
     }
     
     // Tüm kullanıcıları al ve slug'a göre ara
-    const users = fileUserStore.getAllUsers()
+    const users = await prismaUserStore.getAllUsers()
     
     // Kullanıcı adından slug oluştur
     const createSlug = (name: string) => {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fileUserStore } from '@/lib/file-user-store'
+import { prismaUserStore } from '@/lib/prisma-user-store'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
     
     // Kullanıcıyı bul
     const user = userId 
-      ? fileUserStore.findById(userId)
-      : fileUserStore.findByEmail(userEmail!)
+      ? await prismaUserStore.findById(userId)
+      : await prismaUserStore.findByEmail(userEmail!)
     
     if (!user) {
       return NextResponse.json(

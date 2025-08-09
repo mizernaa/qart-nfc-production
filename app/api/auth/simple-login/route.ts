@@ -7,12 +7,22 @@ export async function POST(request: NextRequest) {
     const { email, password } = body
 
     console.log("🔐 Login attempt:", email)
+    console.log("🌐 Environment:", {
+      vercel: process.env.VERCEL,
+      vercelEnv: process.env.VERCEL_ENV,
+      nodeEnv: process.env.NODE_ENV
+    })
 
     // Kullanıcıyı bul (Hybrid store - PostgreSQL first, fallback second)
+    console.log("🔍 Searching for user with hybrid store...")
     const user = await hybridUserStore.findByEmail(email)
+    console.log("👤 User search result:", user ? { email: user.email, isAdmin: user.isAdmin, id: user.id } : "NULL")
     
     if (!user) {
       console.log("❌ User not found:", email)
+      // Log all available users for debugging
+      const allUsers = await hybridUserStore.getAllUsers()
+      console.log("📋 Available users:", allUsers.map(u => u.email))
       return NextResponse.json(
         { success: false, message: "Geçersiz email veya şifre" },
         { status: 401 }
@@ -29,7 +39,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Şifre doğrulama
+    console.log("🔑 Verifying password for user:", email)
+    console.log("🔒 User password hash:", user.password ? user.password.substring(0, 10) + '...' : 'NO HASH')
     const isValidPassword = await hybridUserStore.verifyPassword(user, password)
+    console.log("✅ Password verification result:", isValidPassword)
     
     if (!isValidPassword) {
       console.log("❌ Invalid password for:", email)

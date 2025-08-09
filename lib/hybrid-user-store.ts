@@ -58,6 +58,13 @@ class HybridUserStore {
 
   constructor() {
     console.log('🔄 Hybrid User Store initialized - PostgreSQL with fallback')
+    console.log('🔍 Environment check:', {
+      vercel: process.env.VERCEL,
+      vercelEnv: process.env.VERCEL_ENV,
+      nodeEnv: process.env.NODE_ENV,
+      fallbackUsersCount: this.fallbackUsers.length
+    })
+    console.log('📋 Fallback users initialized:', this.fallbackUsers.map(u => ({ email: u.email, isAdmin: u.isAdmin })))
   }
 
   // Try PostgreSQL first, fallback to memory

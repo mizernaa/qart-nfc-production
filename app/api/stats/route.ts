@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fileUserStore } from '@/lib/file-user-store'
+import { prismaUserStore } from '@/lib/prisma-user-store'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from file store
-    const users = fileUserStore.getAllUsers()
+    // Get all users from database
+    const users = await prismaUserStore.getAllUsers()
     
     // Calculate real statistics
     const totalUsers = users.length

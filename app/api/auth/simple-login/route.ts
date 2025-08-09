@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { fileUserStore } from "@/lib/file-user-store"
+import { prismaUserStore } from "@/lib/prisma-user-store"
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,16 +8,39 @@ export async function POST(request: NextRequest) {
 
     console.log("🔐 Login attempt:", email)
 
-    // Kullanıcı doğrulama
-    const user = await fileUserStore.verifyPassword(email, password)
+    // Kullanıcıyı bul
+    const user = await prismaUserStore.findByEmail(email)
     
     if (!user) {
-      console.log("❌ Invalid credentials for:", email)
+      console.log("❌ User not found:", email)
       return NextResponse.json(
         { success: false, message: "Geçersiz email veya şifre" },
         { status: 401 }
       )
     }
+
+    // Kullanıcı aktif mi?
+    if (!user.isActive) {
+      console.log("❌ User inactive:", email)
+      return NextResponse.json(
+        { success: false, message: "Hesap deaktif" },
+        { status: 403 }
+      )
+    }
+
+    // Şifre doğrulama
+    const isValidPassword = await prismaUserStore.verifyPassword(user, password)
+    
+    if (!isValidPassword) {
+      console.log("❌ Invalid password for:", email)
+      return NextResponse.json(
+        { success: false, message: "Geçersiz email veya şifre" },
+        { status: 401 }
+      )
+    }
+
+    // Last login güncelle
+    await prismaUserStore.updateLastLogin(user.id)
 
     console.log("✅ Login successful for:", email)
     
@@ -29,7 +52,8 @@ export async function POST(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        isAdmin: user.isAdmin
+        isAdmin: user.isAdmin,
+        profile: user.profile
       }
     })
     

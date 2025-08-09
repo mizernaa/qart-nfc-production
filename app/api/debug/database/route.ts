@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fileUserStore } from '@/lib/file-user-store'
+import { prismaUserStore } from '@/lib/prisma-user-store'
 
 export async function GET(request: NextRequest) {
   try {
     // Diagnostic bilgileri al
-    const diagnostics = fileUserStore.getDiagnosticInfo()
+    const diagnostics = await prismaUserStore.getDiagnosticInfo()
     
-    // User backup data (şifreler hariç) - loadDB private method, getAllUsers kullan
-    const users = fileUserStore.getAllUsers().map(user => ({
+    // User backup data (şifreler hariç)
+    const users = (await prismaUserStore.getAllUsers()).map(user => ({
       id: user.id,
       email: user.email,
       name: user.name,

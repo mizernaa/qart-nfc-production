@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fileUserStore } from '@/lib/file-user-store'
+import { prismaUserStore } from '@/lib/prisma-user-store'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
     
     // Kullanıcıyı bul
     const user = userId 
-      ? fileUserStore.findById(userId)
-      : fileUserStore.findByEmail(userEmail!)
+      ? await prismaUserStore.findById(userId)
+      : await prismaUserStore.findByEmail(userEmail!)
     
     if (!user) {
       return NextResponse.json(
@@ -26,54 +26,38 @@ export async function GET(request: NextRequest) {
       )
     }
     
-    // Kullanıcı adından slug oluştur
-    const createSlug = (name: string) => {
-      return name
-        .toLowerCase()
-        .replace(/ğ/g, 'g')
-        .replace(/ü/g, 'u')
-        .replace(/ş/g, 's')
-        .replace(/ı/g, 'i')
-        .replace(/ö/g, 'o')
-        .replace(/ç/g, 'c')
-        .replace(/[^a-z0-9\s]/g, '')
-        .replace(/\s+/g, '-')
-    }
-    
-    // Profil verisi oluştur
+    // Profil verisi - gerçek database'den
     const profile = {
-      // Üyelik Bilgileri
-      isPremium: user.isAdmin, // Admin = Premium olarak varsay
-      subscriptionPlan: user.isAdmin ? "QART Lifetime" : "Free",
-      subscriptionDate: user.createdAt,
-      
-      // Kişisel Bilgiler
+      // User bilgileri
+      id: user.id,
       name: user.name,
       email: user.email,
-      title: user.isAdmin ? "Sistem Yöneticisi" : "Kullanıcı",
-      bio: `${user.name} - QART dijital kartvizit kullanıcısı`,
+      isAdmin: user.isAdmin,
+      isActive: user.isActive,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
       
-      // Temel İletişim (gerçek uygulamada kullanıcıdan alınır)
-      phone: "+90 555 000 0000",
-      whatsapp: "+90 555 000 0000",
-      website: "",
+      // Profile bilgileri (varsa)
+      slug: user.profile?.slug || user.name.toLowerCase().replace(/\s+/g, '-'),
+      title: user.profile?.title || (user.isAdmin ? "Sistem Yöneticisi" : "Kullanıcı"),
+      bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
+      phone: user.profile?.phone || "+90 555 000 0000",
+      whatsapp: user.profile?.whatsapp || "+90 555 000 0000",
+      website: user.profile?.website || "",
+      address: user.profile?.address || "",
+      companyName: user.profile?.companyName || (user.isAdmin ? "QART Team" : ""),
+      logoUrl: user.profile?.logoUrl,
+      coverImageUrl: user.profile?.coverImageUrl,
       
-      // Adres (varsayılan)
-      address: "",
-      city: "İstanbul",
-      country: "Türkiye",
+      // Subscription bilgileri
+      isPremium: user.isAdmin || (user.subscription?.status === 'active'),
+      subscriptionPlan: user.subscription?.plan || (user.isAdmin ? "QART Lifetime" : "Free"),
+      subscriptionDate: user.subscription?.createdAt || user.createdAt,
       
       // Diğer
-      slug: createSlug(user.name),
       profileImage: "/api/placeholder/150/150",
       theme: "modern",
-      isPublic: true,
-      
-      // Şirket Bilgileri (varsayılan - kullanıcı doldurabilir)
-      companyName: user.isAdmin ? "QART Team" : "",
-      companyLegalName: "",
-      taxOffice: "",
-      taxNumber: "",
+      isPublic: user.profile?.isPublic ?? true
     }
     
     return NextResponse.json({

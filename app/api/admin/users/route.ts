@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { fileUserStore } from "@/lib/file-user-store"
+import { prismaUserStore } from "@/lib/prisma-user-store"
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from file store
-    const allUsers = fileUserStore.getAllUsers()
+    // Get all users from database
+    const allUsers = await prismaUserStore.getAllUsers()
     
     // Get query parameters
     const { searchParams } = new URL(request.url)
@@ -20,14 +20,21 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Transform to match frontend expectations
+    // Transform to match frontend expectations with real database data
     const users = filteredUsers.map(user => ({
-      ...user,
-      emailVerified: true, // Default true for file store users
-      lastLoginAt: new Date().toISOString(), // Mock data
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      isAdmin: user.isAdmin,
+      isActive: user.isActive,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+      lastLoginAt: user.lastLoginAt,
+      profile: user.profile,
+      subscription: user.subscription,
       _count: {
-        cards: 1,
-        profile: 1
+        cards: user.cards?.length || 0,
+        profile: user.profile ? 1 : 0
       }
     }))
 
@@ -66,8 +73,8 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Delete user from file store
-    const success = fileUserStore.deleteUser(userId)
+    // Delete user from database
+    const success = await prismaUserStore.deleteUser(userId)
 
     if (!success) {
       return NextResponse.json(
@@ -105,7 +112,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === 'toggle-status') {
-      const success = fileUserStore.toggleUserStatus(userId)
+      const success = await prismaUserStore.toggleUserStatus(userId)
       
       if (!success) {
         return NextResponse.json(

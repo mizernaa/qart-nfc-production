@@ -14,15 +14,14 @@ export async function POST(request: NextRequest) {
     
     console.log('🔐 Password hashes created')
     
-    // Try creating users with ONLY required fields using raw SQL
+    // Try creating users with ONLY existing fields using raw SQL
     await prisma.$executeRaw`
-      INSERT INTO "User" (id, email, password, name, "isAdmin", "isActive", "createdAt", "updatedAt")
+      INSERT INTO "User" (id, email, password, name, "isAdmin", "isActive", "createdAt")
       VALUES 
-      ('admin-1', 'admin@qart.app', ${adminPasswordHash}, 'Admin User', true, true, NOW(), NOW()),
-      ('demo-1', 'demo@qart.app', ${demoPasswordHash}, 'Demo User', false, true, NOW(), NOW())
+      ('admin-1', 'admin@qart.app', ${adminPasswordHash}, 'Admin User', true, true, NOW()),
+      ('demo-1', 'demo@qart.app', ${demoPasswordHash}, 'Demo User', false, true, NOW())
       ON CONFLICT (email) DO UPDATE SET 
-      password = EXCLUDED.password,
-      "updatedAt" = NOW()
+      password = EXCLUDED.password
     `
     
     console.log('✅ Users created/updated with raw SQL')

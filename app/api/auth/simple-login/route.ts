@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { vercelUserStore } from "@/lib/vercel-user-store"
+import { prismaUserStore } from "@/lib/prisma-user-store"
 
 export async function POST(request: NextRequest) {
   // Force redeploy - Vercel login test 9 Ağustos 2025
@@ -14,15 +14,15 @@ export async function POST(request: NextRequest) {
       nodeEnv: process.env.NODE_ENV
     })
 
-    // Kullanıcıyı bul (Vercel store - Pure in-memory)
-    console.log("🔍 Searching for user with Vercel store...")
-    const user = await vercelUserStore.findByEmail(email)
+    // Kullanıcıyı bul (Database store - PostgreSQL)
+    console.log("🔍 Searching for user with Database store...")
+    const user = await prismaUserStore.findByEmail(email)
     console.log("👤 User search result:", user ? { email: user.email, isAdmin: user.isAdmin, id: user.id } : "NULL")
     
     if (!user) {
       console.log("❌ User not found:", email)
       // Log all available users for debugging
-      const allUsers = await vercelUserStore.getAllUsers()
+      const allUsers = await prismaUserStore.getAllUsers()
       console.log("📋 Available users:", allUsers.map(u => u.email))
       return NextResponse.json(
         { success: false, message: "Geçersiz email veya şifre" },
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     // Şifre doğrulama
     console.log("🔑 Verifying password for user:", email)
     console.log("🔒 User password hash:", user.password ? user.password.substring(0, 10) + '...' : 'NO HASH')
-    const isValidPassword = await vercelUserStore.verifyPassword(user, password)
+    const isValidPassword = await prismaUserStore.verifyPassword(user, password)
     console.log("✅ Password verification result:", isValidPassword)
     
     if (!isValidPassword) {

@@ -20,43 +20,49 @@ interface User {
   }
 }
 
-class HybridUserStore {
-  private fallbackUsers: User[] = [
-    {
-      id: '1',
-      email: 'admin@qart.app',
-      password: '$2b$12$gGAbDTg.q9wBElTchW9CB.mUbQ880qTZlkp65KSwTcPJSLL8sYkPy', // admin123
-      name: 'Admin User',
-      isAdmin: true,
-      isActive: true,
-      createdAt: '2024-01-01T00:00:00.000Z',
-      profile: {
-        slug: 'admin-user',
-        title: 'Sistem Yöneticisi',
-        bio: 'QART NFC sistemi yöneticisi',
-        phone: '+90 555 000 0001',
-        companyName: 'QART Team'
-      }
-    },
-    {
-      id: '2',
-      email: 'demo@qart.app',
-      password: '$2b$12$YR/Qq7LByMYjyVXrLrioA.qfjcgYqA20DnrkZS/EpuluUliQ.5mWO', // demo123
-      name: 'Demo User',
-      isAdmin: false,
-      isActive: true,
-      createdAt: '2024-01-01T00:00:00.000Z',
-      profile: {
-        slug: 'demo-user',
-        title: 'Demo Kullanıcı',
-        bio: 'QART demo kullanıcısı',
-        phone: '+90 555 000 0002',
-        companyName: 'Demo Şirket'
-      }
+// Static fallback users - guaranteed to be available
+const FALLBACK_USERS: User[] = [
+  {
+    id: '1',
+    email: 'admin@qart.app',
+    password: '$2b$12$gGAbDTg.q9wBElTchW9CB.mUbQ880qTZlkp65KSwTcPJSLL8sYkPy', // admin123
+    name: 'Admin User',
+    isAdmin: true,
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    profile: {
+      slug: 'admin-user',
+      title: 'Sistem Yöneticisi',
+      bio: 'QART NFC sistemi yöneticisi',
+      phone: '+90 555 000 0001',
+      companyName: 'QART Team'
     }
-  ]
+  },
+  {
+    id: '2',
+    email: 'demo@qart.app',
+    password: '$2b$12$YR/Qq7LByMYjyVXrLrioA.qfjcgYqA20DnrkZS/EpuluUliQ.5mWO', // demo123
+    name: 'Demo User',
+    isAdmin: false,
+    isActive: true,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    profile: {
+      slug: 'demo-user',
+      title: 'Demo Kullanıcı',
+      bio: 'QART demo kullanıcısı',
+      phone: '+90 555 000 0002',
+      companyName: 'Demo Şirket'
+    }
+  }
+]
+
+class HybridUserStore {
+  private fallbackUsers: User[]
 
   constructor() {
+    // Always initialize with static users - guaranteed to be available
+    this.fallbackUsers = [...FALLBACK_USERS]
+    
     console.log('🔄 Hybrid User Store initialized - PostgreSQL with fallback')
     console.log('🔍 Environment check:', {
       vercel: process.env.VERCEL,
@@ -65,6 +71,25 @@ class HybridUserStore {
       fallbackUsersCount: this.fallbackUsers.length
     })
     console.log('📋 Fallback users initialized:', this.fallbackUsers.map(u => ({ email: u.email, isAdmin: u.isAdmin })))
+    
+    // Verify fallback users are actually there
+    if (this.fallbackUsers.length === 0) {
+      console.error('❌ CRITICAL: Fallback users array is empty!')
+      // Force reinitialize
+      this.fallbackUsers = [
+        {
+          id: '1',
+          email: 'admin@qart.app',
+          password: '$2b$12$gGAbDTg.q9wBElTchW9CB.mUbQ880qTZlkp65KSwTcPJSLL8sYkPy',
+          name: 'Admin User',
+          isAdmin: true,
+          isActive: true,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          profile: { slug: 'admin-user', title: 'Sistem Yöneticisi', bio: 'QART NFC sistemi yöneticisi', phone: '+90 555 000 0001', companyName: 'QART Team' }
+        }
+      ]
+      console.log('🔧 Emergency fallback user created')
+    }
   }
 
   // Try PostgreSQL first, fallback to memory
@@ -90,6 +115,15 @@ class HybridUserStore {
 
     // Fallback to memory - ALWAYS CHECK FALLBACK
     console.log('🔄 Checking fallback users for:', email)
+    console.log('📊 Current fallback users count:', this.fallbackUsers.length)
+    
+    // Double-check fallback users exist
+    if (this.fallbackUsers.length === 0) {
+      console.error('❌ CRITICAL: Fallback users disappeared! Reinitializing...')
+      this.fallbackUsers = [...FALLBACK_USERS]
+      console.log('🔧 Fallback users reinitialized:', this.fallbackUsers.length)
+    }
+    
     const user = this.fallbackUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
     if (user) {
       console.log('✅ User found in fallback store:', email)
@@ -138,8 +172,16 @@ class HybridUserStore {
       console.log('🔄 Vercel detected - using fallback users directly')
     }
 
-    // Fallback to memory - ALWAYS RETURN FALLBACK
+    // Fallback to memory - ALWAYS RETURN FALLBACK  
     console.log('🔄 Using fallback user data:', this.fallbackUsers.length, 'users')
+    
+    // Final safety check
+    if (this.fallbackUsers.length === 0) {
+      console.error('❌ CRITICAL: Fallback users empty in getAllUsers! Emergency reinit...')
+      this.fallbackUsers = [...FALLBACK_USERS]
+      console.log('🔧 Emergency fallback users restored:', this.fallbackUsers.length)
+    }
+    
     return this.fallbackUsers
   }
 

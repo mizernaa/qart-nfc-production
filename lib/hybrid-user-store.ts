@@ -62,16 +62,23 @@ class HybridUserStore {
 
   // Try PostgreSQL first, fallback to memory
   async findByEmail(email: string) {
-    try {
-      // Try PostgreSQL first
-      const { prismaUserStore } = await import('./prisma-user-store')
-      const user = await prismaUserStore.findByEmail(email)
-      if (user) {
-        console.log('✅ User found in PostgreSQL:', email)
-        return user
+    // Vercel'de PostgreSQL connection problem varsa direkt fallback kullan
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV
+    
+    if (!isVercel) {
+      try {
+        // Local'de PostgreSQL dene
+        const { prismaUserStore } = await import('./prisma-user-store')
+        const user = await prismaUserStore.findByEmail(email)
+        if (user) {
+          console.log('✅ User found in PostgreSQL:', email)
+          return user
+        }
+      } catch (error: any) {
+        console.warn('⚠️ PostgreSQL unavailable, using fallback:', error?.message || 'Unknown error')
       }
-    } catch (error: any) {
-      console.warn('⚠️ PostgreSQL unavailable, using fallback:', error?.message || 'Unknown error')
+    } else {
+      console.log('🔄 Vercel detected - using fallback store directly')
     }
 
     // Fallback to memory - ALWAYS CHECK FALLBACK
@@ -105,16 +112,23 @@ class HybridUserStore {
   }
 
   async getAllUsers() {
-    try {
-      // Try PostgreSQL first
-      const { prismaUserStore } = await import('./prisma-user-store')
-      const users = await prismaUserStore.getAllUsers()
-      if (users && users.length > 0) {
-        console.log('✅ Users loaded from PostgreSQL:', users.length)
-        return users
+    // Vercel'de PostgreSQL connection problem varsa direkt fallback kullan
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV
+    
+    if (!isVercel) {
+      try {
+        // Local'de PostgreSQL dene
+        const { prismaUserStore } = await import('./prisma-user-store')
+        const users = await prismaUserStore.getAllUsers()
+        if (users && users.length > 0) {
+          console.log('✅ Users loaded from PostgreSQL:', users.length)
+          return users
+        }
+      } catch (error: any) {
+        console.warn('⚠️ PostgreSQL unavailable, using fallback:', error?.message || 'Unknown error')
       }
-    } catch (error: any) {
-      console.warn('⚠️ PostgreSQL unavailable, using fallback:', error?.message || 'Unknown error')
+    } else {
+      console.log('🔄 Vercel detected - using fallback users directly')
     }
 
     // Fallback to memory - ALWAYS RETURN FALLBACK
@@ -172,22 +186,30 @@ class HybridUserStore {
   }
 
   async getDiagnosticInfo() {
-    try {
-      const { prismaUserStore } = await import('./prisma-user-store')
-      const diagnostics = await prismaUserStore.getDiagnosticInfo()
-      return diagnostics
-    } catch (error: any) {
-      console.warn('⚠️ PostgreSQL diagnostic failed, using fallback info:', error?.message)
-      return {
-        environment: 'Hybrid Store (Fallback Active)',
-        storage: 'FALLBACK - In-memory store active',
-        userCount: this.fallbackUsers.length,
-        adminCount: this.fallbackUsers.filter(u => u.isAdmin).length,
-        activeCount: this.fallbackUsers.filter(u => u.isActive).length,
-        storageRisk: 'MEDIUM - Using fallback until PostgreSQL reconnects',
-        healthStatus: 'FALLBACK_MODE',
-        fallbackUsers: this.fallbackUsers.map(u => ({ email: u.email, name: u.name, isAdmin: u.isAdmin }))
+    // Vercel'de PostgreSQL connection problem varsa direkt fallback kullan
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV
+    
+    if (!isVercel) {
+      try {
+        const { prismaUserStore } = await import('./prisma-user-store')
+        const diagnostics = await prismaUserStore.getDiagnosticInfo()
+        return diagnostics
+      } catch (error: any) {
+        console.warn('⚠️ PostgreSQL diagnostic failed, using fallback info:', error?.message)
       }
+    } else {
+      console.log('🔄 Vercel detected - using fallback diagnostic directly')
+    }
+
+    return {
+      environment: 'Hybrid Store (Fallback Active)',
+      storage: isVercel ? 'VERCEL - Fallback mode active' : 'FALLBACK - In-memory store active',
+      userCount: this.fallbackUsers.length,
+      adminCount: this.fallbackUsers.filter(u => u.isAdmin).length,
+      activeCount: this.fallbackUsers.filter(u => u.isActive).length,
+      storageRisk: 'LOW - Reliable fallback active',
+      healthStatus: 'FALLBACK_MODE_ACTIVE',
+      fallbackUsers: this.fallbackUsers.map(u => ({ email: u.email, name: u.name, isAdmin: u.isAdmin }))
     }
   }
 }

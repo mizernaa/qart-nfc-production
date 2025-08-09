@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { fileUserStore } from "@/lib/file-user-store"
+import { vercelUserStore } from "@/lib/vercel-user-store"
 
 // Validation schema
 const registerSchema = z.object({
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const { email, password, name, isAdmin } = validation.data
 
     // Email kontrolü
-    const existingUser = fileUserStore.findByEmail(email)
+    const existingUser = await vercelUserStore.findByEmail(email)
     if (existingUser) {
       return NextResponse.json(
         { success: false, message: "Bu email zaten kullanımda" },
@@ -38,12 +38,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Hash password
+    const hashedPassword = await vercelUserStore.hashPassword(password)
+    
+    // Create slug from name
+    const slug = name.toLowerCase()
+      .replace(/[üÜ]/g, 'u')
+      .replace(/[ğĞ]/g, 'g') 
+      .replace(/[şŞ]/g, 's')
+      .replace(/[ıİ]/g, 'i')
+      .replace(/[öÖ]/g, 'o')
+      .replace(/[çÇ]/g, 'c')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim()
+
     // Yeni kullanıcı oluştur
-    const newUser = await fileUserStore.addUser({
-      email,
-      password,
+    const newUser = await vercelUserStore.createUser({
+      email: email.toLowerCase(),
+      password: hashedPassword,
       name,
-      isAdmin: isAdmin || false
+      isAdmin: isAdmin || false,
+      profile: {
+        slug,
+        title: isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı',
+        bio: `${name} - QART dijital kartvizit kullanıcısı`,
+        phone: '+90 555 000 0000',
+        companyName: isAdmin ? 'QART Team' : ''
+      }
     })
 
     console.log("✅ Yeni kullanıcı eklendi:", email)
@@ -71,7 +93,7 @@ export async function POST(request: NextRequest) {
 // Tüm kullanıcıları getir (admin için)
 export async function GET(request: NextRequest) {
   try {
-    const users = fileUserStore.getAllUsers()
+    const users = await vercelUserStore.getAllUsers()
 
     return NextResponse.json({
       success: true,

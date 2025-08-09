@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { hybridUserStore } from '@/lib/hybrid-user-store'
+import { vercelUserStore } from '@/lib/vercel-user-store'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from hybrid store
-    const users = await hybridUserStore.getAllUsers()
+    // Get all users from vercel store
+    const users = await vercelUserStore.getAllUsers()
     
     // Calculate real statistics
     const totalUsers = users.length

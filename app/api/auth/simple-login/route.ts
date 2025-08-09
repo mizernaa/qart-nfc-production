@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { hybridUserStore } from "@/lib/hybrid-user-store"
+import { vercelUserStore } from "@/lib/vercel-user-store"
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,15 +13,15 @@ export async function POST(request: NextRequest) {
       nodeEnv: process.env.NODE_ENV
     })
 
-    // Kullanıcıyı bul (Hybrid store - PostgreSQL first, fallback second)
-    console.log("🔍 Searching for user with hybrid store...")
-    const user = await hybridUserStore.findByEmail(email)
+    // Kullanıcıyı bul (Vercel store - Pure in-memory)
+    console.log("🔍 Searching for user with Vercel store...")
+    const user = await vercelUserStore.findByEmail(email)
     console.log("👤 User search result:", user ? { email: user.email, isAdmin: user.isAdmin, id: user.id } : "NULL")
     
     if (!user) {
       console.log("❌ User not found:", email)
       // Log all available users for debugging
-      const allUsers = await hybridUserStore.getAllUsers()
+      const allUsers = await vercelUserStore.getAllUsers()
       console.log("📋 Available users:", allUsers.map(u => u.email))
       return NextResponse.json(
         { success: false, message: "Geçersiz email veya şifre" },
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Şifre doğrulama
     console.log("🔑 Verifying password for user:", email)
     console.log("🔒 User password hash:", user.password ? user.password.substring(0, 10) + '...' : 'NO HASH')
-    const isValidPassword = await hybridUserStore.verifyPassword(user, password)
+    const isValidPassword = await vercelUserStore.verifyPassword(user, password)
     console.log("✅ Password verification result:", isValidPassword)
     
     if (!isValidPassword) {

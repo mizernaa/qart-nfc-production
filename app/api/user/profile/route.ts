@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { hybridUserStore } from '@/lib/hybrid-user-store'
+import { vercelUserStore } from '@/lib/vercel-user-store'
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
     
     // Kullanıcıyı bul
     const user = userId 
-      ? await hybridUserStore.findById(userId)
-      : await hybridUserStore.findByEmail(userEmail!)
+      ? await vercelUserStore.findById(userId)
+      : await vercelUserStore.findByEmail(userEmail!)
     
     if (!user) {
       return NextResponse.json(

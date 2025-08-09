@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { hybridUserStore } from '@/lib/hybrid-user-store'
+import { vercelUserStore } from '@/lib/vercel-user-store'
 
 export async function GET(request: NextRequest) {
   try {
     // Diagnostic bilgileri al
-    const diagnostics = await hybridUserStore.getDiagnosticInfo()
+    const diagnostics = vercelUserStore.getDiagnosticInfo()
     
     // User backup data (şifreler hariç)
-    const users = (await hybridUserStore.getAllUsers()).map(user => ({
+    const users = (await vercelUserStore.getAllUsers()).map(user => ({
       id: user.id,
       email: user.email,
       name: user.name,

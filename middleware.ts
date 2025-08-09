@@ -66,7 +66,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Stats ve Profile API routes - dashboard internal kullanımı için public
-  if (pathname === '/api/stats' || pathname.startsWith('/api/user/stats') || pathname.startsWith('/api/user/profile') || pathname.startsWith('/api/profile/') || pathname.startsWith('/api/upload/') || pathname === '/api/database-debug' || pathname === '/api/init-users' || pathname === '/api/reset-users' || pathname === '/api/fix-passwords') {
+  if (pathname === '/api/stats' || pathname.startsWith('/api/user/stats') || pathname.startsWith('/api/user/profile') || pathname.startsWith('/api/profile/') || pathname.startsWith('/api/upload/') || pathname === '/api/database-debug' || pathname === '/api/init-users' || pathname === '/api/reset-users' || pathname === '/api/fix-passwords' || pathname === '/api/simple-password-fix') {
     return response
   }
 

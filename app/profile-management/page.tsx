@@ -198,8 +198,9 @@ export default function ProfileManagementPage() {
     try {
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('type', type)
       
-      const response = await fetch('/api/upload/simple', {
+      const response = await fetch('/api/upload/image', {
         method: 'POST',
         body: formData
       })

@@ -70,16 +70,21 @@ class HybridUserStore {
         console.log('✅ User found in PostgreSQL:', email)
         return user
       }
-    } catch (error) {
-      console.warn('⚠️ PostgreSQL unavailable, using fallback:', error.message)
+    } catch (error: any) {
+      console.warn('⚠️ PostgreSQL unavailable, using fallback:', error?.message || 'Unknown error')
     }
 
-    // Fallback to memory
+    // Fallback to memory - ALWAYS CHECK FALLBACK
+    console.log('🔄 Checking fallback users for:', email)
     const user = this.fallbackUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
     if (user) {
-      console.log('🔄 User found in fallback store:', email)
+      console.log('✅ User found in fallback store:', email)
+      return user
+    } else {
+      console.log('❌ User not found in fallback store:', email)
+      console.log('📋 Available fallback emails:', this.fallbackUsers.map(u => u.email))
+      return null
     }
-    return user
   }
 
   async findById(id: string) {
@@ -105,15 +110,15 @@ class HybridUserStore {
       const { prismaUserStore } = await import('./prisma-user-store')
       const users = await prismaUserStore.getAllUsers()
       if (users && users.length > 0) {
-        console.log('✅ Users loaded from PostgreSQL')
+        console.log('✅ Users loaded from PostgreSQL:', users.length)
         return users
       }
-    } catch (error) {
-      console.warn('⚠️ PostgreSQL unavailable, using fallback')
+    } catch (error: any) {
+      console.warn('⚠️ PostgreSQL unavailable, using fallback:', error?.message || 'Unknown error')
     }
 
-    // Fallback to memory
-    console.log('🔄 Using fallback user data')
+    // Fallback to memory - ALWAYS RETURN FALLBACK
+    console.log('🔄 Using fallback user data:', this.fallbackUsers.length, 'users')
     return this.fallbackUsers
   }
 

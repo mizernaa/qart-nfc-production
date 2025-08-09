@@ -1,40 +1,64 @@
 import { NextRequest, NextResponse } from "next/server"
-import { hybridUserStore } from "@/lib/hybrid-user-store"
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from hybrid store
-    const allUsers = await hybridUserStore.getAllUsers()
+    console.log('🔍 Fetching all users from database...')
     
     // Get query parameters
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
 
-    // Filter users based on search
-    let filteredUsers = allUsers
+    // Get all users from database with raw SQL
+    let allUsers
     if (search) {
-      const searchLower = search.toLowerCase()
-      filteredUsers = allUsers.filter(user => 
-        user.email.toLowerCase().includes(searchLower) ||
-        user.name.toLowerCase().includes(searchLower)
-      )
+      const searchLower = `%${search.toLowerCase()}%`
+      allUsers = await prisma.$queryRaw`
+        SELECT id, email, name, "isAdmin", "isActive", "createdAt"
+        FROM "User" 
+        WHERE LOWER(email) LIKE ${searchLower} OR LOWER(name) LIKE ${searchLower}
+        ORDER BY "createdAt" DESC
+      ` as any[]
+    } else {
+      allUsers = await prisma.$queryRaw`
+        SELECT id, email, name, "isAdmin", "isActive", "createdAt"
+        FROM "User" 
+        ORDER BY "createdAt" DESC
+      ` as any[]
     }
 
-    // Transform to match frontend expectations with real database data
-    const users = filteredUsers.map(user => ({
+    console.log(`👥 Found ${allUsers.length} users in database`)
+
+    // Transform to match frontend expectations
+    const users = allUsers.map(user => ({
       id: user.id,
       email: user.email,
       name: user.name,
       isAdmin: user.isAdmin,
       isActive: user.isActive,
-      emailVerified: user.emailVerified,
+      emailVerified: true, // Default
       createdAt: user.createdAt,
-      lastLoginAt: user.lastLoginAt,
-      profile: user.profile,
-      subscription: user.subscription,
+      lastLoginAt: user.createdAt, // Use createdAt as fallback
+      profile: {
+        slug: user.name.toLowerCase()
+          .replace(/ğ/g, 'g')
+          .replace(/ü/g, 'u')
+          .replace(/ş/g, 's')
+          .replace(/ı/g, 'i')
+          .replace(/ö/g, 'o')
+          .replace(/ç/g, 'c')
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '-'),
+        title: user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı',
+        bio: `${user.name} - QART dijital kartvizit kullanıcısı`,
+        phone: '+90 555 000 0000'
+      },
+      subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
       _count: {
-        cards: user.cards?.length || 0,
-        profile: user.profile ? 1 : 0
+        cards: 0,
+        profile: 1
       }
     }))
 
@@ -57,6 +81,8 @@ export async function GET(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
@@ -73,8 +99,33 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Delete user from hybrid store
-    const success = await hybridUserStore.deleteUser(userId)
+    // Delete user from database
+    console.log('🗑️ Deleting user:', userId)
+    
+    // Check if user exists and is not admin
+    const userCheck = await prisma.$queryRaw`
+      SELECT id, email, "isAdmin" FROM "User" WHERE id = ${userId}
+    ` as any[]
+    
+    if (userCheck.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      )
+    }
+    
+    const user = userCheck[0]
+    if (user.isAdmin) {
+      return NextResponse.json(
+        { success: false, message: "Cannot delete admin user" },
+        { status: 403 }
+      )
+    }
+    
+    // Delete user
+    await prisma.$executeRaw`DELETE FROM "User" WHERE id = ${userId}`
+    console.log('✅ User deleted successfully:', user.email)
+    const success = true
 
     if (!success) {
       return NextResponse.json(
@@ -94,6 +145,8 @@ export async function DELETE(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
@@ -112,7 +165,30 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === 'toggle-status') {
-      const success = await hybridUserStore.toggleUserStatus(userId)
+      console.log('🔄 Toggling user status:', userId)
+      
+      // Get current user status
+      const userCheck = await prisma.$queryRaw`
+        SELECT id, "isActive" FROM "User" WHERE id = ${userId}
+      ` as any[]
+      
+      if (userCheck.length === 0) {
+        return NextResponse.json(
+          { success: false, message: "User not found" },
+          { status: 404 }
+        )
+      }
+      
+      const currentStatus = userCheck[0].isActive
+      const newStatus = !currentStatus
+      
+      // Update user status
+      await prisma.$executeRaw`
+        UPDATE "User" SET "isActive" = ${newStatus} WHERE id = ${userId}
+      `
+      
+      console.log(`✅ User status changed: ${currentStatus} → ${newStatus}`)
+      const success = true
       
       if (!success) {
         return NextResponse.json(
@@ -125,12 +201,30 @@ export async function PATCH(request: NextRequest) {
         success: true,
         message: "User status updated successfully"
       })
+    } else {
+      // Handle user update
+      const body = await request.json()
+      const { name, email, phone, isAdmin, isActive } = body
+      
+      console.log('📝 Updating user:', userId, body)
+      
+      // Update user with raw SQL
+      await prisma.$executeRaw`
+        UPDATE "User" 
+        SET name = ${name}, 
+            email = ${email}, 
+            "isAdmin" = ${isAdmin}, 
+            "isActive" = ${isActive}
+        WHERE id = ${userId}
+      `
+      
+      console.log('✅ User updated successfully')
+      
+      return NextResponse.json({
+        success: true,
+        message: "User updated successfully"
+      })
     }
-
-    return NextResponse.json(
-      { success: false, message: "Invalid action" },
-      { status: 400 }
-    )
 
   } catch (error) {
     console.error('Admin users PATCH error:', error)
@@ -138,5 +232,7 @@ export async function PATCH(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }

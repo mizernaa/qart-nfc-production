@@ -32,7 +32,7 @@ export default function LoginForm() {
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || "Giriş başarısız")
+        setError(data.message || "Giriş başarısız")
         return
       }
 

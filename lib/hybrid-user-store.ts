@@ -176,7 +176,8 @@ class HybridUserStore {
       const { prismaUserStore } = await import('./prisma-user-store')
       const diagnostics = await prismaUserStore.getDiagnosticInfo()
       return diagnostics
-    } catch (error) {
+    } catch (error: any) {
+      console.warn('⚠️ PostgreSQL diagnostic failed, using fallback info:', error?.message)
       return {
         environment: 'Hybrid Store (Fallback Active)',
         storage: 'FALLBACK - In-memory store active',
@@ -184,7 +185,8 @@ class HybridUserStore {
         adminCount: this.fallbackUsers.filter(u => u.isAdmin).length,
         activeCount: this.fallbackUsers.filter(u => u.isActive).length,
         storageRisk: 'MEDIUM - Using fallback until PostgreSQL reconnects',
-        healthStatus: 'FALLBACK_MODE'
+        healthStatus: 'FALLBACK_MODE',
+        fallbackUsers: this.fallbackUsers.map(u => ({ email: u.email, name: u.name, isAdmin: u.isAdmin }))
       }
     }
   }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { vercelUserStore } from "@/lib/vercel-user-store"
 
 export async function POST(request: NextRequest) {
+  // Force redeploy - Vercel login test 9 Ağustos 2025
   try {
     const body = await request.json()
     const { email, password } = body

@@ -51,7 +51,7 @@ export default function KayitOlPage() {
     }
 
     try {
-      const response = await fetch("/api/users/register", {
+      const response = await fetch("/api/users/db-register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

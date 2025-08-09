@@ -20,8 +20,8 @@ interface User {
   }
 }
 
-// Global in-memory users - Vercel serverless için
-let MEMORY_USERS: User[] = [
+// Global in-memory users - Vercel serverless için - GUARANTEED initialization
+const INITIAL_USERS: User[] = [
   {
     id: '1',
     email: 'admin@qart.app',
@@ -56,14 +56,29 @@ let MEMORY_USERS: User[] = [
   }
 ]
 
+// Global state with guaranteed fallback
+let MEMORY_USERS: User[] = []
+
 class VercelUserStore {
+  private initialized = false
   constructor() {
+    this.ensureInitialized()
     console.log('🚀 Vercel User Store initialized - Pure in-memory')
-    console.log('👥 Initial users:', MEMORY_USERS.length)
+    console.log('👥 Memory users count:', MEMORY_USERS.length)
     console.log('🔑 Users:', MEMORY_USERS.map(u => ({ email: u.email, isAdmin: u.isAdmin })))
   }
 
+  private ensureInitialized() {
+    if (!this.initialized || MEMORY_USERS.length === 0) {
+      console.log('🔧 Force initializing users...')
+      MEMORY_USERS = [...INITIAL_USERS]
+      this.initialized = true
+      console.log('✅ Users force initialized:', MEMORY_USERS.length)
+    }
+  }
+
   async findByEmail(email: string): Promise<User | null> {
+    this.ensureInitialized() // Always ensure users are initialized
     console.log('🔍 Finding user by email:', email)
     console.log('📊 Total users in memory:', MEMORY_USERS.length)
     
@@ -86,11 +101,13 @@ class VercelUserStore {
   }
 
   async getAllUsers(): Promise<User[]> {
+    this.ensureInitialized() // Always ensure users are initialized
     console.log('📜 Getting all users:', MEMORY_USERS.length)
     return [...MEMORY_USERS]
   }
 
   async createUser(userData: Omit<User, 'id' | 'createdAt' | 'isActive'>): Promise<User> {
+    this.ensureInitialized() // Always ensure users are initialized
     console.log('➕ Creating new user:', userData.email)
     
     const newUser: User = {

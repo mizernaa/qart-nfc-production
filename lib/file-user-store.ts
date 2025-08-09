@@ -24,39 +24,60 @@ class FileUserStore {
     const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV
     if (isVercel) {
       this.dbPath = '/tmp/users-db.json'
-      console.log('Using Vercel temp storage for users')
+      console.log('⚠️ Using Vercel temp storage for users - data may be lost on restart')
     } else {
       this.dbPath = path.join(process.cwd(), 'lib', 'users-db.json')
-      console.log('Using local file storage for users')
+      console.log('✅ Using local file storage for users')
     }
     
     // Eğer dosya yoksa varsayılan kullanıcılarla oluştur
     this.initDB()
+    
+    // Vercel'de data loss risk'ini log'la
+    if (isVercel) {
+      console.warn('🔄 VERCEL TEMP STORAGE: Users may be reset on cold starts or deployments')
+    }
   }
 
   private getDefaultData(): UsersDB {
-    return {
-      users: [
-        {
-          id: '1',
-          email: 'admin@qart.app',
-          password: '$2b$12$gGAbDTg.q9wBElTchW9CB.mUbQ880qTZlkp65KSwTcPJSLL8sYkPy',
-          name: 'Admin User',
-          isAdmin: true,
-          isActive: true,
-          createdAt: '2024-01-01T00:00:00.000Z'
-        },
-        {
-          id: '2',
-          email: 'demo@qart.app',
-          password: '$2b$12$YR/Qq7LByMYjyVXrLrioA.qfjcgYqA20DnrkZS/EpuluUliQ.5mWO',
-          name: 'Demo User',
-          isAdmin: false,
-          isActive: true,
-          createdAt: '2024-01-01T00:00:00.000Z'
+    // Base default users - her zaman olması gereken kullanıcılar
+    const defaultUsers: User[] = [
+      {
+        id: '1',
+        email: 'admin@qart.app',
+        password: '$2b$12$gGAbDTg.q9wBElTchW9CB.mUbQ880qTZlkp65KSwTcPJSLL8sYkPy',
+        name: 'Admin User',
+        isAdmin: true,
+        isActive: true,
+        createdAt: '2024-01-01T00:00:00.000Z'
+      },
+      {
+        id: '2',
+        email: 'demo@qart.app',
+        password: '$2b$12$YR/Qq7LByMYjyVXrLrioA.qfjcgYqA20DnrkZS/EpuluUliQ.5mWO',
+        name: 'Demo User',
+        isAdmin: false,
+        isActive: true,
+        createdAt: '2024-01-01T00:00:00.000Z'
+      }
+    ]
+
+    // Vercel'de backup user data kontrol et
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV
+    if (isVercel && process.env.BACKUP_USER_DATA) {
+      try {
+        const backupData = JSON.parse(process.env.BACKUP_USER_DATA)
+        if (backupData && Array.isArray(backupData)) {
+          console.log('🔄 Restoring users from BACKUP_USER_DATA environment variable')
+          return { users: backupData }
         }
-      ]
+      } catch (error) {
+        console.error('❌ Error parsing BACKUP_USER_DATA:', error)
+      }
     }
+
+    console.log('📦 Using default user data (admin + demo)')
+    return { users: defaultUsers }
   }
 
   private initDB() {
@@ -68,11 +89,24 @@ class FileUserStore {
   private loadDB(): UsersDB {
     try {
       const data = fs.readFileSync(this.dbPath, 'utf-8')
-      return JSON.parse(data)
+      const db = JSON.parse(data)
+      
+      // Minimum kullanıcı kontrolü - admin ve demo mutlaka olmalı
+      if (!db.users || db.users.length < 2) {
+        console.warn('⚠️ Database corrupted or missing users - rebuilding...')
+        const defaultData = this.getDefaultData()
+        this.saveDB(defaultData)
+        return defaultData
+      }
+      
+      return db
     } catch (error) {
-      console.error('Error loading database:', error)
-      // Hata durumunda varsayılan veriyi döndür
-      return this.getDefaultData()
+      console.error('❌ Error loading database:', error)
+      console.log('🔧 Rebuilding database with default data...')
+      // Hata durumunda varsayılan veriyi döndür ve kaydet
+      const defaultData = this.getDefaultData()
+      this.saveDB(defaultData)
+      return defaultData
     }
   }
 
@@ -149,6 +183,12 @@ class FileUserStore {
     return db.users.length
   }
 
+  // Tüm kullanıcıları getir
+  getAllUsers(): User[] {
+    const db = this.loadDB()
+    return db.users
+  }
+
   // Kullanıcı sil
   deleteUser(id: string): boolean {
     const db = this.loadDB()
@@ -186,6 +226,30 @@ class FileUserStore {
     
     console.log(`✅ User status changed: ${user.email} → ${user.isActive ? 'active' : 'inactive'}`)
     return true
+  }
+
+  // Backup ve restore methods for Vercel
+  exportUsersForBackup(): string {
+    const db = this.loadDB()
+    return JSON.stringify(db.users, null, 2)
+  }
+
+  // Database status için diagnostic bilgi
+  getDiagnosticInfo(): object {
+    const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV
+    const dbExists = fs.existsSync(this.dbPath)
+    const db = this.loadDB()
+    
+    return {
+      environment: isVercel ? 'Vercel' : 'Local',
+      dbPath: this.dbPath,
+      dbExists,
+      userCount: db.users.length,
+      adminCount: db.users.filter(u => u.isAdmin).length,
+      activeCount: db.users.filter(u => u.isActive).length,
+      hasBackupEnv: !!process.env.BACKUP_USER_DATA,
+      storageRisk: isVercel ? 'HIGH - Temp storage may reset' : 'LOW - Persistent storage'
+    }
   }
 }
 

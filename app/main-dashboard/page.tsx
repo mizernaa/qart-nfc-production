@@ -208,7 +208,7 @@ export default function MainDashboardPage() {
   }
 
   useEffect(() => {
-    // State'leri her zaman sıfırla
+    // Analytics state'ini sıfırla (profile state'ini sıfırlama - slug kaybını engeller)
     setAnalytics({
       overview: {
         totalViews: 0,
@@ -230,22 +230,7 @@ export default function MainDashboardPage() {
       referrerStats: []
     })
     
-    setProfile({
-      name: "",
-      title: "",
-      bio: "",
-      companyName: "",
-      phone: "",
-      email: "",
-      website: "",
-      address: "",
-      city: "",
-      country: "",
-      slug: "",
-      isPremium: false,
-      isPublic: true,
-      profileImage: ""
-    })
+    // Profile state sıfırlama kaldırıldı - fetchUserProfile zaten doğru verileri set edecek
     
     const savedUser = localStorage.getItem("user")
     const tempUser = localStorage.getItem("tempUser")

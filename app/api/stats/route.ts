@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prismaUserStore } from '@/lib/prisma-user-store'
+import { hybridUserStore } from '@/lib/hybrid-user-store'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from database
-    const users = await prismaUserStore.getAllUsers()
+    // Get all users from hybrid store
+    const users = await hybridUserStore.getAllUsers()
     
     // Calculate real statistics
     const totalUsers = users.length

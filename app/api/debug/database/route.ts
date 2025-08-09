@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prismaUserStore } from '@/lib/prisma-user-store'
+import { hybridUserStore } from '@/lib/hybrid-user-store'
 
 export async function GET(request: NextRequest) {
   try {
     // Diagnostic bilgileri al
-    const diagnostics = await prismaUserStore.getDiagnosticInfo()
+    const diagnostics = await hybridUserStore.getDiagnosticInfo()
     
     // User backup data (şifreler hariç)
-    const users = (await prismaUserStore.getAllUsers()).map(user => ({
+    const users = (await hybridUserStore.getAllUsers()).map(user => ({
       id: user.id,
       email: user.email,
       name: user.name,

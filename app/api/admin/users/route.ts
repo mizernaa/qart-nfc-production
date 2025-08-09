@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { prismaUserStore } from "@/lib/prisma-user-store"
+import { hybridUserStore } from "@/lib/hybrid-user-store"
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from database
-    const allUsers = await prismaUserStore.getAllUsers()
+    // Get all users from hybrid store
+    const allUsers = await hybridUserStore.getAllUsers()
     
     // Get query parameters
     const { searchParams } = new URL(request.url)
@@ -73,8 +73,8 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Delete user from database
-    const success = await prismaUserStore.deleteUser(userId)
+    // Delete user from hybrid store
+    const success = await hybridUserStore.deleteUser(userId)
 
     if (!success) {
       return NextResponse.json(
@@ -112,7 +112,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === 'toggle-status') {
-      const success = await prismaUserStore.toggleUserStatus(userId)
+      const success = await hybridUserStore.toggleUserStatus(userId)
       
       if (!success) {
         return NextResponse.json(

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { prismaUserStore } from "@/lib/prisma-user-store"
+import { hybridUserStore } from "@/lib/hybrid-user-store"
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,8 +8,8 @@ export async function POST(request: NextRequest) {
 
     console.log("🔐 Login attempt:", email)
 
-    // Kullanıcıyı bul
-    const user = await prismaUserStore.findByEmail(email)
+    // Kullanıcıyı bul (Hybrid store - PostgreSQL first, fallback second)
+    const user = await hybridUserStore.findByEmail(email)
     
     if (!user) {
       console.log("❌ User not found:", email)
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Şifre doğrulama
-    const isValidPassword = await prismaUserStore.verifyPassword(user, password)
+    const isValidPassword = await hybridUserStore.verifyPassword(user, password)
     
     if (!isValidPassword) {
       console.log("❌ Invalid password for:", email)
@@ -38,9 +38,6 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
-
-    // Last login güncelle
-    await prismaUserStore.updateLastLogin(user.id)
 
     console.log("✅ Login successful for:", email)
     

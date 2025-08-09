@@ -22,8 +22,7 @@ export async function POST(request: NextRequest) {
         password: adminPasswordHash,
         name: 'Admin User',
         isAdmin: true,
-        isActive: true,
-        emailVerified: true
+        isActive: true
       }
     })
     console.log('✅ Admin user created:', adminUser.email)
@@ -38,8 +37,7 @@ export async function POST(request: NextRequest) {
         password: demoPasswordHash,
         name: 'Demo User',
         isAdmin: false,
-        isActive: true,
-        emailVerified: true
+        isActive: true
       }
     })
     console.log('✅ Demo user created:', demoUser.email)

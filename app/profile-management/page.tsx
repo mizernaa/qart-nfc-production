@@ -194,6 +194,47 @@ export default function ProfileManagementPage() {
     setLoading(false)
   }, [])
 
+  const handleFileUpload = async (file: File, type: 'profile' | 'cover' | 'logo') => {
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const response = await fetch('/api/upload/simple', {
+        method: 'POST',
+        body: formData
+      })
+      
+      if (!response.ok) {
+        throw new Error('Upload failed')
+      }
+      
+      const { url } = await response.json()
+      
+      // Update the appropriate field
+      if (type === 'profile') {
+        setProfileData(prev => ({
+          ...prev,
+          personal: { ...prev.personal, profileImage: url }
+        }))
+      } else if (type === 'cover') {
+        setProfileData(prev => ({
+          ...prev,
+          personal: { ...prev.personal, coverImage: url }
+        }))
+      } else if (type === 'logo') {
+        setProfileData(prev => ({
+          ...prev,
+          company: { ...prev.company, logo: url }
+        }))
+      }
+      
+      alert('Görsel başarıyla yüklendi!')
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Görsel yüklenirken hata oluştu!')
+    }
+  }
+
   const handleSave = async () => {
     if (!user?.email) return
     
@@ -361,23 +402,56 @@ export default function ProfileManagementPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-400 mb-2">Profil Fotoğrafı</label>
                       <div className="flex items-center space-x-4">
-                        <div className="h-20 w-20 bg-gray-800 rounded-full flex items-center justify-center border-2 border-gray-700">
-                          <Camera className="h-8 w-8 text-gray-500" />
+                        <div className="h-20 w-20 bg-gray-800 rounded-full flex items-center justify-center border-2 border-gray-700 overflow-hidden">
+                          {profileData.personal.profileImage ? (
+                            <img src={profileData.personal.profileImage} alt="Profile" className="h-full w-full object-cover" />
+                          ) : (
+                            <Camera className="h-8 w-8 text-gray-500" />
+                          )}
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) handleFileUpload(file, 'profile')
+                          }}
+                          className="hidden"
+                          id="profile-upload"
+                        />
+                        <label
+                          htmlFor="profile-upload"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm cursor-pointer"
+                        >
                           Fotoğraf Yükle
-                        </button>
+                        </label>
                       </div>
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium text-gray-400 mb-2">Kapak Görseli</label>
                       <div className="h-20 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700">
-                        <button className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-sm flex items-center space-x-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) handleFileUpload(file, 'cover')
+                          }}
+                          className="hidden"
+                          id="cover-upload"
+                        />
+                        <label
+                          htmlFor="cover-upload"
+                          className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 text-sm flex items-center space-x-2 cursor-pointer"
+                        >
                           <Upload className="h-4 w-4" />
                           <span>Görsel Yükle</span>
-                        </button>
+                        </label>
                       </div>
+                      {profileData.personal.coverImage && (
+                        <img src={profileData.personal.coverImage} alt="Cover" className="mt-2 h-20 w-full object-cover rounded-lg" />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -487,12 +561,29 @@ export default function ProfileManagementPage() {
                     <div>
                       <label className="block text-sm font-medium text-gray-400 mb-2">Şirket Logosu</label>
                       <div className="flex items-center space-x-4">
-                        <div className="h-20 w-20 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700">
-                          <Building className="h-8 w-8 text-gray-500" />
+                        <div className="h-20 w-20 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700 overflow-hidden">
+                          {profileData.company.logo ? (
+                            <img src={profileData.company.logo} alt="Logo" className="h-full w-full object-cover" />
+                          ) : (
+                            <Building className="h-8 w-8 text-gray-500" />
+                          )}
                         </div>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) handleFileUpload(file, 'logo')
+                          }}
+                          className="hidden"
+                          id="logo-upload"
+                        />
+                        <label
+                          htmlFor="logo-upload"
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm cursor-pointer"
+                        >
                           Logo Yükle
-                        </button>
+                        </label>
                       </div>
                     </div>
                   </div>

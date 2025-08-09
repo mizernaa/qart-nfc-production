@@ -148,6 +148,45 @@ class FileUserStore {
     const db = this.loadDB()
     return db.users.length
   }
+
+  // Kullanıcı sil
+  deleteUser(id: string): boolean {
+    const db = this.loadDB()
+    const userIndex = db.users.findIndex(u => u.id === id)
+    
+    if (userIndex === -1) {
+      return false // Kullanıcı bulunamadı
+    }
+    
+    // Admin kullanıcısının silinmesini engelle
+    const user = db.users[userIndex]
+    if (user.isAdmin) {
+      console.log('⚠️ Admin user deletion prevented:', user.email)
+      return false
+    }
+    
+    db.users.splice(userIndex, 1)
+    this.saveDB(db)
+    
+    console.log('✅ User deleted from file store:', user.email)
+    return true
+  }
+
+  // Kullanıcı durumunu değiştir (aktif/deaktif)
+  toggleUserStatus(id: string): boolean {
+    const db = this.loadDB()
+    const user = db.users.find(u => u.id === id)
+    
+    if (!user) {
+      return false // Kullanıcı bulunamadı
+    }
+    
+    user.isActive = !user.isActive
+    this.saveDB(db)
+    
+    console.log(`✅ User status changed: ${user.email} → ${user.isActive ? 'active' : 'inactive'}`)
+    return true
+  }
 }
 
 // Singleton instance

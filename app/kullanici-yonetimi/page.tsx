@@ -25,7 +25,7 @@ import {
   Eye,
   Settings,
   ArrowLeft,
-  Link
+  Link as LinkIcon
 } from "lucide-react"
 
 export default function KullaniciYonetimiPage() {
@@ -65,7 +65,7 @@ export default function KullaniciYonetimiPage() {
   // API'den kullanıcıları çek
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users/register')
+      const response = await fetch('/api/admin/users')
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.users) {
@@ -157,15 +157,53 @@ export default function KullaniciYonetimiPage() {
     setShowEditUserModal(true)
   }
 
-  const toggleUserStatus = (userId: string) => {
-    setUsers(users.map(user => 
-      user.id === userId ? {...user, isActive: !user.isActive} : user
-    ))
+  const toggleUserStatus = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/admin/users?id=${userId}&action=toggle-status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        // Kullanıcı listesini yenile
+        fetchUsers()
+        alert('Kullanıcı durumu güncellendi!')
+      } else {
+        alert('Hata: ' + data.message)
+      }
+    } catch (error) {
+      console.error('Toggle user status error:', error)
+      alert('Bir hata oluştu!')
+    }
   }
 
-  const deleteUser = (userId: string) => {
+  const deleteUser = async (userId: string) => {
     if (confirm("Bu kullanıcıyı silmek istediğinizden emin misiniz?")) {
-      setUsers(users.filter(user => user.id !== userId))
+      try {
+        const response = await fetch(`/api/admin/users?id=${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+
+        const data = await response.json()
+        
+        if (data.success) {
+          // Kullanıcı listesini yenile
+          fetchUsers()
+          alert('Kullanıcı başarıyla silindi!')
+        } else {
+          alert('Hata: ' + data.message)
+        }
+      } catch (error) {
+        console.error('Delete user error:', error)
+        alert('Bir hata oluştu!')
+      }
     }
   }
 
@@ -610,7 +648,7 @@ export default function KullaniciYonetimiPage() {
                                 }}
                                 className="w-full px-4 py-2 text-left text-sm text-gray-300 hover:bg-gray-700 flex items-center"
                               >
-                                <Link className="h-4 w-4 mr-2" />
+                                <LinkIcon className="h-4 w-4 mr-2" />
                                 Profil Linkini Kopyala
                               </button>
                               <button

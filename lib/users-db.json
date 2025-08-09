@@ -19,31 +19,13 @@
       "createdAt": "2024-01-01T00:00:00.000Z"
     },
     {
-      "id": "1754666422379",
+      "id": "1754741788137",
       "email": "omeraytac@gmail.com",
-      "password": "$2b$12$okOJwKsKgPvdKfqeKOLjBefniE/2TKkL.HnJ00iZRKajqWHH2AH3.",
-      "name": "omer",
-      "isAdmin": false,
-      "isActive": true,
-      "createdAt": "2025-08-08T15:20:22.379Z"
-    },
-    {
-      "id": "1754669613010",
-      "email": "omer.aytac@hotmail.com",
-      "password": "$2b$12$FZDJaucuRJql9AZ0uB9zCu2ZRI7bLE/MgL5PwX6uz6tJnbr7wxrbu",
+      "password": "$2b$12$ETPavqKEeeKgbPZpw4.hkufkQbAGB6aNs2WWsDBOybAUR7rQQv/Uu",
       "name": "ömer aytaç",
       "isAdmin": false,
       "isActive": true,
-      "createdAt": "2025-08-08T16:13:33.010Z"
-    },
-    {
-      "id": "1754680654240",
-      "email": "omeraytac@gmail.com.tr",
-      "password": "$2b$12$teH48MrZfCRMVYE3n8MVaemnthcpRDL71D5dFSXCkhDvKDfgNH8Em",
-      "name": "ömer aytaç",
-      "isAdmin": false,
-      "isActive": true,
-      "createdAt": "2025-08-08T19:17:34.240Z"
+      "createdAt": "2025-08-09T12:16:28.137Z"
     }
   ]
 }

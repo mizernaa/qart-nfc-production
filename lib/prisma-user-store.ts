@@ -39,8 +39,7 @@ class PrismaUserStore {
             password: adminPasswordHash,
             name: 'Admin User',
             isAdmin: true,
-            isActive: true,
-            emailVerified: true
+            isActive: true
           }
         })
 
@@ -52,8 +51,7 @@ class PrismaUserStore {
             password: demoPasswordHash,
             name: 'Demo User',
             isAdmin: false,
-            isActive: true,
-            emailVerified: true
+            isActive: true
           }
         })
 
@@ -135,8 +133,7 @@ class PrismaUserStore {
           password: hashedPassword,
           name: data.name,
           isAdmin: data.isAdmin || false,
-          isActive: true,
-          emailVerified: false
+          isActive: true
         }
       })
 
@@ -258,12 +255,8 @@ class PrismaUserStore {
   // Update last login
   async updateLastLogin(id: string) {
     try {
-      await prisma.user.update({
-        where: { id },
-        data: {
-          lastLoginAt: new Date()
-        }
-      })
+      // Skip updating lastLoginAt as column doesn't exist in database
+      console.log('Last login update skipped - column not in schema')
     } catch (error) {
       console.error('Error updating last login:', error)
     }

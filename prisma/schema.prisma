@@ -14,11 +14,7 @@ model User {
   name              String
   isActive          Boolean   @default(true)
   isAdmin           Boolean   @default(false)
-  emailVerified     Boolean   @default(false)
-  twoFactorEnabled  Boolean   @default(false)
   createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  lastLoginAt       DateTime?
   subscription      Subscription?
   profile           Profile?
   cards             Card[]
@@ -67,7 +63,6 @@ model Profile {
   enableCalendar    Boolean   @default(false)
   calendarLink      String?
   createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
 }
 
 model SocialLink {

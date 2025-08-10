@@ -3,6 +3,7 @@ import { z } from "zod"
 import bcrypt from 'bcryptjs'
 import fs from 'fs'
 import path from 'path'
+import { vercelUserStore } from '@/lib/vercel-user-store'
 
 // Validation schema
 const registerSchema = z.object({
@@ -32,84 +33,136 @@ export async function POST(request: NextRequest) {
 
     const { email, password, name, isAdmin } = validation.data
 
-    // File-based kullanıcı sistemi yükle
-    const usersFilePath = path.join(process.cwd(), 'data', 'users.json')
+    // Vercel production ortamında mı kontrol et
+    const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
     
-    let users = []
-    try {
-      const usersData = fs.readFileSync(usersFilePath, 'utf-8')
-      users = JSON.parse(usersData)
-    } catch (error) {
-      // Dosya yoksa boş array ile başla
-      users = []
-    }
-
-    // Email kontrolü
-    const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase())
-    if (existingUser) {
-      return NextResponse.json(
-        { success: false, message: "Bu email zaten kullanımda" },
-        { status: 400 }
-      )
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12)
-    
-    // Create slug from name
-    const slug = name.toLowerCase()
-      .replace(/ğ/g, 'g')
-      .replace(/ü/g, 'u') 
-      .replace(/ş/g, 's')
-      .replace(/ı/g, 'i')
-      .replace(/ö/g, 'o')
-      .replace(/ç/g, 'c')
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '-')
-
-    // Yeni kullanıcı oluştur
-    const newUser = {
-      id: `user-${Date.now()}`,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      name,
-      isAdmin: isAdmin || false,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      profile: {
-        slug,
-        title: isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı',
-        bio: `${name} - QART dijital kartvizit kullanıcısı`,
-        phone: '+90 555 000 0000',
-        companyName: isAdmin ? 'QART Team' : ''
+    if (isProduction) {
+      // Production - Vercel in-memory store kullan
+      console.log("🌐 Production mode - using Vercel store")
+      
+      const existingUser = await vercelUserStore.findByEmail(email)
+      if (existingUser) {
+        return NextResponse.json(
+          { success: false, message: "Bu email zaten kullanımda" },
+          { status: 400 }
+        )
       }
-    }
 
-    // Kullanıcıyı ekle ve kaydet
-    users.push(newUser)
-    
-    // Data klasörünü oluştur eğer yoksa
-    const dataDir = path.join(process.cwd(), 'data')
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true })
-    }
-    
-    // Dosyaya kaydet
-    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2))
+      const hashedPassword = await vercelUserStore.hashPassword(password)
+      
+      // Create slug from name
+      const slug = name.toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u') 
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
 
-    console.log("✅ Yeni kullanıcı file system'e eklendi:", email)
+      const newUser = await vercelUserStore.createUser({
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        name,
+        isAdmin: false, // Always false for public registration
+        profile: {
+          slug,
+          title: 'Kullanıcı',
+          bio: `${name} - QART dijital kartvizit kullanıcısı`,
+          phone: '+90 555 000 0000',
+          companyName: ''
+        }
+      })
 
-    return NextResponse.json({
-      success: true,
-      message: "Kullanıcı başarıyla oluşturuldu",
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        isAdmin: newUser.isAdmin,
-        profile: newUser.profile
+      console.log("✅ User created in Vercel store:", email)
+
+      return NextResponse.json({
+        success: true,
+        message: "Kullanıcı başarıyla oluşturuldu",
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          isAdmin: newUser.isAdmin,
+          profile: newUser.profile
+        }
+      })
+      
+    } else {
+      // Local development - File-based system
+      console.log("💻 Local mode - using file system")
+      
+      const usersFilePath = path.join(process.cwd(), 'data', 'users.json')
+      
+      let users = []
+      try {
+        const usersData = fs.readFileSync(usersFilePath, 'utf-8')
+        users = JSON.parse(usersData)
+      } catch (error) {
+        users = []
       }
-    })
+
+      const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase())
+      if (existingUser) {
+        return NextResponse.json(
+          { success: false, message: "Bu email zaten kullanımda" },
+          { status: 400 }
+        )
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 12)
+      
+      const slug = name.toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u') 
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+
+      const newUser = {
+        id: `user-${Date.now()}`,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        name,
+        isAdmin: isAdmin || false,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        profile: {
+          slug,
+          title: isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı',
+          bio: `${name} - QART dijital kartvizit kullanıcısı`,
+          phone: '+90 555 000 0000',
+          companyName: isAdmin ? 'QART Team' : ''
+        }
+      }
+
+      users.push(newUser)
+      
+      const dataDir = path.join(process.cwd(), 'data')
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true })
+      }
+      
+      fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2))
+
+      console.log("✅ User created in file system:", email)
+
+      return NextResponse.json({
+        success: true,
+        message: "Kullanıcı başarıyla oluşturuldu",
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          isAdmin: newUser.isAdmin,
+          profile: newUser.profile
+        }
+      })
+    }
     
   } catch (error) {
     console.error("❌ Register error:", error)

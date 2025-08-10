@@ -239,7 +239,7 @@ export default function KullaniciYonetimiPage() {
     }
 
     try {
-      const response = await fetch("/api/users/register", {
+      const response = await fetch("/api/admin/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

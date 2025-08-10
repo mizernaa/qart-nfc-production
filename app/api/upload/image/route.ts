@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { uploadToCloudinary } from "@/lib/cloudinary"
+import { writeFile, mkdir } from 'fs/promises'
+import path from 'path'
+import fs from 'fs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,32 +42,34 @@ export async function POST(request: NextRequest) {
     // Generate unique filename
     const timestamp = Date.now()
     const sanitizedName = file.name.replace(/[^a-zA-Z0-9.]/g, '_')
-    const publicId = `${type}_${timestamp}_${sanitizedName}`
+    const filename = `${type}_${timestamp}_${sanitizedName}`
     
-    // Upload to Cloudinary
-    const uploadResult = await uploadToCloudinary(buffer, {
-      folder: `qart/${type}`,
-      public_id: publicId,
-      transformation: [
-        { quality: 'auto' },
-        { fetch_format: 'auto' }
-      ]
-    })
+    // Create uploads directory if it doesn't exist
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
+    if (!fs.existsSync(uploadsDir)) {
+      await mkdir(uploadsDir, { recursive: true })
+    }
     
-    console.log(`✅ File uploaded to Cloudinary: ${uploadResult.secure_url}`)
+    // Save file to public/uploads directory
+    const filePath = path.join(uploadsDir, filename)
+    await writeFile(filePath, buffer)
+    
+    // Create public URL
+    const publicUrl = `/uploads/${filename}`
+    
+    console.log(`✅ File saved locally: ${publicUrl}`)
 
     return NextResponse.json({
       success: true,
       message: "File uploaded successfully",
-      url: uploadResult.secure_url,
-      publicId: uploadResult.public_id,
+      url: publicUrl,
       fileName: file.name,
-      width: uploadResult.width,
-      height: uploadResult.height
+      type,
+      size: file.size
     })
 
   } catch (error) {
-    console.error('Cloudinary upload error:', error)
+    console.error('Local upload error:', error)
     return NextResponse.json(
       { success: false, message: "Upload failed: " + (error instanceof Error ? error.message : 'Unknown error') },
       { status: 500 }

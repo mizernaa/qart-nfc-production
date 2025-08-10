@@ -149,6 +149,184 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    console.log('➕ Admin creating user:', body)
+    
+    const { name, email, password, isAdmin = false } = body
+    
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { success: false, message: "Name, email and password are required" },
+        { status: 400 }
+      )
+    }
+
+    // Check if we're in production (Vercel)
+    const isVercelProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+    
+    if (isVercelProduction) {
+      console.log("🌐 Using Production Auth (in-memory)")
+      
+      // Check if user already exists
+      const existingUser = await ProductionAuth.findUserByEmail(email)
+      if (existingUser) {
+        return NextResponse.json(
+          { success: false, message: "Bu email zaten kullanımda" },
+          { status: 400 }
+        )
+      }
+
+      // Create user in production auth
+      const newUser = await ProductionAuth.createUser({
+        name,
+        email,
+        password
+      })
+
+      // Override isAdmin if specified
+      if (isAdmin && !newUser.isAdmin) {
+        newUser.isAdmin = true
+        newUser.profile.title = 'Sistem Yöneticisi'
+        newUser.profile.companyName = 'QART Team'
+      }
+
+      console.log("✅ Admin created user in production:", email)
+
+      return NextResponse.json({
+        success: true,
+        message: "Kullanıcı başarıyla oluşturuldu",
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          isAdmin: newUser.isAdmin,
+          isActive: newUser.isActive,
+          createdAt: newUser.createdAt,
+          profile: newUser.profile
+        }
+      })
+      
+    } else {
+      console.log("💻 Using Local Prisma Database")
+      
+      const prisma = new PrismaClient()
+      
+      try {
+        // Check if user exists
+        const existingUser = await prisma.user.findUnique({
+          where: { email: email.toLowerCase() }
+        })
+        
+        if (existingUser) {
+          return NextResponse.json(
+            { success: false, message: "Bu email zaten kullanımda" },
+            { status: 400 }
+          )
+        }
+
+        // Hash password
+        const bcrypt = require('bcryptjs')
+        const hashedPassword = await bcrypt.hash(password, 12)
+        
+        // Create slug from name
+        const baseSlug = name.toLowerCase()
+          .replace(/ğ/g, 'g')
+          .replace(/ü/g, 'u')
+          .replace(/ş/g, 's')
+          .replace(/ı/g, 'i')
+          .replace(/ö/g, 'o')
+          .replace(/ç/g, 'c')
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '-')
+        
+        // Make sure slug is unique
+        let slug = baseSlug
+        let counter = 1
+        while (await prisma.profile.findUnique({ where: { slug } })) {
+          slug = `${baseSlug}-${counter}`
+          counter++
+        }
+        
+        // First check if default theme exists, if not create it
+        let defaultTheme = await prisma.theme.findFirst({
+          where: { id: 'default' }
+        })
+        
+        if (!defaultTheme) {
+          defaultTheme = await prisma.theme.create({
+            data: {
+              id: 'default',
+              name: 'Varsayılan',
+              primaryColor: '#3B82F6',
+              secondaryColor: '#EF4444',
+              backgroundColor: '#FFFFFF',
+              textColor: '#111827',
+              font: 'Inter',
+              layout: 'modern',
+              isDefault: true
+            }
+          })
+        }
+        
+        // Create user with profile
+        const newUser = await prisma.user.create({
+          data: {
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            name,
+            isAdmin,
+            isActive: true,
+            profile: {
+              create: {
+                slug,
+                companyName: isAdmin ? 'QART Team' : '',
+                title: isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı',
+                bio: `${name} - QART dijital kartvizit kullanıcısı`,
+                phone: '+90 555 000 0000',
+                email: email.toLowerCase(),
+                themeId: 'default'
+              }
+            }
+          },
+          include: {
+            profile: true
+          }
+        })
+
+        console.log("✅ Admin created user locally:", email)
+
+        return NextResponse.json({
+          success: true,
+          message: "Kullanıcı başarıyla oluşturuldu",
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            isAdmin: newUser.isAdmin,
+            isActive: newUser.isActive,
+            createdAt: newUser.createdAt.toISOString(),
+            profile: {
+              slug: newUser.profile?.slug
+            }
+          }
+        })
+        
+      } finally {
+        await prisma.$disconnect()
+      }
+    }
+
+  } catch (error) {
+    console.error('Admin users POST error:', error)
+    return NextResponse.json(
+      { success: false, message: "Server error" },
+      { status: 500 }
+    )
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     // Get user ID from query params
@@ -164,31 +342,59 @@ export async function DELETE(request: NextRequest) {
 
     console.log('🗑️ Deleting user:', userId)
     
-    // Check if user exists and is not admin
-    const user = await prisma.user.findUnique({
-      where: { id: userId }
-    })
+    // Check if we're in production (Vercel)
+    const isVercelProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
     
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User not found" },
-        { status: 404 }
-      )
+    if (isVercelProduction) {
+      console.log("🌐 Using Production Auth (in-memory)")
+      
+      const success = await ProductionAuth.deleteUser(userId)
+      
+      if (!success) {
+        return NextResponse.json(
+          { success: false, message: "User not found or cannot be deleted" },
+          { status: 404 }
+        )
+      }
+      
+      console.log('✅ User deleted from production auth:', userId)
+      
+    } else {
+      console.log("💻 Using Local Prisma Database")
+      
+      const prisma = new PrismaClient()
+      
+      try {
+        // Check if user exists and is not admin
+        const user = await prisma.user.findUnique({
+          where: { id: userId }
+        })
+        
+        if (!user) {
+          return NextResponse.json(
+            { success: false, message: "User not found" },
+            { status: 404 }
+          )
+        }
+        
+        if (user.isAdmin) {
+          return NextResponse.json(
+            { success: false, message: "Cannot delete admin user" },
+            { status: 403 }
+          )
+        }
+        
+        // Delete user from database (Prisma will cascade delete profile)
+        await prisma.user.delete({
+          where: { id: userId }
+        })
+        
+        console.log('✅ User deleted successfully:', user.email)
+        
+      } finally {
+        await prisma.$disconnect()
+      }
     }
-    
-    if (user.isAdmin) {
-      return NextResponse.json(
-        { success: false, message: "Cannot delete admin user" },
-        { status: 403 }
-      )
-    }
-    
-    // Delete user from database (Prisma will cascade delete profile)
-    await prisma.user.delete({
-      where: { id: userId }
-    })
-    
-    console.log('✅ User deleted successfully:', user.email)
 
     return NextResponse.json({
       success: true,
@@ -201,8 +407,6 @@ export async function DELETE(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }
 

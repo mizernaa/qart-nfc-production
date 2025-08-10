@@ -62,5 +62,21 @@
       "phone": "+90 555 000 0000",
       "companyName": ""
     }
+  },
+  {
+    "id": "user-1754827731415",
+    "email": "omeraytac@gmail.com",
+    "password": "$2b$12$zgyJF0yWaVDulEjVgCZv5ee0VfNC6YUpYTlA1ZqkAP8epJS7yqspS",
+    "name": "Ömer Aytaç",
+    "isAdmin": false,
+    "isActive": true,
+    "createdAt": "2025-08-10T12:08:51.415Z",
+    "profile": {
+      "slug": "omer-aytac",
+      "title": "Kullanıcı",
+      "bio": "Ömer Aytaç - QART dijital kartvizit kullanıcısı",
+      "phone": "+90 555 000 0000",
+      "companyName": ""
+    }
   }
 ]

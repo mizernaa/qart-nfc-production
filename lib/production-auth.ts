@@ -63,6 +63,7 @@ export class ProductionAuth {
   static ensureInitialized() {
     if (!this.initialized) {
       console.log('🚀 Production Auth initialized with', PRODUCTION_USERS.length, 'users')
+      console.log('🔑 Available users:', PRODUCTION_USERS.map(u => ({ email: u.email, isAdmin: u.isAdmin })))
       this.initialized = true
     }
   }
@@ -89,6 +90,7 @@ export class ProductionAuth {
     name: string
     email: string
     password: string
+    isAdmin?: boolean
   }): Promise<User> {
     this.ensureInitialized()
     
@@ -112,20 +114,21 @@ export class ProductionAuth {
       .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '-')
 
+    const isAdmin = userData.isAdmin || false
     const newUser: User = {
       id: `user-${Date.now()}-${Math.random().toString(36).substring(7)}`,
       email: userData.email.toLowerCase(),
       password: hashedPassword,
       name: userData.name,
-      isAdmin: false,
+      isAdmin,
       isActive: true,
       createdAt: new Date().toISOString(),
       profile: {
         slug,
-        title: 'Kullanıcı',
+        title: isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı',
         bio: `${userData.name} - QART dijital kartvizit kullanıcısı`,
         phone: '+90 555 000 0000',
-        companyName: '',
+        companyName: isAdmin ? 'QART Team' : '',
         email: userData.email.toLowerCase()
       }
     }

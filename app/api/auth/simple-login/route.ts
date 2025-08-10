@@ -31,14 +31,21 @@ export async function POST(request: NextRequest) {
 
     console.log("🔐 Login attempt:", email)
     
-    // Check if we're in production (Vercel)
-    const isVercelProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+    // Always use Prisma for both local and production
+    console.log("💻 Using Prisma Database (unified auth system)")
     
-    if (isVercelProduction) {
-      console.log("🌐 Using Production Auth (in-memory)")
-      
-      // Use production auth system
-      const user = await ProductionAuth.findUserByEmail(email)
+    const prisma = new PrismaClient()
+    
+    try {
+      // Find user in database
+      const user = await prisma.user.findUnique({
+        where: { 
+          email: email.toLowerCase() 
+        },
+        include: {
+          profile: true
+        }
+      })
       
       if (!user) {
         console.log("❌ User not found:", email)
@@ -58,7 +65,9 @@ export async function POST(request: NextRequest) {
       }
 
       // Verify password
-      const isValidPassword = await ProductionAuth.verifyPassword(password, user.password)
+      console.log("🔑 Verifying password for user:", email)
+      const isValidPassword = await bcrypt.compare(password, user.password)
+      console.log("✅ Password verification result:", isValidPassword)
       
       if (!isValidPassword) {
         console.log("❌ Invalid password for:", email)
@@ -83,71 +92,8 @@ export async function POST(request: NextRequest) {
         }
       })
       
-    } else {
-      console.log("💻 Using Local Prisma Database")
-      
-      // Use Prisma for local development
-      const prisma = new PrismaClient()
-      
-      try {
-        // Find user in database
-        const user = await prisma.user.findUnique({
-          where: { 
-            email: email.toLowerCase() 
-          },
-          include: {
-            profile: true
-          }
-        })
-        
-        if (!user) {
-          console.log("❌ User not found:", email)
-          return NextResponse.json(
-            { success: false, message: "Geçersiz email veya şifre" },
-            { status: 401 }
-          )
-        }
-
-        // Check if user is active
-        if (!user.isActive) {
-          console.log("❌ User inactive:", email)
-          return NextResponse.json(
-            { success: false, message: "Hesap deaktif" },
-            { status: 403 }
-          )
-        }
-
-        // Verify password
-        console.log("🔑 Verifying password for user:", email)
-        const isValidPassword = await bcrypt.compare(password, user.password)
-        console.log("✅ Password verification result:", isValidPassword)
-        
-        if (!isValidPassword) {
-          console.log("❌ Invalid password for:", email)
-          return NextResponse.json(
-            { success: false, message: "Geçersiz email veya şifre" },
-            { status: 401 }
-          )
-        }
-
-        console.log("✅ Login successful for:", email)
-        
-        // Response
-        return NextResponse.json({
-          success: true,
-          message: "Giriş başarılı",
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            isAdmin: user.isAdmin,
-            profile: user.profile
-          }
-        })
-        
-      } finally {
-        await prisma.$disconnect()
-      }
+    } finally {
+      await prisma.$disconnect()
     }
     
   } catch (error) {

@@ -76,7 +76,15 @@
       "title": "Kullanıcı",
       "bio": "Ömer Aytaç - QART dijital kartvizit kullanıcısı",
       "phone": "+90 555 000 0000",
-      "companyName": ""
+      "companyName": "",
+      "whatsapp": "+90 555 000 0000",
+      "website": "",
+      "address": ", ",
+      "profileImage": "/api/placeholder/150/150",
+      "coverImageUrl": "",
+      "logoUrl": "/uploads/logo_1754835278389_ChatGPT_Image_30_Nis_2025_12_03_43.png",
+      "isPublic": true,
+      "theme": "modern"
     }
   }
 ]

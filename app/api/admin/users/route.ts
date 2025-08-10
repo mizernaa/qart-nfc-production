@@ -10,66 +10,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
 
-    // Check if we're in production (Vercel)
-    const isVercelProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+    // Always use Prisma for both local and production
+    console.log("💻 Using Prisma Database (unified auth system)")
     
-    if (isVercelProduction) {
-      console.log("🌐 Using Production Auth (in-memory)")
-      
-      // Get all users from production auth
-      let allUsers = await ProductionAuth.getAllUsers()
-      
-      // Apply search filter
-      if (search) {
-        const searchLower = search.toLowerCase()
-        allUsers = allUsers.filter(user => 
-          user.email.toLowerCase().includes(searchLower) || 
-          user.name.toLowerCase().includes(searchLower)
-        )
-      }
-
-      console.log(`👥 Found ${allUsers.length} users in production auth`)
-
-      // Transform to match frontend expectations
-      const users = allUsers.map(user => ({
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        isAdmin: user.isAdmin,
-        isActive: user.isActive,
-        emailVerified: true,
-        createdAt: user.createdAt,
-        lastLoginAt: user.createdAt, // Use createdAt as fallback
-        profile: {
-          slug: user.profile.slug,
-          title: user.profile.title,
-          bio: user.profile.bio,
-          phone: user.profile.phone
-        },
-        subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
-        _count: {
-          cards: 0,
-          profile: 1
-        }
-      }))
-
-      const total = users.length
-
-      return NextResponse.json({
-        success: true,
-        users,
-        pagination: {
-          page: 1,
-          limit: total,
-          total,
-          pages: 1
-        }
-      })
-      
-    } else {
-      console.log("💻 Using Local Prisma Database")
-      
-      const prisma = new PrismaClient()
+    const prisma = new PrismaClient()
       
       try {
         // Build search conditions
@@ -163,52 +107,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if we're in production (Vercel)
-    const isVercelProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
-    
-    if (isVercelProduction) {
-      console.log("🌐 Using Production Auth (in-memory)")
-      
-      // Check if user already exists
-      const existingUser = await ProductionAuth.findUserByEmail(email)
-      if (existingUser) {
-        return NextResponse.json(
-          { success: false, message: "Bu email zaten kullanımda" },
-          { status: 400 }
-        )
-      }
-
-      // Create user in production auth
-      const newUser = await ProductionAuth.createUser({
-        name,
-        email,
-        password
-      })
-
-      // Override isAdmin if specified
-      if (isAdmin && !newUser.isAdmin) {
-        newUser.isAdmin = true
-        newUser.profile.title = 'Sistem Yöneticisi'
-        newUser.profile.companyName = 'QART Team'
-      }
-
-      console.log("✅ Admin created user in production:", email)
-
-      return NextResponse.json({
-        success: true,
-        message: "Kullanıcı başarıyla oluşturuldu",
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-          isAdmin: newUser.isAdmin,
-          isActive: newUser.isActive,
-          createdAt: newUser.createdAt,
-          profile: newUser.profile
-        }
-      })
-      
-    } else {
+    // Always use Prisma for both local and production
+    console.log("💻 Using Prisma Database (unified auth system)")
       console.log("💻 Using Local Prisma Database")
       
       const prisma = new PrismaClient()

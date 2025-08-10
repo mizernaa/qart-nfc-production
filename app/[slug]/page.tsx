@@ -230,13 +230,18 @@ export default function PublicProfilePage() {
         {profile.features && profile.features.length > 0 && (
           <div className="max-w-6xl mx-auto px-6 py-12">
             <h2 className="text-2xl font-bold text-white mb-8 text-center">Özelliklerimiz</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {profile.features.map((feature: string, index: number) => (
-                <div key={index} className="text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {profile.features.map((feature: any, index: number) => (
+                <div key={index} className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800 text-center">
                   <div className="w-16 h-16 bg-blue-600/20 rounded-xl flex items-center justify-center mx-auto mb-3">
                     <Award className="h-8 w-8 text-blue-400" />
                   </div>
-                  <p className="text-white font-medium">{feature}</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    {typeof feature === 'object' ? feature.title : feature}
+                  </h3>
+                  {typeof feature === 'object' && feature.description && (
+                    <p className="text-gray-300 text-sm">{feature.description}</p>
+                  )}
                 </div>
               ))}
             </div>

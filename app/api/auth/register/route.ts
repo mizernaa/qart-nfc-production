@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { z } from "zod"
-
-const prisma = new PrismaClient()
+import { ProductionAuth } from '@/lib/production-auth'
 
 // Validation schema
 const registerSchema = z.object({
@@ -31,100 +30,152 @@ export async function POST(request: NextRequest) {
 
     const { email, password, name } = validation.data
 
-    // Check if user exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() }
-    })
+    console.log("📝 Registration attempt:", email)
     
-    if (existingUser) {
-      return NextResponse.json(
-        { success: false, message: "Bu email zaten kullanımda" },
-        { status: 400 }
-      )
-    }
+    // Check if we're in production (Vercel)
+    const isVercelProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+    
+    if (isVercelProduction) {
+      console.log("🌐 Using Production Auth (in-memory)")
+      
+      try {
+        const newUser = await ProductionAuth.createUser({
+          name,
+          email,
+          password
+        })
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12)
-    
-    // Create slug from name
-    const baseSlug = name.toLowerCase()
-      .replace(/ğ/g, 'g')
-      .replace(/ü/g, 'u')
-      .replace(/ş/g, 's')
-      .replace(/ı/g, 'i')
-      .replace(/ö/g, 'o')
-      .replace(/ç/g, 'c')
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '-')
-    
-    // Make sure slug is unique
-    let slug = baseSlug
-    let counter = 1
-    while (await prisma.profile.findUnique({ where: { slug } })) {
-      slug = `${baseSlug}-${counter}`
-      counter++
-    }
-    
-    // First check if default theme exists, if not create it
-    let defaultTheme = await prisma.theme.findFirst({
-      where: { id: 'default' }
-    })
-    
-    if (!defaultTheme) {
-      defaultTheme = await prisma.theme.create({
-        data: {
-          id: 'default',
-          name: 'Varsayılan',
-          primaryColor: '#3B82F6',
-          secondaryColor: '#EF4444',
-          backgroundColor: '#FFFFFF',
-          textColor: '#111827',
-          font: 'Inter',
-          layout: 'modern',
-          isDefault: true
-        }
-      })
-    }
-    
-    // Create user with profile
-    const newUser = await prisma.user.create({
-      data: {
-        email: email.toLowerCase(),
-        password: hashedPassword,
-        name,
-        isAdmin: false,
-        isActive: true,
-        profile: {
-          create: {
-            slug,
-            companyName: '',
-            title: '',
-            bio: `${name} - QART dijital kartvizit kullanıcısı`,
-            phone: '',
-            email: email.toLowerCase(),
-            themeId: 'default'
+        console.log("✅ New user registered in production:", email)
+
+        return NextResponse.json({
+          success: true,
+          message: "Kayıt başarılı! Giriş yapabilirsiniz.",
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            profile: {
+              slug: newUser.profile.slug
+            }
           }
+        })
+        
+      } catch (error) {
+        if (error instanceof Error && error.message === 'Email already exists') {
+          return NextResponse.json(
+            { success: false, message: "Bu email zaten kullanımda" },
+            { status: 400 }
+          )
         }
-      },
-      include: {
-        profile: true
+        throw error
       }
-    })
-
-    console.log("✅ New user registered:", email)
-
-    return NextResponse.json({
-      success: true,
-      message: "Kayıt başarılı! Giriş yapabilirsiniz.",
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        profile: {
-          slug: newUser.profile?.slug
+      
+    } else {
+      console.log("💻 Using Local Prisma Database")
+      
+      // Use Prisma for local development
+      const prisma = new PrismaClient()
+      
+      try {
+        // Check if user exists
+        const existingUser = await prisma.user.findUnique({
+          where: { email: email.toLowerCase() }
+        })
+        
+        if (existingUser) {
+          return NextResponse.json(
+            { success: false, message: "Bu email zaten kullanımda" },
+            { status: 400 }
+          )
         }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 12)
+        
+        // Create slug from name
+        const baseSlug = name.toLowerCase()
+          .replace(/ğ/g, 'g')
+          .replace(/ü/g, 'u')
+          .replace(/ş/g, 's')
+          .replace(/ı/g, 'i')
+          .replace(/ö/g, 'o')
+          .replace(/ç/g, 'c')
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '-')
+        
+        // Make sure slug is unique
+        let slug = baseSlug
+        let counter = 1
+        while (await prisma.profile.findUnique({ where: { slug } })) {
+          slug = `${baseSlug}-${counter}`
+          counter++
+        }
+        
+        // First check if default theme exists, if not create it
+        let defaultTheme = await prisma.theme.findFirst({
+          where: { id: 'default' }
+        })
+        
+        if (!defaultTheme) {
+          defaultTheme = await prisma.theme.create({
+            data: {
+              id: 'default',
+              name: 'Varsayılan',
+              primaryColor: '#3B82F6',
+              secondaryColor: '#EF4444',
+              backgroundColor: '#FFFFFF',
+              textColor: '#111827',
+              font: 'Inter',
+              layout: 'modern',
+              isDefault: true
+            }
+          })
+        }
+        
+        // Create user with profile
+        const newUser = await prisma.user.create({
+          data: {
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            name,
+            isAdmin: false,
+            isActive: true,
+            profile: {
+              create: {
+                slug,
+                companyName: '',
+                title: '',
+                bio: `${name} - QART dijital kartvizit kullanıcısı`,
+                phone: '',
+                email: email.toLowerCase(),
+                themeId: 'default'
+              }
+            }
+          },
+          include: {
+            profile: true
+          }
+        })
+
+        console.log("✅ New user registered locally:", email)
+
+        return NextResponse.json({
+          success: true,
+          message: "Kayıt başarılı! Giriş yapabilirsiniz.",
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            profile: {
+              slug: newUser.profile?.slug
+            }
+          }
+        })
+        
+      } finally {
+        await prisma.$disconnect()
       }
-    })
+    }
 
   } catch (error) {
     console.error("❌ Registration error:", error)
@@ -136,7 +187,5 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

@@ -1,78 +1,144 @@
 import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { ProductionAuth } from '@/lib/production-auth'
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 Fetching all users from database...')
+    console.log('🔍 Fetching all users...')
     
     // Get query parameters
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
 
-    // Build search conditions
-    const whereCondition = search ? {
-      OR: [
-        { email: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } }
-      ]
-    } : {}
+    // Check if we're in production (Vercel)
+    const isVercelProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+    
+    if (isVercelProduction) {
+      console.log("🌐 Using Production Auth (in-memory)")
+      
+      // Get all users from production auth
+      let allUsers = await ProductionAuth.getAllUsers()
+      
+      // Apply search filter
+      if (search) {
+        const searchLower = search.toLowerCase()
+        allUsers = allUsers.filter(user => 
+          user.email.toLowerCase().includes(searchLower) || 
+          user.name.toLowerCase().includes(searchLower)
+        )
+      }
 
-    // Fetch users with profile data
-    const allUsers = await prisma.user.findMany({
-      where: whereCondition,
-      include: {
-        profile: true,
-        subscription: true,
+      console.log(`👥 Found ${allUsers.length} users in production auth`)
+
+      // Transform to match frontend expectations
+      const users = allUsers.map(user => ({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        isAdmin: user.isAdmin,
+        isActive: user.isActive,
+        emailVerified: true,
+        createdAt: user.createdAt,
+        lastLoginAt: user.createdAt, // Use createdAt as fallback
+        profile: {
+          slug: user.profile.slug,
+          title: user.profile.title,
+          bio: user.profile.bio,
+          phone: user.profile.phone
+        },
+        subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
         _count: {
-          select: {
-            cards: true
-          }
+          cards: 0,
+          profile: 1
         }
-      },
-      orderBy: {
-        createdAt: 'desc'
+      }))
+
+      const total = users.length
+
+      return NextResponse.json({
+        success: true,
+        users,
+        pagination: {
+          page: 1,
+          limit: total,
+          total,
+          pages: 1
+        }
+      })
+      
+    } else {
+      console.log("💻 Using Local Prisma Database")
+      
+      const prisma = new PrismaClient()
+      
+      try {
+        // Build search conditions
+        const whereCondition = search ? {
+          OR: [
+            { email: { contains: search, mode: 'insensitive' } },
+            { name: { contains: search, mode: 'insensitive' } }
+          ]
+        } : {}
+
+        // Fetch users with profile data
+        const allUsers = await prisma.user.findMany({
+          where: whereCondition,
+          include: {
+            profile: true,
+            subscription: true,
+            _count: {
+              select: {
+                cards: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        })
+
+        console.log(`👥 Found ${allUsers.length} users in database`)
+
+        // Transform to match frontend expectations
+        const users = allUsers.map(user => ({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          isAdmin: user.isAdmin,
+          isActive: user.isActive,
+          emailVerified: true,
+          createdAt: user.createdAt.toISOString(),
+          lastLoginAt: user.createdAt.toISOString(), // Use createdAt as fallback
+          profile: {
+            slug: user.profile?.slug || 'no-profile',
+            title: user.profile?.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
+            bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
+            phone: user.profile?.phone || '+90 555 000 0000'
+          },
+          subscription: user.isAdmin ? 'QART Lifetime' : (user.subscription?.plan || 'Free'),
+          _count: {
+            cards: user._count.cards,
+            profile: user.profile ? 1 : 0
+          }
+        }))
+
+        const total = users.length
+
+        return NextResponse.json({
+          success: true,
+          users,
+          pagination: {
+            page: 1,
+            limit: total,
+            total,
+            pages: 1
+          }
+        })
+        
+      } finally {
+        await prisma.$disconnect()
       }
-    })
-
-    console.log(`👥 Found ${allUsers.length} users in database`)
-
-    // Transform to match frontend expectations
-    const users = allUsers.map(user => ({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      isAdmin: user.isAdmin,
-      isActive: user.isActive,
-      emailVerified: true,
-      createdAt: user.createdAt.toISOString(),
-      lastLoginAt: user.createdAt.toISOString(), // Use createdAt as fallback
-      profile: {
-        slug: user.profile?.slug || 'no-profile',
-        title: user.profile?.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
-        bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
-        phone: user.profile?.phone || '+90 555 000 0000'
-      },
-      subscription: user.isAdmin ? 'QART Lifetime' : (user.subscription?.plan || 'Free'),
-      _count: {
-        cards: user._count.cards,
-        profile: user.profile ? 1 : 0
-      }
-    }))
-
-    const total = users.length
-
-    return NextResponse.json({
-      success: true,
-      users,
-      pagination: {
-        page: 1,
-        limit: total,
-        total,
-        pages: 1
-      }
-    })
+    }
 
   } catch (error) {
     console.error('Admin users GET error:', error)
@@ -80,8 +146,6 @@ export async function GET(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }
 

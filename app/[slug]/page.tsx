@@ -81,9 +81,27 @@ export default function PublicProfilePage() {
               {/* Sol: Şirket Bilgileri */}
               <div className="lg:col-span-2">
                 <div className="flex items-start space-x-6">
-                  <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                    <Building className="h-12 w-12 text-white" />
-                  </div>
+                  {profile.logoUrl ? (
+                    <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-white/10 backdrop-blur-sm border border-gray-700">
+                      <img 
+                        src={profile.logoUrl} 
+                        alt={`${profile.companyName || profile.name} Logo`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : profile.profileImage ? (
+                    <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-white/10 backdrop-blur-sm border border-gray-700">
+                      <img 
+                        src={profile.profileImage} 
+                        alt={profile.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                      <Building className="h-12 w-12 text-white" />
+                    </div>
+                  )}
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">

@@ -52,22 +52,33 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     
     console.log('✅ Found user:', user.name, user.email)
     
-    // Kullanıcıya özgü gerçekçi profil verisi
+    // Gerçek profil verisini al
+    const realProfile = await prisma.profile.findFirst({
+      where: { userId: user.id }
+    })
+    
+    console.log('🔍 Real profile found:', realProfile ? 'YES' : 'NO')
+    
+    // Gerçek profil verisi ile response oluştur
     const profile = {
       name: user.name,
-      title: user.isAdmin ? "Sistem Yöneticisi" : "QART Kullanıcısı",
-      bio: `${user.name} - QART dijital kartvizit kullanıcısı`,
-      companyName: user.name + (user.isAdmin ? " - QART Team" : " - Dijital Kartvizit"),
-      phone: "+90 555 000 0000",
+      title: realProfile?.title || (user.isAdmin ? "Sistem Yöneticisi" : "QART Kullanıcısı"),
+      bio: realProfile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
+      companyName: realProfile?.companyName || (user.isAdmin ? "QART Team" : ""),
+      phone: realProfile?.phone || "+90 555 000 0000",
       email: user.email,
-      website: "https://qart.app",
-      address: "İstanbul, Türkiye",
+      website: realProfile?.website || "",
+      address: realProfile?.address || "",
       city: "İstanbul",
-      country: "Türkiye",
+      country: "Türkiye", 
+      whatsapp: realProfile?.whatsapp || realProfile?.phone || "+90 555 000 0000",
       slug: createSlug(user.name),
       isPremium: user.isAdmin,
-      isPublic: true,
-      profileImage: "",
+      isPublic: realProfile?.isPublic ?? true,
+      profileImage: realProfile?.profileImage || "",
+      coverImageUrl: realProfile?.coverImageUrl || "",
+      logoUrl: realProfile?.logoUrl || "",
+      theme: realProfile?.theme || "modern",
       
       // Kullanıcıya özgü istatistikler
       stats: {

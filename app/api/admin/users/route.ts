@@ -1,40 +1,42 @@
 import { NextRequest, NextResponse } from "next/server"
-import fs from 'fs'
-import path from 'path'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 Fetching all users from file system...')
+    console.log('🔍 Fetching all users from database...')
     
     // Get query parameters
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
 
-    // File-based kullanıcı sistemi yükle
-    const usersFilePath = path.join(process.cwd(), 'data', 'users.json')
-    
-    let allUsers = []
-    try {
-      const usersData = fs.readFileSync(usersFilePath, 'utf-8')
-      allUsers = JSON.parse(usersData)
-    } catch (error) {
-      console.log('❌ Users file not found, returning empty array')
-      allUsers = []
-    }
+    // Build search conditions
+    const whereCondition = search ? {
+      OR: [
+        { email: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } }
+      ]
+    } : {}
 
-    // Search filtreleme
-    if (search) {
-      const searchLower = search.toLowerCase()
-      allUsers = allUsers.filter(user => 
-        user.email.toLowerCase().includes(searchLower) || 
-        user.name.toLowerCase().includes(searchLower)
-      )
-    }
+    // Fetch users with profile data
+    const allUsers = await prisma.user.findMany({
+      where: whereCondition,
+      include: {
+        profile: true,
+        subscription: true,
+        _count: {
+          select: {
+            cards: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
 
-    // Tarihe göre sırala (en yeni önce)
-    allUsers.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-
-    console.log(`👥 Found ${allUsers.length} users in file system`)
+    console.log(`👥 Found ${allUsers.length} users in database`)
 
     // Transform to match frontend expectations
     const users = allUsers.map(user => ({
@@ -43,27 +45,19 @@ export async function GET(request: NextRequest) {
       name: user.name,
       isAdmin: user.isAdmin,
       isActive: user.isActive,
-      emailVerified: true, // Default
-      createdAt: user.createdAt,
-      lastLoginAt: user.createdAt, // Use createdAt as fallback
+      emailVerified: true,
+      createdAt: user.createdAt.toISOString(),
+      lastLoginAt: user.createdAt.toISOString(), // Use createdAt as fallback
       profile: {
-        slug: user.profile?.slug || user.name.toLowerCase()
-          .replace(/ğ/g, 'g')
-          .replace(/ü/g, 'u')
-          .replace(/ş/g, 's')
-          .replace(/ı/g, 'i')
-          .replace(/ö/g, 'o')
-          .replace(/ç/g, 'c')
-          .replace(/[^a-z0-9\s]/g, '')
-          .replace(/\s+/g, '-'),
+        slug: user.profile?.slug || 'no-profile',
         title: user.profile?.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
         bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
         phone: user.profile?.phone || '+90 555 000 0000'
       },
-      subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
+      subscription: user.isAdmin ? 'QART Lifetime' : (user.subscription?.plan || 'Free'),
       _count: {
-        cards: 0,
-        profile: 1
+        cards: user._count.cards,
+        profile: user.profile ? 1 : 0
       }
     }))
 
@@ -86,6 +80,8 @@ export async function GET(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
@@ -104,30 +100,18 @@ export async function DELETE(request: NextRequest) {
 
     console.log('🗑️ Deleting user:', userId)
     
-    // File-based kullanıcı sistemi yükle
-    const usersFilePath = path.join(process.cwd(), 'data', 'users.json')
-    
-    let users = []
-    try {
-      const usersData = fs.readFileSync(usersFilePath, 'utf-8')
-      users = JSON.parse(usersData)
-    } catch (error) {
-      return NextResponse.json(
-        { success: false, message: "Users file not found" },
-        { status: 404 }
-      )
-    }
-    
     // Check if user exists and is not admin
-    const userIndex = users.findIndex(u => u.id === userId)
-    if (userIndex === -1) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    })
+    
+    if (!user) {
       return NextResponse.json(
         { success: false, message: "User not found" },
         { status: 404 }
       )
     }
     
-    const user = users[userIndex]
     if (user.isAdmin) {
       return NextResponse.json(
         { success: false, message: "Cannot delete admin user" },
@@ -135,11 +119,10 @@ export async function DELETE(request: NextRequest) {
       )
     }
     
-    // Delete user from array
-    users.splice(userIndex, 1)
-    
-    // Save updated users
-    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2))
+    // Delete user from database (Prisma will cascade delete profile)
+    await prisma.user.delete({
+      where: { id: userId }
+    })
     
     console.log('✅ User deleted successfully:', user.email)
 
@@ -154,6 +137,8 @@ export async function DELETE(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }
 
@@ -164,24 +149,10 @@ export async function PATCH(request: NextRequest) {
     const userId = searchParams.get('id')
     const action = searchParams.get('action')
 
-    if (!userId || !action) {
+    if (!userId) {
       return NextResponse.json(
-        { success: false, message: "User ID and action are required" },
+        { success: false, message: "User ID is required" },
         { status: 400 }
-      )
-    }
-
-    // File-based kullanıcı sistemi yükle
-    const usersFilePath = path.join(process.cwd(), 'data', 'users.json')
-    
-    let users = []
-    try {
-      const usersData = fs.readFileSync(usersFilePath, 'utf-8')
-      users = JSON.parse(usersData)
-    } catch (error) {
-      return NextResponse.json(
-        { success: false, message: "Users file not found" },
-        { status: 404 }
       )
     }
 
@@ -189,22 +160,24 @@ export async function PATCH(request: NextRequest) {
       console.log('🔄 Toggling user status:', userId)
       
       // Get current user
-      const userIndex = users.findIndex(u => u.id === userId)
-      if (userIndex === -1) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId }
+      })
+      
+      if (!user) {
         return NextResponse.json(
           { success: false, message: "User not found" },
           { status: 404 }
         )
       }
       
-      const user = users[userIndex]
       const newStatus = !user.isActive
       
       // Update user status
-      users[userIndex].isActive = newStatus
-      
-      // Save updated users
-      fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2))
+      await prisma.user.update({
+        where: { id: userId },
+        data: { isActive: newStatus }
+      })
       
       console.log(`✅ User status changed: ${user.isActive} → ${newStatus}`)
 
@@ -219,9 +192,13 @@ export async function PATCH(request: NextRequest) {
       
       console.log('📝 Updating user:', userId, body)
       
-      // Get current user
-      const userIndex = users.findIndex(u => u.id === userId)
-      if (userIndex === -1) {
+      // Check if user exists
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        include: { profile: true }
+      })
+      
+      if (!user) {
         return NextResponse.json(
           { success: false, message: "User not found" },
           { status: 404 }
@@ -229,20 +206,23 @@ export async function PATCH(request: NextRequest) {
       }
       
       // Update user
-      users[userIndex] = {
-        ...users[userIndex],
-        name: name || users[userIndex].name,
-        email: email || users[userIndex].email,
-        isAdmin: isAdmin !== undefined ? isAdmin : users[userIndex].isAdmin,
-        isActive: isActive !== undefined ? isActive : users[userIndex].isActive,
-        profile: {
-          ...users[userIndex].profile,
-          phone: phone || users[userIndex].profile?.phone
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          name: name || user.name,
+          email: email || user.email,
+          isAdmin: isAdmin !== undefined ? isAdmin : user.isAdmin,
+          isActive: isActive !== undefined ? isActive : user.isActive,
         }
-      }
+      })
       
-      // Save updated users
-      fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2))
+      // Update profile if exists and phone is provided
+      if (user.profile && phone) {
+        await prisma.profile.update({
+          where: { userId: userId },
+          data: { phone }
+        })
+      }
       
       console.log('✅ User updated successfully')
       
@@ -258,5 +238,7 @@ export async function PATCH(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }

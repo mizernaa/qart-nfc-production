@@ -51,7 +51,7 @@ export default function KayitOlPage() {
     }
 
     try {
-      const response = await fetch("/api/users/register", {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,8 +59,7 @@ export default function KayitOlPage() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          password: formData.password,
-          isAdmin: false // Public kayıtlar admin olamaz
+          password: formData.password
         }),
       })
 

@@ -1,86 +1,142 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { vercelUserStore } from '@/lib/vercel-user-store'
+import { NextRequest, NextResponse } from "next/server"
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+import { z } from "zod"
+
+const prisma = new PrismaClient()
+
+// Validation schema
+const registerSchema = z.object({
+  email: z.string().email("Geçerli bir email adresi girin"),
+  password: z.string().min(6, "Şifre en az 6 karakter olmalı"),
+  name: z.string().min(2, "İsim en az 2 karakter olmalı"),
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password } = await request.json()
+    const body = await request.json()
     
-    console.log('📝 Registration attempt:', { name, email })
-
-    // Validation
-    if (!name || !email || !password) {
+    // Validate input
+    const validation = registerSchema.safeParse(body)
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, message: 'Tüm alanlar gerekli' },
+        { 
+          success: false, 
+          message: "Geçersiz bilgiler",
+          errors: validation.error.issues 
+        },
         { status: 400 }
       )
     }
 
-    if (password.length < 6) {
-      return NextResponse.json(
-        { success: false, message: 'Şifre en az 6 karakter olmalı' },
-        { status: 400 }
-      )
-    }
+    const { email, password, name } = validation.data
 
-    // Check if user already exists
-    const existingUser = await vercelUserStore.findByEmail(email)
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    })
+    
     if (existingUser) {
-      console.log('❌ User already exists:', email)
       return NextResponse.json(
-        { success: false, message: 'Bu email adresi zaten kullanımda' },
-        { status: 409 }
+        { success: false, message: "Bu email zaten kullanımda" },
+        { status: 400 }
       )
     }
 
     // Hash password
-    const hashedPassword = await vercelUserStore.hashPassword(password)
+    const hashedPassword = await bcrypt.hash(password, 12)
     
     // Create slug from name
-    const slug = name.toLowerCase()
-      .replace(/[üÜ]/g, 'u')
-      .replace(/[ğĞ]/g, 'g') 
-      .replace(/[şŞ]/g, 's')
-      .replace(/[ıİ]/g, 'i')
-      .replace(/[öÖ]/g, 'o')
-      .replace(/[çÇ]/g, 'c')
-      .replace(/[^a-z0-9\s-]/g, '')
+    const baseSlug = name.toLowerCase()
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c')
+      .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '-')
-      .trim()
-
-    // Create new user
-    const newUser = await vercelUserStore.createUser({
-      name,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      isAdmin: false,
-      profile: {
-        slug,
-        title: 'Kullanıcı',
-        bio: `${name} - QART dijital kartvizit kullanıcısı`,
-        phone: '+90 555 000 0000'
+    
+    // Make sure slug is unique
+    let slug = baseSlug
+    let counter = 1
+    while (await prisma.profile.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`
+      counter++
+    }
+    
+    // First check if default theme exists, if not create it
+    let defaultTheme = await prisma.theme.findFirst({
+      where: { id: 'default' }
+    })
+    
+    if (!defaultTheme) {
+      defaultTheme = await prisma.theme.create({
+        data: {
+          id: 'default',
+          name: 'Varsayılan',
+          primaryColor: '#3B82F6',
+          secondaryColor: '#EF4444',
+          backgroundColor: '#FFFFFF',
+          textColor: '#111827',
+          font: 'Inter',
+          layout: 'modern',
+          isDefault: true
+        }
+      })
+    }
+    
+    // Create user with profile
+    const newUser = await prisma.user.create({
+      data: {
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        name,
+        isAdmin: false,
+        isActive: true,
+        profile: {
+          create: {
+            slug,
+            companyName: '',
+            title: '',
+            bio: `${name} - QART dijital kartvizit kullanıcısı`,
+            phone: '',
+            email: email.toLowerCase(),
+            themeId: 'default'
+          }
+        }
+      },
+      include: {
+        profile: true
       }
     })
 
-    console.log('✅ User registered successfully:', newUser.email)
+    console.log("✅ New user registered:", email)
 
-    // Return user without password
     return NextResponse.json({
       success: true,
-      message: 'Kayıt başarılı! Giriş yapabilirsiniz.',
+      message: "Kayıt başarılı! Giriş yapabilirsiniz.",
       user: {
         id: newUser.id,
         email: newUser.email,
         name: newUser.name,
-        isAdmin: newUser.isAdmin,
-        profile: newUser.profile
+        profile: {
+          slug: newUser.profile?.slug
+        }
       }
     })
 
   } catch (error) {
-    console.error('❌ Registration error:', error)
+    console.error("❌ Registration error:", error)
     return NextResponse.json(
-      { success: false, message: 'Kayıt sırasında bir hata oluştu' },
+      { 
+        success: false, 
+        message: "Kayıt sırasında hata oluştu",
+        error: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }

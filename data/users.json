@@ -2,7 +2,7 @@
   {
     "id": "admin-001",
     "email": "admin@qart.app",
-    "password": "$2b$12$SSoUv/jalgW.AkrG65S1cunTu6ySwmgk2KAtgFoLqvl0.D//7FdKG",
+    "password": "$2b$12$sG81TSiNrDMsafDKzTgI6e3ADFSdPOnm1lPJ8dbZPcD5QsrdugSHK",
     "name": "Admin User",
     "isAdmin": true,
     "isActive": true,
@@ -18,7 +18,7 @@
   {
     "id": "demo-001",
     "email": "demo@qart.app",
-    "password": "$2b$12$3G.uzJPIEdrQMqs5o3f69unNBFZ0n1YQLxUph0VXgkmemE34umQza",
+    "password": "$2b$12$zkCJrkabVur5cmn8.dBJw.I8zO2CTiHS5kO8SSaTPcS/SpspuBcCG",
     "name": "Demo User",
     "isAdmin": false,
     "isActive": true,

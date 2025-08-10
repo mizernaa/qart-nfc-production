@@ -1,0 +1,12 @@
+{
+  "buildCommand": "prisma generate && prisma migrate deploy && node scripts/init-db.js && next build",
+  "installCommand": "npm install",
+  "env": {
+    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
+  },
+  "functions": {
+    "app/**": {
+      "maxDuration": 30
+    }
+  }
+}

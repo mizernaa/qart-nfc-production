@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/simple-login', {
+      const response = await fetch('/api/auth/robust-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

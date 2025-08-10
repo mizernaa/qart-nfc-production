@@ -82,7 +82,6 @@ export async function GET(request: NextRequest) {
       } finally {
         await prisma.$disconnect()
       }
-    }
 
   } catch (error) {
     console.error('Admin users GET error:', error)
@@ -109,7 +108,6 @@ export async function POST(request: NextRequest) {
 
     // Always use Prisma for both local and production
     console.log("💻 Using Prisma Database (unified auth system)")
-      console.log("💻 Using Local Prisma Database")
       
       const prisma = new PrismaClient()
       
@@ -216,7 +214,6 @@ export async function POST(request: NextRequest) {
       } finally {
         await prisma.$disconnect()
       }
-    }
 
   } catch (error) {
     console.error('Admin users POST error:', error)
@@ -327,10 +324,16 @@ export async function PATCH(request: NextRequest) {
     if (action === 'toggle-status') {
       console.log('🔄 Toggling user status:', userId)
       
-      // Get current user
-      const user = await prisma.user.findUnique({
-        where: { id: userId }
-      })
+      // Always use Prisma for both local and production
+      console.log("💻 Using Prisma Database (unified auth system)")
+      
+      const prisma = new PrismaClient()
+      
+      try {
+        // Get current user
+        const user = await prisma.user.findUnique({
+          where: { id: userId }
+        })
       
       if (!user) {
         return NextResponse.json(
@@ -353,6 +356,10 @@ export async function PATCH(request: NextRequest) {
         success: true,
         message: "User status updated successfully"
       })
+      
+      } finally {
+        await prisma.$disconnect()
+      }
     } else {
       // Handle user update
       const body = await request.json()
@@ -360,11 +367,14 @@ export async function PATCH(request: NextRequest) {
       
       console.log('📝 Updating user:', userId, body)
       
-      // Check if user exists
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        include: { profile: true }
-      })
+      const prisma = new PrismaClient()
+      
+      try {
+        // Check if user exists
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          include: { profile: true }
+        })
       
       if (!user) {
         return NextResponse.json(
@@ -398,6 +408,10 @@ export async function PATCH(request: NextRequest) {
         success: true,
         message: "User updated successfully"
       })
+      
+      } finally {
+        await prisma.$disconnect()
+      }
     }
 
   } catch (error) {
@@ -406,7 +420,5 @@ export async function PATCH(request: NextRequest) {
       { success: false, message: "Server error" },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

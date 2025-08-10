@@ -219,7 +219,7 @@ export default function PageLayoutPage() {
             
             <div className="flex items-center space-x-3">
               <a
-                href="/huseyin-demir"
+                href={profile.slug ? `/${profile.slug}` : "/"}
                 target="_blank"
                 className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center space-x-2"
               >
@@ -726,7 +726,7 @@ export default function PageLayoutPage() {
                         <label className="block text-sm text-gray-400 mb-2">Sayfa Başlığı</label>
                         <input
                           type="text"
-                          defaultValue="Hüseyin Demir - Elektrik Mühendisi | HD Elektrik"
+                          defaultValue={`${profile.name || "Kullanıcı"} - ${profile.title || "Pozisyon"} | ${profile.companyName || "Şirket"}`}
                           className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                           placeholder="Sayfa başlığınız"
                         />
@@ -736,7 +736,7 @@ export default function PageLayoutPage() {
                         <label className="block text-sm text-gray-400 mb-2">Meta Açıklama</label>
                         <textarea
                           rows={3}
-                          defaultValue="Profesyonel elektrik ve otomasyon hizmetleri. 20+ yıllık deneyim ile elektrik tesisatı, endüstriyel otomasyon ve 7/24 arıza servisi."
+                          defaultValue={profile.bio || "Profesyonel hizmetler ve güvenilir çözümler."}
                           className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                           placeholder="Sayfanızın kısa açıklaması"
                         />
@@ -746,7 +746,7 @@ export default function PageLayoutPage() {
                         <label className="block text-sm text-gray-400 mb-2">Anahtar Kelimeler</label>
                         <input
                           type="text"
-                          defaultValue="elektrikçi, elektrik tesisatı, otomasyon, İstanbul elektrikçi"
+                          defaultValue={`${profile.title || ""}, ${profile.companyName || ""}, ${profile.email?.split('@')[0] || ""}`}
                           className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                           placeholder="Virgülle ayırarak yazın"
                         />
@@ -873,7 +873,7 @@ export default function PageLayoutPage() {
                           {visibilitySettings.personal.title && (
                             <p className={`text-sm ${
                               themeSettings.selectedTheme === "elegant-light" ? "text-gray-600" : "text-gray-400"
-                            }`}>Elektrik İşlerinde Güvenilir Çözüm</p>
+                            }`}>{profile.title || "Pozisyon"}</p>
                           )}
                         </div>
                       </div>
@@ -883,7 +883,7 @@ export default function PageLayoutPage() {
                         <div className={`text-xs ${
                           themeSettings.selectedTheme === "elegant-light" ? "text-gray-700" : "text-gray-300"
                         }`}>
-                          2008'den beri elektrik tesisatı ve otomasyon hizmetleri.
+                          {profile.bio || "Profesyonel hizmetler ve güvenilir çözümler."}
                         </div>
                         
                         <div className="grid grid-cols-3 gap-2 text-center">
@@ -925,19 +925,19 @@ export default function PageLayoutPage() {
                               themeSettings.selectedTheme === "elegant-light" ? "text-gray-700" : "text-gray-300"
                             }`}>
                               <Phone className="h-3 w-3" />
-                              <span>+90 212 456 7890</span>
+                              <span>{profile.phone || "+90 555 000 0000"}</span>
                             </div>
                             <div className={`flex items-center space-x-2 text-xs ${
                               themeSettings.selectedTheme === "elegant-light" ? "text-gray-700" : "text-gray-300"
                             }`}>
                               <Mail className="h-3 w-3" />
-                              <span>info@hdelektrik.com</span>
+                              <span>{profile.email || "email@example.com"}</span>
                             </div>
                             <div className={`flex items-center space-x-2 text-xs ${
                               themeSettings.selectedTheme === "elegant-light" ? "text-gray-700" : "text-gray-300"
                             }`}>
                               <MapPin className="h-3 w-3" />
-                              <span>Kadıköy/İstanbul</span>
+                              <span>{profile.address || "İstanbul"}</span>
                             </div>
                           </div>
                         </div>
@@ -1043,7 +1043,7 @@ export default function PageLayoutPage() {
                   </div>
                   <div className="text-center">
                     <a
-                      href="/huseyin-demir"
+                      href={profile.slug ? `/${profile.slug}` : "/"}
                       target="_blank"
                       className="text-xs text-blue-400 hover:text-blue-300"
                     >

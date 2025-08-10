@@ -215,18 +215,18 @@ export async function POST(request: NextRequest) {
         await prisma.profile.update({
           where: { userId: dbUser.id },
           data: {
-            title: title || dbUser.profile.title,
-            bio: bio || dbUser.profile.bio,
-            phone: phone || dbUser.profile.phone,
-            website: website || dbUser.profile.website,
-            address: address || dbUser.profile.address,
-            companyName: companyName || dbUser.profile.companyName,
-            profileImage: profileImage || dbUser.profile.profileImage,
-            coverImageUrl: coverImageUrl || dbUser.profile.coverImageUrl,
-            logoUrl: logoUrl || dbUser.profile.logoUrl,
-            isPublic: isPublic !== undefined ? isPublic : dbUser.profile.isPublic,
-            theme: theme || dbUser.profile.theme,
-            whatsapp: whatsapp || dbUser.profile.whatsapp
+            title: title || users[userIndex].profile?.title || dbUser.profile.title,
+            bio: bio || users[userIndex].profile?.bio || dbUser.profile.bio,
+            phone: phone || users[userIndex].profile?.phone || dbUser.profile.phone,
+            website: website || users[userIndex].profile?.website || dbUser.profile.website,
+            address: address || users[userIndex].profile?.address || dbUser.profile.address,
+            companyName: companyName || users[userIndex].profile?.companyName || dbUser.profile.companyName,
+            profileImage: profileImage || users[userIndex].profile?.profileImage || dbUser.profile.profileImage,
+            coverImageUrl: coverImageUrl || users[userIndex].profile?.coverImageUrl || dbUser.profile.coverImageUrl,
+            logoUrl: logoUrl || users[userIndex].profile?.logoUrl || dbUser.profile.logoUrl,
+            isPublic: isPublic !== undefined ? isPublic : (users[userIndex].profile?.isPublic ?? dbUser.profile.isPublic),
+            theme: theme || users[userIndex].profile?.theme || dbUser.profile.theme,
+            whatsapp: whatsapp || users[userIndex].profile?.whatsapp || dbUser.profile.whatsapp
           }
         })
         

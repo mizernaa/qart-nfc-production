@@ -51,7 +51,7 @@ export default function KayitOlPage() {
     }
 
     try {
-      const response = await fetch("/api/users/db-register", {
+      const response = await fetch("/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,12 +66,6 @@ export default function KayitOlPage() {
 
       const data = await response.json()
 
-      if (!response.ok) {
-        setError(data.message || "Kayıt başarısız")
-        setIsLoading(false)
-        return
-      }
-
       if (data.success) {
         setSuccess("Hesabınız başarıyla oluşturuldu! Giriş yapmak için yönlendiriliyorsunuz...")
         
@@ -83,7 +77,8 @@ export default function KayitOlPage() {
         setError(data.message || "Kayıt başarısız")
       }
     } catch (error) {
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.")
+      console.error("Kayıt hatası:", error)
+      setError("Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.")
     } finally {
       setIsLoading(false)
     }

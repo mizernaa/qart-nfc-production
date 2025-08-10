@@ -46,5 +46,21 @@
       "phone": "+90 555 000 0000",
       "companyName": ""
     }
+  },
+  {
+    "id": "user-1754820755897",
+    "email": "testuser@example.com",
+    "password": "$2b$12$WKktow16Ooa0MZlobqNCoOMPqq/0isstxsw528NLlpVFdjyj5nhUK",
+    "name": "Test User",
+    "isAdmin": false,
+    "isActive": true,
+    "createdAt": "2025-08-10T10:12:35.897Z",
+    "profile": {
+      "slug": "test-user",
+      "title": "Kullanıcı",
+      "bio": "Test User - QART dijital kartvizit kullanıcısı",
+      "phone": "+90 555 000 0000",
+      "companyName": ""
+    }
   }
 ]

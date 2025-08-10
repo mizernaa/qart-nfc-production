@@ -1,0 +1,50 @@
+[
+  {
+    "id": "admin-001",
+    "email": "admin@qart.app",
+    "password": "$2b$12$SSoUv/jalgW.AkrG65S1cunTu6ySwmgk2KAtgFoLqvl0.D//7FdKG",
+    "name": "Admin User",
+    "isAdmin": true,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "profile": {
+      "slug": "admin-user",
+      "title": "Sistem Yöneticisi",
+      "bio": "QART Sistem Yöneticisi",
+      "phone": "+90 555 000 0001",
+      "companyName": "QART Team"
+    }
+  },
+  {
+    "id": "demo-001",
+    "email": "demo@qart.app",
+    "password": "$2b$12$3G.uzJPIEdrQMqs5o3f69unNBFZ0n1YQLxUph0VXgkmemE34umQza",
+    "name": "Demo User",
+    "isAdmin": false,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "profile": {
+      "slug": "demo-user",
+      "title": "Demo Kullanıcısı",
+      "bio": "QART Demo Kullanıcısı",
+      "phone": "+90 555 000 0002",
+      "companyName": "Demo Şirketi"
+    }
+  },
+  {
+    "id": "user-1754787739564",
+    "email": "test@qart.app",
+    "password": "$2b$12$fjJfOuwPllrZdl.1uHJ7SOigKTKhRToKPrpQ.QmqIfEb7WKatu09i",
+    "name": "Test Kullan�c�",
+    "isAdmin": false,
+    "isActive": true,
+    "createdAt": "2025-08-10T01:02:19.564Z",
+    "profile": {
+      "slug": "test-kullanc",
+      "title": "Kullanıcı",
+      "bio": "Test Kullan�c� - QART dijital kartvizit kullanıcısı",
+      "phone": "+90 555 000 0000",
+      "companyName": ""
+    }
+  }
+]

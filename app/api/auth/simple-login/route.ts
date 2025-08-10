@@ -1,29 +1,53 @@
 import { NextRequest, NextResponse } from "next/server"
-import { prismaUserStore } from "@/lib/prisma-user-store"
+import bcrypt from 'bcryptjs'
+import fs from 'fs'
+import path from 'path'
 
 export async function POST(request: NextRequest) {
-  // Force redeploy - Vercel login test 9 Ağustos 2025
   try {
     const body = await request.json()
     const { email, password } = body
 
-    console.log("🔐 Login attempt:", email)
-    console.log("🌐 Environment:", {
-      vercel: process.env.VERCEL,
-      vercelEnv: process.env.VERCEL_ENV,
-      nodeEnv: process.env.NODE_ENV
-    })
+    console.log("🔐 Localhost login attempt:", email)
 
-    // Kullanıcıyı bul (Database store - PostgreSQL)
-    console.log("🔍 Searching for user with Database store...")
-    const user = await prismaUserStore.findByEmail(email)
-    console.log("👤 User search result:", user ? { email: user.email, isAdmin: user.isAdmin, id: user.id } : "NULL")
+    // File-based kullanıcı sistemi (localhost için)
+    const usersFilePath = path.join(process.cwd(), 'data', 'users.json')
+    
+    let users = []
+    try {
+      const usersData = fs.readFileSync(usersFilePath, 'utf-8')
+      users = JSON.parse(usersData)
+      console.log("📁 File-based users loaded:", users.length)
+    } catch (error) {
+      console.log("❌ Users file not found, creating fallback...")
+      // Fallback kullanıcılar
+      users = [
+        {
+          id: "admin-001",
+          email: "admin@qart.app",
+          password: "$2b$12$SSoUv/jalgW.AkrG65S1cunTu6ySwmgk2KAtgFoLqvl0.D//7FdKG",
+          name: "Admin User",
+          isAdmin: true,
+          isActive: true
+        },
+        {
+          id: "demo-001", 
+          email: "demo@qart.app",
+          password: "$2b$12$3G.uzJPIEdrQMqs5o3f69unNBFZ0n1YQLxUph0VXgkmemE34umQza",
+          name: "Demo User",
+          isAdmin: false,
+          isActive: true
+        }
+      ]
+    }
+
+    // Kullanıcıyı bul
+    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase())
+    console.log("👤 User found:", user ? user.email : "NULL")
     
     if (!user) {
       console.log("❌ User not found:", email)
-      // Log all available users for debugging
-      const allUsers = await prismaUserStore.getAllUsers()
-      console.log("📋 Available users:", allUsers.map(u => u.email))
+      console.log("📋 Available users:", users.map(u => u.email))
       return NextResponse.json(
         { success: false, message: "Geçersiz email veya şifre" },
         { status: 401 }
@@ -42,7 +66,7 @@ export async function POST(request: NextRequest) {
     // Şifre doğrulama
     console.log("🔑 Verifying password for user:", email)
     console.log("🔒 User password hash:", user.password ? user.password.substring(0, 10) + '...' : 'NO HASH')
-    const isValidPassword = await prismaUserStore.verifyPassword(user, password)
+    const isValidPassword = await bcrypt.compare(password, user.password)
     console.log("✅ Password verification result:", isValidPassword)
     
     if (!isValidPassword) {

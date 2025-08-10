@@ -141,33 +141,54 @@ export default function ProfileManagementPage() {
   // Kullanıcı ve profil verilerini çek
   const fetchUserProfile = async (userEmail: string) => {
     try {
+      console.log('📖 Profil bilgileri yükleniyor:', userEmail)
       const response = await fetch(`/api/user/profile?email=${encodeURIComponent(userEmail)}`)
       if (response.ok) {
         const data = await response.json()
         if (data.success) {
-          // API'den gelen temel profil bilgilerini set et
+          console.log('✅ API profil verisi:', data.profile)
+          // API'den gelen tüm profil bilgilerini kapsamlı şekilde set et
           setProfileData(prevData => ({
             ...prevData,
             personal: {
               ...prevData.personal,
               name: data.profile.name || "",
               title: data.profile.title || "",
-              bio: data.profile.bio || ""
+              bio: data.profile.bio || "",
+              profileImage: data.profile.profileImage || ""
+            },
+            company: {
+              ...prevData.company,
+              name: data.profile.companyName || "",
+              logo: data.profile.logoUrl || ""
             },
             contact: {
               ...prevData.contact,
-              email: data.profile.email || ""
+              email: data.profile.email || "",
+              phone: data.profile.phone || "",
+              whatsapp: data.profile.whatsapp || "",
+              website: data.profile.website || ""
+            },
+            location: {
+              ...prevData.location,
+              address: data.profile.address || "",
+              city: data.profile.city || "",
+              country: data.profile.country || "Türkiye"
             },
             subscription: {
               ...prevData.subscription,
               isPremium: data.profile.isPremium || false,
               plan: data.profile.subscriptionPlan || "Free"
-            }
+            },
+            // Theme ve diğer ayarlar
+            theme: data.profile.theme || "modern",
+            isPublic: data.profile.isPublic !== undefined ? data.profile.isPublic : true
           }))
+          console.log('🔄 Profile data güncellendi')
         }
       }
     } catch (error) {
-      console.error('Error fetching user profile:', error)
+      console.error('❌ Profil yüklenme hatası:', error)
     }
   }
 
@@ -201,6 +222,8 @@ export default function ProfileManagementPage() {
       formData.append('file', file)
       formData.append('type', type)
       
+      console.log('📸 Görsel yükleniyor:', type, file.name)
+      
       const response = await fetch('/api/upload/image', {
         method: 'POST',
         body: formData
@@ -211,8 +234,9 @@ export default function ProfileManagementPage() {
       }
       
       const { url } = await response.json()
+      console.log('✅ Görsel yüklendi, URL:', url)
       
-      // Update the appropriate field
+      // Update the appropriate field in state
       if (type === 'profile') {
         setProfileData(prev => ({
           ...prev,
@@ -230,7 +254,10 @@ export default function ProfileManagementPage() {
         }))
       }
       
-      alert('Görsel başarıyla yüklendi!')
+      // Otomatik kaydet - görsel yüklendikten hemen sonra
+      await handleSave()
+      
+      alert('Görsel başarıyla yüklendi ve kaydedildi!')
     } catch (error) {
       console.error('Upload error:', error)
       alert('Görsel yüklenirken hata oluştu!')
@@ -242,17 +269,53 @@ export default function ProfileManagementPage() {
     
     setLoading(true)
     try {
-      // Profil güncelleme API çağrısı (gelecekte implementasyon)
-      console.log("Saving profile data:", profileData)
+      console.log("💾 Profil kaydediliyor:", profileData)
       
-      // Simulated save for now
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Gerçek API çağrısı - profil güncelleme
+      const response = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: user.email,
+          name: profileData.personal.name,
+          title: profileData.personal.title,
+          bio: profileData.personal.bio,
+          phone: profileData.contact.phone,
+          whatsapp: profileData.contact.whatsapp,
+          website: profileData.contact.website,
+          address: `${profileData.location.address}, ${profileData.location.city}`,
+          companyName: profileData.company.name,
+          profileImage: profileData.personal.profileImage,
+          coverImageUrl: profileData.personal.coverImage,
+          logoUrl: profileData.company.logo,
+          isPublic: true,
+          theme: "modern"
+        })
+      })
+
+      const result = await response.json()
       
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
+      if (result.success) {
+        console.log("✅ Profil başarıyla kaydedildi")
+        setSaved(true)
+        setTimeout(() => setSaved(false), 3000)
+        
+        // Local user state'i güncelle
+        const updatedUser = {
+          ...user,
+          name: profileData.personal.name,
+          profile: result.profile
+        }
+        localStorage.setItem('user', JSON.stringify(updatedUser))
+        setUser(updatedUser)
+      } else {
+        throw new Error(result.message || 'Profil kaydetme başarısız')
+      }
     } catch (error) {
-      console.error("Error saving profile:", error)
-      alert("Profil kaydedilirken bir hata oluştu!")
+      console.error("❌ Profil kaydetme hatası:", error)
+      alert("Profil kaydedilirken bir hata oluştu: " + error.message)
     } finally {
       setLoading(false)
     }
@@ -865,14 +928,59 @@ export default function ProfileManagementPage() {
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                             placeholder="Fiyat bilgisi"
                           />
-                          <button className="text-red-400 hover:text-red-300 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="url"
+                              value={service.imageUrl || ''}
+                              onChange={(e) => {
+                                const updated = [...profileData.services]
+                                updated[index].imageUrl = e.target.value
+                                setProfileData({ ...profileData, services: updated })
+                              }}
+                              className="flex-1 px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
+                              placeholder="Hizmet görseli URL'si"
+                            />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) handleFileUpload(file, 'profile')
+                              }}
+                              className="hidden"
+                              id={`service-upload-${index}`}
+                            />
+                            <label
+                              htmlFor={`service-upload-${index}`}
+                              className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer flex items-center space-x-1 text-sm"
+                            >
+                              <Upload className="h-3 w-3" />
+                              <span>Yükle</span>
+                            </label>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const updated = profileData.services.filter((_, i) => i !== index)
+                              setProfileData({ ...profileData, services: updated })
+                            }}
+                            className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
+                          >
                             <Trash2 className="h-4 w-4" />
+                            <span>Kaldır</span>
                           </button>
                         </div>
                       </div>
                     ))}
                     
-                    <button className="p-4 bg-gray-800 rounded-lg border-2 border-dashed border-gray-700 hover:border-gray-600 transition flex flex-col items-center justify-center space-y-2 text-gray-400 hover:text-white">
+                    <button 
+                      onClick={() => {
+                        setProfileData({
+                          ...profileData,
+                          services: [...profileData.services, { title: "", description: "", price: "", imageUrl: "" }]
+                        })
+                      }}
+                      className="p-4 bg-gray-800 rounded-lg border-2 border-dashed border-gray-700 hover:border-gray-600 transition flex flex-col items-center justify-center space-y-2 text-gray-400 hover:text-white"
+                    >
                       <Plus className="h-6 w-6" />
                       <span className="text-sm">Yeni Hizmet Ekle</span>
                     </button>

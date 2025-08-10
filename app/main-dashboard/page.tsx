@@ -667,7 +667,7 @@ export default function MainDashboardPage() {
                     <span>{copySuccess ? 'Kopyalandı!' : 'Kopyala'}</span>
                   </button>
                   <a
-                    href={`/${user.isAdmin ? 'admin-profile' : profile.slug}`}
+                    href={`/${profile.slug || 'profile'}`}
                     target="_blank"
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center space-x-1 transition"
                   >

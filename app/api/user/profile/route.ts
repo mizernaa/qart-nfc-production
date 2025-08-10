@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
 import fs from 'fs'
 import path from 'path'
 
@@ -196,6 +197,48 @@ export async function POST(request: NextRequest) {
 
     // Dosyaya kaydet
     fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2))
+    
+    // Database'e de kaydet (dual storage)
+    try {
+      const prisma = new PrismaClient()
+      
+      console.log('👤 Güncellenecek kullanıcı:', email)
+      
+      // Kullanıcıyı database'de bul
+      const dbUser = await prisma.user.findUnique({
+        where: { email: email.toLowerCase() },
+        include: { profile: true }
+      })
+      
+      if (dbUser && dbUser.profile) {
+        // Profili güncelle
+        await prisma.profile.update({
+          where: { userId: dbUser.id },
+          data: {
+            title: title || dbUser.profile.title,
+            bio: bio || dbUser.profile.bio,
+            phone: phone || dbUser.profile.phone,
+            website: website || dbUser.profile.website,
+            address: address || dbUser.profile.address,
+            companyName: companyName || dbUser.profile.companyName,
+            profileImage: profileImage || dbUser.profile.profileImage,
+            coverImageUrl: coverImageUrl || dbUser.profile.coverImageUrl,
+            logoUrl: logoUrl || dbUser.profile.logoUrl,
+            isPublic: isPublic !== undefined ? isPublic : dbUser.profile.isPublic,
+            theme: theme || dbUser.profile.theme,
+            whatsapp: whatsapp || dbUser.profile.whatsapp
+          }
+        })
+        
+        console.log('💾 Profile database güncellendi:', email)
+      }
+      
+      await prisma.$disconnect()
+      
+    } catch (dbError) {
+      console.error('Database update error (non-critical):', dbError)
+      // Continue execution, database update failure doesn't break file-based system
+    }
     
     console.log('✅ Profil başarıyla güncellendi')
 

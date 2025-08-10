@@ -58,6 +58,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     })
     
     console.log('🔍 Real profile found:', realProfile ? 'YES' : 'NO')
+    if (realProfile) {
+      console.log('📄 Profile data:', {
+        logoUrl: realProfile.logoUrl,
+        profileImage: realProfile.profileImage,
+        coverImageUrl: realProfile.coverImageUrl
+      })
+    }
     
     // Gerçek profil verisi ile response oluştur
     const profile = {

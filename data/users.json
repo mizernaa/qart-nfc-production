@@ -6,83 +6,47 @@
     "name": "Admin User",
     "isAdmin": true,
     "isActive": true,
-    "createdAt": "2024-01-01T00:00:00.000Z",
+    "createdAt": "2025-08-11T11:35:00.000Z",
+    "lastLoginAt": "2025-08-11T11:35:00.000Z",
+    "emailVerified": true,
     "profile": {
       "slug": "admin-user",
       "title": "Sistem Yöneticisi",
-      "bio": "QART Sistem Yöneticisi",
+      "bio": "QART Sistem Yöneticisi - Tüm sistem yetkileri",
       "phone": "+90 555 000 0001",
-      "companyName": "QART Team"
+      "companyName": "QART Team",
+      "website": "https://qart.app",
+      "address": "İstanbul, Türkiye",
+      "whatsapp": "+90 555 000 0001",
+      "profileImage": "",
+      "coverImageUrl": "",
+      "logoUrl": "",
+      "isPublic": true,
+      "theme": "modern"
     }
   },
   {
-    "id": "demo-001",
+    "id": "demo-001", 
     "email": "demo@qart.app",
     "password": "$2b$12$zkCJrkabVur5cmn8.dBJw.I8zO2CTiHS5kO8SSaTPcS/SpspuBcCG",
     "name": "Demo User",
     "isAdmin": false,
     "isActive": true,
-    "createdAt": "2024-01-01T00:00:00.000Z",
+    "createdAt": "2025-08-11T11:35:00.000Z",
+    "lastLoginAt": "2025-08-11T11:35:00.000Z",
+    "emailVerified": true,
     "profile": {
       "slug": "demo-user",
       "title": "Demo Kullanıcısı",
-      "bio": "QART Demo Kullanıcısı",
+      "bio": "QART Demo Kullanıcısı - Örnek profil",
       "phone": "+90 555 000 0002",
-      "companyName": "Demo Şirketi"
-    }
-  },
-  {
-    "id": "user-1754787739564",
-    "email": "test@qart.app",
-    "password": "$2b$12$fjJfOuwPllrZdl.1uHJ7SOigKTKhRToKPrpQ.QmqIfEb7WKatu09i",
-    "name": "Test Kullan�c�",
-    "isAdmin": false,
-    "isActive": true,
-    "createdAt": "2025-08-10T01:02:19.564Z",
-    "profile": {
-      "slug": "test-kullanc",
-      "title": "Kullanıcı",
-      "bio": "Test Kullan�c� - QART dijital kartvizit kullanıcısı",
-      "phone": "+90 555 000 0000",
-      "companyName": ""
-    }
-  },
-  {
-    "id": "user-1754820755897",
-    "email": "testuser@example.com",
-    "password": "$2b$12$WKktow16Ooa0MZlobqNCoOMPqq/0isstxsw528NLlpVFdjyj5nhUK",
-    "name": "Test User",
-    "isAdmin": false,
-    "isActive": true,
-    "createdAt": "2025-08-10T10:12:35.897Z",
-    "profile": {
-      "slug": "test-user",
-      "title": "Kullanıcı",
-      "bio": "Test User - QART dijital kartvizit kullanıcısı",
-      "phone": "+90 555 000 0000",
-      "companyName": ""
-    }
-  },
-  {
-    "id": "user-1754827731415",
-    "email": "omeraytac@gmail.com",
-    "password": "$2b$12$zgyJF0yWaVDulEjVgCZv5ee0VfNC6YUpYTlA1ZqkAP8epJS7yqspS",
-    "name": "Ömer Aytaç",
-    "isAdmin": false,
-    "isActive": true,
-    "createdAt": "2025-08-10T12:08:51.415Z",
-    "profile": {
-      "slug": "omer-aytac",
-      "title": "Kullanıcı",
-      "bio": "Ömer Aytaç - QART dijital kartvizit kullanıcısı",
-      "phone": "+90 555 000 0000",
-      "companyName": "",
-      "whatsapp": "+90 555 000 0000",
-      "website": "",
-      "address": ", , , ",
-      "profileImage": "/uploads/profile_1754835688492_ChatGPT_Image_30_Nis_2025_12_03_43.png",
+      "companyName": "Demo Şirketi",
+      "website": "https://demo.qart.app",
+      "address": "Ankara, Türkiye",
+      "whatsapp": "+90 555 000 0002",
+      "profileImage": "",
       "coverImageUrl": "",
-      "logoUrl": "/uploads/logo_1754835278389_ChatGPT_Image_30_Nis_2025_12_03_43.png",
+      "logoUrl": "",
       "isPublic": true,
       "theme": "modern"
     }

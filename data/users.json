@@ -26,7 +26,7 @@
     }
   },
   {
-    "id": "demo-001", 
+    "id": "demo-001",
     "email": "demo@qart.app",
     "password": "$2b$12$zkCJrkabVur5cmn8.dBJw.I8zO2CTiHS5kO8SSaTPcS/SpspuBcCG",
     "name": "Demo User",
@@ -47,6 +47,32 @@
       "profileImage": "",
       "coverImageUrl": "",
       "logoUrl": "",
+      "isPublic": true,
+      "theme": "modern"
+    }
+  },
+  {
+    "id": "user-1754827731415",
+    "email": "omeraytac@gmail.com",
+    "password": "$2b$12$zgyJF0yWaVDulEjVgCZv5ee0VfNC6YUpYTlA1ZqkAP8epJS7yqspS",
+    "name": "Ömer Aytaç",
+    "isAdmin": false,
+    "isActive": true,
+    "createdAt": "2025-08-10T12:08:51.415Z",
+    "lastLoginAt": "2025-08-10T12:08:51.415Z",
+    "emailVerified": true,
+    "profile": {
+      "slug": "omer-aytac",
+      "title": "Kullanıcı",
+      "bio": "Ömer Aytaç - QART dijital kartvizit kullanıcısı",
+      "phone": "+90 555 000 0000",
+      "companyName": "",
+      "website": "",
+      "address": "",
+      "whatsapp": "+90 555 000 0000",
+      "profileImage": "/uploads/profile_1754835688492_ChatGPT_Image_30_Nis_2025_12_03_43.png",
+      "coverImageUrl": "",
+      "logoUrl": "/uploads/logo_1754835278389_ChatGPT_Image_30_Nis_2025_12_03_43.png",
       "isPublic": true,
       "theme": "modern"
     }

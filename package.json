@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:seed": "ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts",
+    "db:seed-prod": "node scripts/seed-production.js",
     "postinstall": "prisma generate"
   },
   "prisma": {

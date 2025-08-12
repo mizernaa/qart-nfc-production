@@ -40,21 +40,6 @@ export async function POST(request: NextRequest) {
             website: 'https://demo.qart.app',
             address: 'Ankara, Türkiye'
           }
-        },
-        {
-          email: 'omeraytac@gmail.com',
-          password: 'omer123', // Default password for Ömer
-          name: 'Ömer Aytaç',
-          isAdmin: false,
-          profile: {
-            slug: 'omer-aytac',
-            title: 'Kullanıcı',
-            bio: 'Ömer Aytaç - QART dijital kartvizit kullanıcısı',
-            phone: '+90 555 000 0000',
-            companyName: '',
-            website: '',
-            address: ''
-          }
         }
       ]
 
@@ -200,8 +185,7 @@ export async function GET(request: NextRequest) {
     usage: 'Send POST request to seed the database',
     users: [
       'admin@qart.app (Admin User)',
-      'demo@qart.app (Demo User)', 
-      'omeraytac@gmail.com (Ömer Aytaç)'
+      'demo@qart.app (Demo User)'
     ]
   })
 }

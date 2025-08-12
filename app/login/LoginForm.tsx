@@ -21,7 +21,7 @@ export default function LoginForm() {
     setError("")
 
     try {
-      const response = await fetch("/api/auth/robust-login", {
+      const response = await fetch("/api/auth/db-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

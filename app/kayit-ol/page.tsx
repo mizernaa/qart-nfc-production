@@ -51,8 +51,8 @@ export default function KayitOlPage() {
     }
 
     try {
-      // Artık her zaman auth/register kullan (Prisma database)
-      const response = await fetch('/api/auth/register', {
+      // Basit database register kullan (sadece User tablosu)
+      const response = await fetch('/api/auth/simple-db-register', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

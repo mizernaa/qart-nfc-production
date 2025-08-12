@@ -10,11 +10,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
 
-    // Check environment - use file-based system for localhost
-    const isLocalhost = !process.env.VERCEL && process.env.NODE_ENV !== 'production'
+    // Try Prisma first, fallback to file system if it fails
+    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production'
     
-    if (isLocalhost) {
-      console.log("📂 Using File-based system for localhost")
+    // Always try file system first in production for reliability
+    if (isProduction) {
+      console.log("📂 Using File-based system for production")
       
       const fs = require('fs')
       const path = require('path')
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
       }
       
     } else {
-      console.log("💻 Using Prisma Database (production)")
+      console.log("💻 Using Prisma Database (localhost)")
       
       const prisma = new PrismaClient()
         
@@ -174,11 +175,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check environment - use file-based system for localhost
-    const isLocalhost = !process.env.VERCEL && process.env.NODE_ENV !== 'production'
+    // Check environment
+    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production'
     
-    if (isLocalhost) {
-      console.log("📂 Using File-based system for user creation")
+    if (isProduction) {
+      console.log("📂 Using File-based system for user creation (production)")
       
       const fs = require('fs')
       const path = require('path')
@@ -412,10 +413,10 @@ export async function DELETE(request: NextRequest) {
 
     console.log('🗑️ Deleting user:', userId)
     
-    // Check environment - use file-based system for localhost
-    const isLocalhost = !process.env.VERCEL && process.env.NODE_ENV !== 'production'
+    // Check environment
+    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production'
     
-    if (isLocalhost) {
+    if (isProduction) {
       console.log("📂 Using File-based system for user deletion")
       
       const fs = require('fs')
@@ -524,13 +525,13 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Check environment - use file-based system for localhost
-    const isLocalhost = !process.env.VERCEL && process.env.NODE_ENV !== 'production'
+    // Check environment
+    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production'
 
     if (action === 'toggle-status') {
       console.log('🔄 Toggling user status:', userId)
       
-      if (isLocalhost) {
+      if (isProduction) {
         console.log("📂 Using File-based system for status toggle")
         
         const fs = require('fs')
@@ -617,7 +618,7 @@ export async function PATCH(request: NextRequest) {
       
       console.log('📝 Updating user:', userId, body)
       
-      if (isLocalhost) {
+      if (isProduction) {
         console.log("📂 Using File-based system for user update")
         
         const fs = require('fs')

@@ -4,6 +4,7 @@
 
 **12 Ağustos 2025** - Kapsamlı temizlik tamamlandı! Production sadece gerekli kullanıcılar ve temiz kod ile çalışıyor!
 **🔐 GÜVENLİK SORUNU ÇÖZÜLDÜ:** omeraytac@gmail.com ile giriş artık YAPILAMIYOR!
+**🎨 TEMA SİSTEMİ TAMAMEN GERİ YÜKLENDİ:** 10 hazır tema ile dinamik tema desteği aktif!
 
 ## Proje Özeti
 Bu proje, NFC teknolojisi ve QR kod ile çalışan dijital kartvizit sistemidir. Kullanıcılar profil oluşturabilir, sosyal medya bağlantılarını paylaşabilir ve analitik verileri takip edebilirler.
@@ -14,11 +15,12 @@ Bu proje, NFC teknolojisi ve QR kod ile çalışan dijital kartvizit sistemidir.
 - **Kimlik Doğrulama:** Custom Auth System (localStorage + PostgreSQL)
 - **UI Kütüphaneleri:** 
   - Radix UI
-  - Tailwind CSS
+  - Tailwind CSS v4 + @tailwindcss/postcss
   - Framer Motion
   - Lucide Icons
 - **QR Kod:** qrcode.js
 - **Bulut Depolama:** Cloudinary
+- **Tema Sistemi:** Dinamik tema desteği (10 hazır tema)
 
 ## Veritabanı Modelleri (PostgreSQL Only)
 ### Ana Modeller:

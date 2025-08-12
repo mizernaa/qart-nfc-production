@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { motion } from "framer-motion"
+import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
 
 export default function LoginForm() {
   const router = useRouter()
@@ -57,44 +58,53 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="max-w-md w-full bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-xl shadow-2xl p-8">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <Link href="/" className="inline-block mb-6">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent hover:from-blue-300 hover:to-blue-500 transition-all">
-            QART
-          </h1>
-        </Link>
-        <h2 className="text-2xl font-bold text-white mb-2">Hoş Geldiniz</h2>
-        <p className="text-gray-400">Hesabınıza giriş yapın</p>
-      </div>
+    <motion.div 
+      className="max-w-md w-full card-premium p-8"
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      whileHover={{ y: -4 }}
+    >
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6">
+        <motion.div 
+          className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+        >
           {error}
-        </div>
+        </motion.div>
       )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Email */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-color)' }}>
             Email
           </label>
           <div className="relative">
-            <input
+            <motion.input
               type="email"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 glass-dark rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 transition-all"
+              style={{ 
+                color: 'var(--text-color)',
+                '--tw-ring-color': 'var(--primary-color)'
+              }}
               placeholder="ornek@email.com"
               required
+              whileFocus={{ scale: 1.02 }}
             />
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5" style={{ color: 'var(--text-muted)' }} />
           </div>
-        </div>
+        </motion.div>
 
         {/* Password */}
         <div>
@@ -168,6 +178,6 @@ export default function LoginForm() {
           Güvenli giriş sistemi ile verileriniz korunmaktadır
         </p>
       </div>
-    </div>
+    </motion.div>
   )
 }

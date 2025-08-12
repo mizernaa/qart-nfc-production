@@ -62,7 +62,7 @@ export default function Home() {
   }))
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black relative overflow-hidden">
+    <div className="min-h-screen animated-bg relative overflow-hidden" style={{ background: 'var(--background-color)', color: 'var(--text-color)' }}>
       <AnimatedBackground />
       
       {/* Floating particles */}

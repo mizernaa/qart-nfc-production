@@ -51,10 +51,8 @@ export default function KayitOlPage() {
     }
 
     try {
-      // Production'da simple-register kullan
-      const isProduction = window.location.hostname !== 'localhost'
-      const endpoint = isProduction ? '/api/simple-register' : '/api/auth/register'
-      const response = await fetch(endpoint, {
+      // Artık her zaman auth/register kullan (Prisma database)
+      const response = await fetch('/api/auth/register', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

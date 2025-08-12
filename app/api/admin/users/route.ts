@@ -10,12 +10,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
 
-    // Try Prisma first, fallback to file system if it fails
-    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production'
+    // Use Prisma for both production and localhost
+    const usePrisma = true // Always use database now
     
-    // Always try file system first in production for reliability
-    if (isProduction) {
-      console.log("📂 Using File-based system for production")
+    if (!usePrisma) {
+      console.log("📂 Using File-based system (disabled)")
       
       const fs = require('fs')
       const path = require('path')
@@ -79,7 +78,7 @@ export async function GET(request: NextRequest) {
       }
       
     } else {
-      console.log("💻 Using Prisma Database (localhost)")
+      console.log("💻 Using Prisma Database")
       
       const prisma = new PrismaClient()
         
@@ -280,7 +279,7 @@ export async function POST(request: NextRequest) {
       }
       
     } else {
-      console.log("💻 Using Prisma Database (production)")
+      console.log("💻 Using Prisma Database for user creation")
       
       const prisma = new PrismaClient()
       
@@ -413,11 +412,11 @@ export async function DELETE(request: NextRequest) {
 
     console.log('🗑️ Deleting user:', userId)
     
-    // Check environment
-    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production'
+    // Use Prisma for deletion
+    const usePrisma = true
     
-    if (isProduction) {
-      console.log("📂 Using File-based system for user deletion")
+    if (!usePrisma) {
+      console.log("📂 Using File-based system (disabled)")
       
       const fs = require('fs')
       const path = require('path')
@@ -525,13 +524,13 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Check environment
-    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production'
+    // Use Prisma for updates
+    const usePrisma = true
 
     if (action === 'toggle-status') {
       console.log('🔄 Toggling user status:', userId)
       
-      if (isProduction) {
+      if (!usePrisma) {
         console.log("📂 Using File-based system for status toggle")
         
         const fs = require('fs')
@@ -618,8 +617,8 @@ export async function PATCH(request: NextRequest) {
       
       console.log('📝 Updating user:', userId, body)
       
-      if (isProduction) {
-        console.log("📂 Using File-based system for user update")
+      if (!usePrisma) {
+        console.log("📂 Using File-based system (disabled)")
         
         const fs = require('fs')
         const path = require('path')

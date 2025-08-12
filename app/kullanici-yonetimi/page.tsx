@@ -66,10 +66,8 @@ export default function KullaniciYonetimiPage() {
   // API'den kullanıcıları çek
   const fetchUsers = async () => {
     try {
-      // Production'da test-users, localhost'ta admin/users kullan
-      const isProduction = window.location.hostname !== 'localhost'
-      const endpoint = isProduction ? '/api/test-users' : '/api/admin/users'
-      const response = await fetch(endpoint)
+      // Artık her zaman admin/users kullan (Prisma database)
+      const response = await fetch('/api/admin/users')
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.users) {

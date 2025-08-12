@@ -19,10 +19,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className="dark">
-      <body className={`${inter.className} bg-[#0A0B0D] text-white min-h-screen`}>
+    <html lang="tr">
+      <body className={`${inter.className} min-h-screen`} style={{
+        backgroundColor: 'var(--background-color, #0F172A)',
+        color: 'var(--text-color, #F1F5F9)'
+      }}>
         <AuthProvider>
-          <ThemeProvider defaultThemeId="default">
+          <ThemeProvider defaultThemeId="dark">
             <Toaster position="top-center" />
             {children}
           </ThemeProvider>

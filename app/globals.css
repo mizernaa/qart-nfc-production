@@ -25,23 +25,22 @@
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
     
-    /* Premium Theme System - Elegant & Tech */
+    /* Premium Theme System - Dynamic Theme Variables */
     --primary-color: #6366F1;
     --secondary-color: #8B5CF6;
-    --accent-color: #EC4899;
-    --background-color: #0A0B0D;
-    --surface-color: #111318;
-    --card-color: #1A1D23;
-    --text-color: #FFFFFF;
-    --text-muted: #9CA3AF;
-    --card-background: linear-gradient(135deg, #1A1D23 0%, #252830 100%);
-    --card-border: rgba(139, 92, 246, 0.2);
-    --border-radius: 1rem;
+    --background-color: #0F172A;
+    --text-color: #F1F5F9;
+    --text-muted: #64748B;
+    --card-background: #1E293B;
+    --card-border: #334155;
+    --border-radius: 0.5rem;
+    
+    /* Gradients */
     --gradient-primary: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-    --gradient-secondary: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-    --gradient-accent: linear-gradient(135deg, #EC4899 0%, #F59E0B 100%);
-    --glow-primary: 0 0 40px rgba(99, 102, 241, 0.5);
-    --glow-secondary: 0 0 40px rgba(139, 92, 246, 0.5);
+    --gradient-secondary: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
+    
+    /* Glows */
+    --glow-primary: 0 0 40px rgba(99, 102, 241, 0.3);
   }
 
   .dark {
@@ -69,7 +68,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   
   html {
@@ -77,7 +76,6 @@
   }
   
   body {
-    @apply bg-background text-foreground;
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
     min-height: 100vh;
@@ -88,7 +86,9 @@
 @layer components {
   /* Glass Morphism Effects */
   .glass {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10;
+    backdrop-filter: blur(24px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   .glass-dark {
@@ -126,6 +126,38 @@
   }
   
   .btn-gradient:hover:before {
+    left: 100%;
+  }
+  
+  /* Premium Button */
+  .btn-premium {
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-primary);
+  }
+  
+  .btn-premium:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .btn-premium:hover:before {
     left: 100%;
   }
   

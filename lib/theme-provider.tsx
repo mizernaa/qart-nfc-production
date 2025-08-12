@@ -58,9 +58,23 @@ export function ThemeProvider({
       root.style.setProperty('--card-background', theme.cardBackground || theme.backgroundColor)
       root.style.setProperty('--card-border', theme.cardBorder || theme.primaryColor)
       
+      // Generate dynamic gradients and effects
+      root.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`)
+      root.style.setProperty('--gradient-secondary', `linear-gradient(135deg, ${theme.secondaryColor} 0%, ${theme.primaryColor} 100%)`)
+      
+      // Generate glow effects
+      const primaryRgb = hexToRgb(theme.primaryColor)
+      const secondaryRgb = hexToRgb(theme.secondaryColor)
+      if (primaryRgb) {
+        root.style.setProperty('--glow-primary', `0 0 40px rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.5)`)
+      }
+      if (secondaryRgb) {
+        root.style.setProperty('--glow-secondary', `0 0 40px rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, 0.5)`)
+      }
+      
       // Apply font
       if (theme.font) {
-        document.body.style.fontFamily = theme.font
+        document.body.style.fontFamily = `${theme.font}, system-ui, -apple-system, sans-serif`
       }
 
       // Apply background gradient if exists
@@ -71,6 +85,16 @@ export function ThemeProvider({
       }
     }
   }, [theme])
+
+  // Helper function to convert hex to rgb
+  const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null
+  }
 
   return (
     <ThemeContext.Provider 

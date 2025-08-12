@@ -134,26 +134,26 @@ export default function AdminPanel() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="min-h-screen animated-bg flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+    <div className="min-h-screen animated-bg">
       {/* Header */}
-      <header className="bg-black/50 backdrop-blur-lg border-b border-gray-800 sticky top-0 z-50">
+      <header className="glass-dark border-b sticky top-0 z-50" style={{ borderColor: 'var(--card-border)' }}>
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Link href="/admin-panel" className="flex items-center space-x-3 hover:bg-gray-800/50 rounded-lg p-2 transition">
-                <div className="p-2 bg-blue-600/20 rounded-lg">
-                  <Zap className="h-6 w-6 text-blue-400" />
+              <Link href="/admin-panel" className="flex items-center space-x-3 hover:bg-white/10 rounded-lg p-2 transition">
+                <div className="p-2 rounded-lg" style={{ background: 'var(--gradient-primary)' }}>
+                  <Zap className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-white">QART Admin</h1>
-                  <p className="text-xs text-gray-400">Sistem Yönetimi</p>
+                  <h1 className="text-xl font-bold text-gradient">QART Admin</h1>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Sistem Yönetimi</p>
                 </div>
               </Link>
             </div>

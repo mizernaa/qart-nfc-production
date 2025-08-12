@@ -1,365 +1,574 @@
+"use client"
+
 import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { HeroButtons, PricingButton, CTAButton } from "@/components/home/ClientButtons"
+import AnimatedBackground from "@/components/home/AnimatedBackground"
+import AnimatedFeatures from "@/components/home/AnimatedFeatures"
+import FAQ from "@/components/home/FAQ"
 import { 
-  CreditCard,
-  Smartphone,
-  QrCode,
-  Globe,
+  AnimatedCounter, 
+  AnimatedText, 
+  AnimatedCard, 
+  FloatingElement,
+  PulseElement,
+  GradientText
+} from "@/components/home/AnimatedComponents"
+import { motion, useScroll, useTransform } from "framer-motion"
+import { 
+  Zap, 
+  QrCode, 
+  Globe, 
+  BarChart3, 
+  Shield, 
   Users,
-  BarChart3,
+  Smartphone,
+  CreditCard,
+  ChevronRight,
   Check,
   Star,
-  Menu,
-  X,
-  ArrowRight,
-  Shield,
-  Zap,
-  Clock
+  Sparkles
 } from "lucide-react"
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <CreditCard className="h-8 w-8 text-purple-600" />
-              <span className="ml-2 text-2xl font-bold text-gray-900">QART</span>
-            </div>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-purple-600 transition">Özellikler</a>
-              <a href="#pricing" className="text-gray-600 hover:text-purple-600 transition">Fiyatlar</a>
-              <a href="#contact" className="text-gray-600 hover:text-purple-600 transition">İletişim</a>
-            </div>
+  const { scrollY } = useScroll()
+  const y1 = useTransform(scrollY, [0, 300], [0, 50])
+  const y2 = useTransform(scrollY, [0, 300], [0, -50])
+  const opacity = useTransform(scrollY, [0, 300], [1, 0])
 
-            {/* CTA Buttons */}
-            <div className="flex items-center space-x-4">
-              <Link href="/login" className="hidden sm:block">
-                <button className="text-gray-600 hover:text-purple-600 transition">
-                  Giriş Yap
-                </button>
-              </Link>
-              <Link href="/kayit-ol">
-                <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
-                  Ücretsiz Başla
-                </button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  }
+
+  // Sabit particle pozisyonları - hydration hatası önlemek için
+  const particles = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    left: ((i * 37 + 13) % 100),
+    top: ((i * 53 + 29) % 100),
+    duration: 5 + (i % 5),
+    delay: (i % 5)
+  }))
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black relative overflow-hidden">
+      <AnimatedBackground />
+      
+      {/* Floating particles */}
+      <div className="fixed inset-0 pointer-events-none">
+        {particles.map((particle) => (
+          <motion.div
+            key={particle.id}
+            className="absolute w-1 h-1 bg-white/20 rounded-full"
+            style={{
+              left: `${particle.left}%`,
+              top: `${particle.top}%`,
+            }}
+            animate={{
+              y: [0, -100],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: particle.duration,
+              repeat: Infinity,
+              delay: particle.delay,
+            }}
+          />
+        ))}
+      </div>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center bg-purple-50 rounded-full px-4 py-1 mb-6">
-              <Zap className="h-4 w-4 text-purple-600 mr-2" />
-              <span className="text-sm font-medium text-purple-600">Yeni Nesil Dijital Kartvizit</span>
-            </div>
-            
-            {/* Title */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-              Dijital Çağda<br />
-              <span className="gradient-text">Profesyonel Networking</span>
-            </h1>
-            
-            {/* Description */}
-            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto mb-10">
-              NFC teknolojisi ile kartınızı okutun, tüm bilgileriniz anında paylaşılsın. 
-              Kağıt kartvizit devri bitti!
-            </p>
-            
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/kayit-ol">
-                <button className="w-full sm:w-auto gradient-bg text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center">
-                  Hemen Başla
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </button>
-              </Link>
-              <button className="w-full sm:w-auto bg-gray-100 text-gray-700 font-semibold px-8 py-3 rounded-lg hover:bg-gray-200 transition">
-                Demo İzle
-              </button>
-            </div>
-            
-            {/* Trust Badges */}
-            <div className="flex flex-wrap justify-center gap-6 mt-12 text-sm text-gray-500">
-              <div className="flex items-center">
-                <Shield className="h-4 w-4 mr-1 text-green-500" />
-                SSL Güvenlik
-              </div>
-              <div className="flex items-center">
-                <Users className="h-4 w-4 mr-1 text-blue-500" />
-                10,000+ Kullanıcı
-              </div>
-              <div className="flex items-center">
-                <Star className="h-4 w-4 mr-1 text-yellow-500" />
-                4.9/5 Puan
-              </div>
-            </div>
-          </div>
-          
-          {/* Hero Image - Card Preview */}
-          <div className="mt-16 relative">
-            <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 lg:p-12">
-              <div className="bg-white rounded-xl shadow-2xl max-w-md mx-auto p-6">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-900">QART Card</h3>
-                    <p className="text-gray-500">Premium Digital</p>
+      <section className="relative overflow-hidden">
+        <motion.div 
+          className="container mx-auto px-4 py-20 text-center"
+          style={{ y: y1, opacity }}
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <PulseElement>
+              <motion.div
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full px-4 py-2 mb-6 border border-purple-500/30"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                <span className="text-sm text-purple-300 font-medium">Yeni Nesil Dijital Kartvizit</span>
+              </motion.div>
+            </PulseElement>
+          </motion.div>
+
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold text-white mb-6"
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <GradientText className="text-5xl md:text-7xl font-bold">QART NFC</GradientText>
+            <br />
+            <AnimatedText text="Akıllı Kartvizit Kartı" className="text-white" />
+          </motion.h1>
+
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <AnimatedFeatures />
+          </motion.div>
+
+          <motion.p 
+            className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto"
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            Geleneksel kartvizitleri unutun! Premium NFC teknolojisi ile networking&apos;i yeniden keşfedin.
+          </motion.p>
+
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
+            <HeroButtons />
+          </motion.div>
+
+          {/* 3D Card Preview */}
+          <motion.div
+            className="mt-16 relative"
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 1 }}
+          >
+            <FloatingElement>
+              <div className="relative mx-auto w-64 h-40 transform-gpu perspective-1000">
+                <motion.div
+                  className="w-full h-full bg-gradient-to-br from-gray-800 to-black rounded-xl shadow-2xl border border-gray-600 relative transform-gpu"
+                  animate={{
+                    rotateY: [0, 10, 0, -10, 0],
+                  }}
+                  transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                  }}
+                  style={{
+                    transformStyle: "preserve-3d",
+                  }}
+                >
+                  <div className="absolute inset-4 bg-gray-700 rounded opacity-50"></div>
+                  <div className="absolute top-4 left-4 w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                    <span className="text-gray-900 text-sm font-bold">NFC</span>
                   </div>
-                  <QrCode className="h-12 w-12 text-purple-600" />
-                </div>
-                <div className="space-y-3">
-                  <div className="h-3 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                </div>
-                <div className="mt-6 pt-6 border-t border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <Smartphone className="h-8 w-8 text-purple-600" />
-                    <span className="text-sm font-medium text-gray-500">NFC Enabled</span>
+                  <div className="absolute bottom-4 right-4">
+                    <QrCode className="h-12 w-12 text-gray-300" />
                   </div>
-                </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-white font-bold text-2xl">QART</span>
+                  </div>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-xl"
+                    animate={{
+                      opacity: [0, 0.5, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                    }}
+                  />
+                </motion.div>
               </div>
-            </div>
-          </div>
-        </div>
+            </FloatingElement>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Neden QART'ı Seçmelisiniz?
+      <section className="py-20 bg-gray-800 relative">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 100 }}
+              className="inline-block mb-4"
+            >
+              <Star className="w-12 h-12 text-yellow-400 mx-auto" />
+            </motion.div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              🚀 QART NFC Kartının Gücü
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Modern iş dünyasının ihtiyaçlarına göre tasarlandı
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+              Premium NFC teknolojisi ile tanışın - Networking hiç bu kadar kolay olmamıştı!
             </p>
-          </div>
+          </motion.div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
             {[
               {
                 icon: Smartphone,
-                title: "NFC Teknolojisi",
-                description: "Telefonunuza dokundurun, bilgileriniz anında aktarılsın"
+                title: "🔥 NFC Dokunmatik Teknoloji",
+                description: "Kartınızı telefona yaklaştırın, bilgileriniz anında paylaşılsın!",
+                highlight: "Sihir gibi kolay."
               },
               {
                 icon: QrCode,
-                title: "QR Kod Desteği",
-                description: "NFC olmayan cihazlar için QR kod ile paylaşım"
-              },
-              {
-                icon: Globe,
-                title: "Online Profil",
-                description: "Dijital profilinizi istediğiniz zaman güncelleyin"
-              },
-              {
-                icon: BarChart3,
-                title: "Detaylı Analitik",
-                description: "Kartınızın kaç kez görüntülendiğini takip edin"
+                title: "⚡ QR Kod + NFC = Süper Güç",
+                description: "Çift teknoloji, çift avantaj! NFC olmayan cihazlar için QR kod desteği.",
+                highlight: "%100 uyumluluk garantisi."
               },
               {
                 icon: Shield,
-                title: "Güvenli Altyapı",
-                description: "256-bit SSL şifreleme ile verileriniz güvende"
-              },
-              {
-                icon: Clock,
-                title: "Hızlı Kurulum",
-                description: "5 dakikada hazır, ömür boyu kullanım"
+                title: "💎 Premium Kalite Kart",
+                description: "Su geçirmez, çizilmez, dayanıklı! Cüzdanınızda yıllarca durabilir.",
+                highlight: "Profesyonel imaj garantisi."
               }
-            ].map((feature, index) => {
-              const Icon = feature.icon
-              return (
-                <div key={index} className="bg-white rounded-xl p-6 hover:shadow-lg transition card-shadow">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                    <Icon className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600">
-                    {feature.description}
-                  </p>
-                </div>
-              )
-            })}
-          </div>
+            ].map((feature, index) => (
+              <motion.div key={index} variants={item}>
+                <AnimatedCard delay={index * 0.1}>
+                  <Card className="border border-gray-600 bg-gradient-to-br from-gray-900 to-gray-800 shadow-xl hover:shadow-2xl transition-all duration-300 group h-full">
+                    <CardHeader>
+                      <motion.div 
+                        className="w-16 h-16 bg-gradient-to-br from-gray-600 to-gray-700 rounded-xl flex items-center justify-center mb-4 group-hover:from-purple-600 group-hover:to-pink-600 transition-all duration-300"
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.6 }}
+                      >
+                        <feature.icon className="h-8 w-8 text-white" />
+                      </motion.div>
+                      <CardTitle className="text-xl text-white">{feature.title}</CardTitle>
+                      <CardDescription className="text-gray-300">
+                        {feature.description}
+                        <span className="text-white font-semibold"> {feature.highlight}</span>
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                </AnimatedCard>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Nasıl Çalışır?
-            </h2>
-            <p className="text-lg text-gray-600">
-              3 basit adımda dijital kartvizitiniz hazır
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                1
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Kayıt Olun</h3>
-              <p className="text-gray-600">
-                30 saniyede ücretsiz hesap oluşturun
+      {/* Product Info Section */}
+      <section className="py-20 bg-black relative">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ x: -100, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                🎯 QART NFC Kartı Neden Farklı?
+              </h2>
+              <p className="text-xl text-gray-300 mb-6 font-medium">
+                Kağıt kartvizitler çöpe gidiyor, telefon numaraları kayboluyor? 
+                <span className="text-white"> Bu sorunlar artık tarih!</span>
               </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                2
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Profil Oluşturun</h3>
-              <p className="text-gray-600">
-                Bilgilerinizi ve sosyal medya hesaplarınızı ekleyin
+              <p className="text-lg text-gray-400 mb-8">
+                QART NFC kartı ile bir kez dokunun, kalıcı bağlantı kurun. 
+                Bilgileriniz güncel kalır, istatistiklerinizi takip edin!
               </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                3
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Paylaşmaya Başlayın</h3>
-              <p className="text-gray-600">
-                NFC kartınızla tek dokunuşta paylaşın
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Basit ve Şeffaf Fiyatlandırma
-            </h2>
-            <p className="text-lg text-gray-600">
-              Tek seferlik ödeme, ömür boyu kullanım
-            </p>
-          </div>
-          
-          <div className="max-w-lg mx-auto">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-              <div className="gradient-bg p-8 text-white text-center">
-                <h3 className="text-2xl font-bold mb-2">Premium Paket</h3>
-                <div className="text-5xl font-bold mb-2">799₺</div>
-                <p className="opacity-90">Tek seferlik ödeme</p>
-              </div>
               
-              <div className="p-8">
-                <ul className="space-y-4 mb-8">
-                  {[
-                    "Premium NFC kart (Kargo dahil)",
-                    "Sınırsız profil güncelleme",
-                    "Detaylı ziyaretçi analitiği",
-                    "Özel tasarım seçenekleri",
-                    "7/24 teknik destek",
-                    "Ömür boyu garanti"
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Link href="/kayit-ol">
-                  <button className="w-full gradient-bg text-white font-semibold py-3 rounded-lg hover:opacity-90 transition">
-                    Hemen Satın Al
-                  </button>
-                </Link>
-                
-                <p className="text-center text-sm text-gray-500 mt-4">
-                  30 gün para iade garantisi
-                </p>
-              </div>
-            </div>
+              <motion.div 
+                className="space-y-4"
+                variants={container}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+              >
+                {[
+                  "🔄 Sınırsız Güncelleme - Bilgileriniz değişti mi? Anında güncellenir!",
+                  "📱 Tüm Sosyal Medya - Instagram, LinkedIn, WhatsApp hepsi bir arada!",
+                  "📊 Gerçek Zamanlı İstatistik - Kim, ne zaman, nereden baktı? Hepsini görün!",
+                  "🌍 Global Erişim - Dünyanın her yerinden 7/24 ulaşılabilir!"
+                ].map((text, index) => (
+                  <motion.div 
+                    key={index}
+                    className="flex items-center py-2"
+                    variants={item}
+                    whileHover={{ x: 10 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <motion.div 
+                      className="w-6 h-6 bg-white rounded-full flex items-center justify-center mr-3"
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
+                    >
+                      <span className="text-gray-900 font-bold text-sm">✓</span>
+                    </motion.div>
+                    <span className="text-gray-200 text-lg">{text.split(' - ')[0]} <strong>{text.split(' - ')[1]}</strong></span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{ x: 100, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <FloatingElement>
+                <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl p-8 text-white border border-gray-500 shadow-2xl relative overflow-hidden">
+                  <motion.div 
+                    className="absolute top-4 right-4 bg-white text-gray-900 px-3 py-1 rounded-full text-sm font-bold"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    🔥 HOT!
+                  </motion.div>
+                  
+                  <div className="text-center">
+                    <div className="relative mb-6">
+                      <motion.div 
+                        className="w-32 h-20 bg-gradient-to-br from-gray-800 to-black rounded-lg mx-auto shadow-xl border border-gray-600 relative"
+                        whileHover={{ scale: 1.1, rotateY: 180 }}
+                        transition={{ duration: 0.6 }}
+                        style={{ transformStyle: "preserve-3d" }}
+                      >
+                        <div className="absolute inset-2 bg-gray-700 rounded opacity-50"></div>
+                        <div className="absolute top-2 left-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                          <span className="text-gray-900 text-xs font-bold">NFC</span>
+                        </div>
+                        <div className="absolute bottom-2 right-2">
+                          <QrCode className="h-6 w-6 text-gray-300" />
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-white font-bold text-xs">QART</span>
+                        </div>
+                      </motion.div>
+                      <PulseElement>
+                        <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                          <Zap className="h-4 w-4 text-gray-900" />
+                        </div>
+                      </PulseElement>
+                    </div>
+                    
+                    <h3 className="text-3xl font-bold mb-4 text-white">💳 QART Premium NFC Kart</h3>
+                    <p className="text-gray-300 mb-6 text-lg">
+                      <span className="text-white font-semibold">Su geçirmez • Çizilmez • Şık tasarım</span><br/>
+                      Cüzdanınıza mükemmel uyum, yıllarca kullanım!
+                    </p>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <motion.div 
+                        className="bg-gray-800 rounded-lg p-3"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <div className="text-white font-bold">📐 Boyut</div>
+                        <div className="text-gray-300">85x54mm (Standart)</div>
+                      </motion.div>
+                      <motion.div 
+                        className="bg-gray-800 rounded-lg p-3"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <div className="text-white font-bold">🛡️ Dayanıklılık</div>
+                        <div className="text-gray-300">2 Yıl Garanti</div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </FloatingElement>
+            </motion.div>
           </div>
         </div>
       </section>
+
+      {/* Demo & Social Proof Section */}
+      <section className="py-20 bg-gray-900 relative">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              🎯 Nasıl Çalışır? İzleyin!
+            </h2>
+            <p className="text-lg text-gray-300">
+              3 basit adımda dijital networking dünyasına adım atın
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-16"
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            {[
+              { number: "1", icon: "📱", title: "Kartı Yaklaştır", desc: "QART NFC kartınızı herhangi bir akıllı telefona yaklaştırın" },
+              { number: "2", icon: "⚡", title: "Anında Bağlantı", desc: "Profiliniz otomatik olarak açılır, tüm bilgileriniz görülür" },
+              { number: "3", icon: "🎉", title: "Kaydet & Takip Et", desc: "Kişiler sizi kaydeder, siz de istatistikleri görürsünüz" }
+            ].map((step, index) => (
+              <motion.div key={index} className="text-center" variants={item}>
+                <motion.div 
+                  className="w-20 h-20 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white"
+                  whileHover={{ scale: 1.1, rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <span className="text-2xl font-bold text-white">{step.number}</span>
+                </motion.div>
+                <h3 className="text-xl font-bold text-white mb-2">{step.icon} {step.title}</h3>
+                <p className="text-gray-300">{step.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div 
+            className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-2xl p-8 border border-gray-600"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+                  <AnimatedCounter value="0" suffix="+" />
+                </div>
+                <div className="text-gray-300">Mutlu Kullanıcı</div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+                  <AnimatedCounter value="0" suffix="+" />
+                </div>
+                <div className="text-gray-300">Paylaşım</div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+                  <AnimatedCounter value="100" suffix="%" />
+                </div>
+                <div className="text-gray-300">Memnuniyet</div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">24/7</div>
+                <div className="text-gray-300">Destek</div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <FAQ />
 
       {/* CTA Section */}
-      <section className="py-20 bg-purple-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Dijital Dönüşümünüzü Başlatın
-          </h2>
-          <p className="text-xl text-purple-100 mb-8">
-            Binlerce profesyonel QART kullanıyor. Siz de aramıza katılın!
-          </p>
-          <Link href="/kayit-ol">
-            <button className="bg-white text-purple-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition inline-flex items-center">
-              Ücretsiz Deneyin
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </button>
-          </Link>
-        </div>
-      </section>
+      <section className="py-20 bg-gradient-to-r from-gray-800 to-black border-t border-gray-700 relative">
+        <motion.div 
+          className="container mx-auto px-4 text-center"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <div className="max-w-4xl mx-auto">
+            <PulseElement>
+              <motion.div
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full px-4 py-2 mb-6 border border-green-500/30"
+                whileHover={{ scale: 1.05 }}
+              >
+                <Check className="w-4 h-4 text-green-400" />
+                <span className="text-sm text-green-300 font-medium">Sınırlı Süre Özel Fiyat</span>
+              </motion.div>
+            </PulseElement>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <CreditCard className="h-8 w-8 text-purple-500" />
-                <span className="ml-2 text-xl font-bold text-white">QART</span>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              🚀 Siz de QART Ailesine Katılın!
+            </h2>
+            <p className="text-xl text-gray-300 mb-4 font-medium">
+              Artık kağıt kartvizit dönemi bitti! 
+            </p>
+            <p className="text-lg text-gray-400 mb-8 max-w-2xl mx-auto">
+              QART NFC kartınızla profesyonel imajınızı güçlendirin, 
+              networking&apos;i kolaylaştırın ve dijital çağın avantajlarını yaşayın.
+            </p>
+            
+            <motion.div 
+              className="bg-gradient-to-r from-gray-700 to-gray-800 rounded-2xl p-8 mb-8 border border-gray-600"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="text-left">
+                  <h3 className="text-2xl font-bold text-white mb-2">💳 Premium QART NFC Kartı</h3>
+                  <div className="text-gray-300 space-y-1">
+                    <motion.div whileHover={{ x: 10 }} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-400" />
+                      <span>Ücretsiz dijital profil</span>
+                    </motion.div>
+                    <motion.div whileHover={{ x: 10 }} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-400" />
+                      <span>Sınırsız paylaşım</span>
+                    </motion.div>
+                    <motion.div whileHover={{ x: 10 }} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-400" />
+                      <span>Detaylı analitik</span>
+                    </motion.div>
+                    <motion.div whileHover={{ x: 10 }} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-400" />
+                      <span>2 yıl garanti</span>
+                    </motion.div>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <motion.div 
+                    className="text-3xl font-bold text-white mb-2"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    Sadece 799₺
+                  </motion.div>
+                  <div className="text-gray-400 text-sm mb-4">Tek seferlik ödeme</div>
+                  <CTAButton />
+                </div>
               </div>
-              <p className="text-sm">
-                Dijital kartvizit çözümleri ile networking'i kolaylaştırıyoruz.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-white mb-4">Ürün</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition">Özellikler</a></li>
-                <li><a href="#" className="hover:text-white transition">Fiyatlandırma</a></li>
-                <li><a href="#" className="hover:text-white transition">Demo</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-white mb-4">Şirket</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition">Hakkımızda</a></li>
-                <li><a href="#" className="hover:text-white transition">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition">Kariyer</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-white mb-4">Destek</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition">Yardım Merkezi</a></li>
-                <li><a href="#" className="hover:text-white transition">İletişim</a></li>
-                <li><a href="#" className="hover:text-white transition">Gizlilik</a></li>
-              </ul>
-            </div>
+            </motion.div>
+
+            <motion.p 
+              className="text-sm text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              🔒 Güvenli ödeme • 📦 Ücretsiz kargo • 🔄 30 gün para iade garantisi
+            </motion.p>
           </div>
-          
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-            <p>&copy; 2024 QART. Tüm hakları saklıdır.</p>
-          </div>
-        </div>
-      </footer>
+        </motion.div>
+      </section>
     </div>
   )
 }

@@ -495,26 +495,26 @@ export default function MainDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0B0D] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
       </div>
     )
   }
 
 
   return (
-    <div className="min-h-screen bg-[#0A0B0D]">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       {/* Header */}
-      <div className="glass-dark border-b" style={{ borderColor: 'var(--card-border)' }}>
+      <div className="bg-black/50 backdrop-blur-md border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <Link href="/main-dashboard" className="flex items-center space-x-4 hover:bg-white/10 rounded-lg p-2 transition">
-              <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: 'var(--gradient-primary)' }}>
+            <Link href="/main-dashboard" className="flex items-center space-x-4 hover:bg-gray-800/30 rounded-lg p-2 transition">
+              <div className="h-10 w-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Zap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gradient">QART Dashboard</h1>
-                <p style={{ color: 'var(--text-muted)' }} className="text-sm">Profesyonel Dijital Kartvizit Yönetimi</p>
+                <h1 className="text-2xl font-bold text-white">QART Dashboard</h1>
+                <p className="text-gray-400 text-sm">Profesyonel Dijital Kartvizit Yönetimi</p>
               </div>
             </Link>
             <div className="flex items-center space-x-3">

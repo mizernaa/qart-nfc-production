@@ -66,8 +66,7 @@ export default function KullaniciYonetimiPage() {
   // API'den kullanıcıları çek
   const fetchUsers = async () => {
     try {
-      // Basit users-list endpoint kullan
-      const response = await fetch('/api/users-list')
+      const response = await fetch('/api/admin/users')
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.users) {

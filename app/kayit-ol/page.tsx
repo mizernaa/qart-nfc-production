@@ -51,8 +51,7 @@ export default function KayitOlPage() {
     }
 
     try {
-      // Basit database register kullan (sadece User tablosu)
-      const response = await fetch('/api/auth/simple-db-register', {
+      const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

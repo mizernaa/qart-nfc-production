@@ -65,8 +65,8 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Public API routes
-  if (pathname.startsWith('/api/user/profile') || pathname.startsWith('/api/profile/') || pathname.startsWith('/api/admin/')) {
+  // Stats ve Profile API routes - dashboard internal kullanımı için public
+  if (pathname === '/api/stats' || pathname.startsWith('/api/user/stats') || pathname.startsWith('/api/user/profile') || pathname.startsWith('/api/profile/') || pathname.startsWith('/api/upload/') || pathname === '/api/database-debug' || pathname === '/api/init-users' || pathname === '/api/reset-users' || pathname === '/api/fix-passwords' || pathname === '/api/simple-password-fix' || pathname === '/api/raw-password-fix' || pathname === '/api/check-schema' || pathname === '/api/create-simple-users' || pathname === '/api/final-fix' || pathname === '/api/direct-user-fix' || pathname === '/api/list-all-users' || pathname === '/api/fix-admin-account' || pathname === '/api/users/db-register') {
     return response
   }
 

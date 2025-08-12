@@ -6,17 +6,28 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check, Palette } from "lucide-react"
 import toast from "react-hot-toast"
-import { themes as defaultThemes, type Theme } from "@/lib/themes"
+
+interface Theme {
+  id: string
+  name: string
+  primaryColor: string
+  secondaryColor: string
+  backgroundColor: string
+  textColor: string
+  font: string
+  layout: string
+  isDefault?: boolean
+}
 
 interface ThemeSelectorProps {
-  themes?: Theme[]
+  themes: Theme[]
   selectedTheme: string
   onThemeChange: (themeId: string) => void
   profileId: string
 }
 
 export default function ThemeSelector({ 
-  themes = defaultThemes, 
+  themes, 
   selectedTheme, 
   onThemeChange, 
   profileId 

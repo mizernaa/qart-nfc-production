@@ -10,18 +10,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Palette, Eye, Save, RotateCcw } from "lucide-react"
 import toast from "react-hot-toast"
-import { themes as defaultThemes, type Theme } from "@/lib/themes"
+
+interface Theme {
+  id: string
+  name: string
+  primaryColor: string
+  secondaryColor: string
+  backgroundColor: string
+  textColor: string
+  font: string
+  layout: string
+  isDefault: boolean
+}
 
 interface AdvancedThemeSelectorProps {
-  themes?: Theme[]
-  currentTheme?: Theme
+  themes: Theme[]
+  currentTheme: Theme
   onThemeChange: (themeId: string) => void
   onCustomThemeCreate: (theme: Omit<Theme, 'id' | 'isDefault'>) => void
 }
 
 export default function AdvancedThemeSelector({
-  themes = defaultThemes,
-  currentTheme = defaultThemes[0],
+  themes,
+  currentTheme,
   onThemeChange,
   onCustomThemeCreate
 }: AdvancedThemeSelectorProps) {

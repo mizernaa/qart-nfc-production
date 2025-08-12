@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
-import { getThemeById, getDefaultTheme, type Theme } from "@/lib/themes"
-import { applyTheme } from "@/lib/themes"
 import { 
   Phone,
   Mail,
@@ -28,7 +26,6 @@ export default function PublicProfilePage() {
   const slug = params.slug as string
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [theme, setTheme] = useState<Theme>(getDefaultTheme())
 
   // Profil verilerini API'den çek
   useEffect(() => {
@@ -41,14 +38,6 @@ export default function PublicProfilePage() {
           const data = await response.json()
           if (data.success) {
             setProfile(data.profile)
-            
-            // Profilde tema ID varsa o temayı uygula
-            if (data.profile?.themeId) {
-              const profileTheme = getThemeById(data.profile.themeId)
-              if (profileTheme) {
-                setTheme(profileTheme)
-              }
-            }
           }
         }
       } catch (error) {
@@ -60,31 +49,12 @@ export default function PublicProfilePage() {
 
     fetchProfile()
   }, [slug])
-  
-  // Tema değiştiğinde CSS değişkenlerini uygula
-  useEffect(() => {
-    if (theme && typeof document !== 'undefined') {
-      const root = document.documentElement
-      const themeStyles = applyTheme(theme)
-      
-      Object.entries(themeStyles).forEach(([key, value]) => {
-        root.style.setProperty(key, value)
-      })
-      
-      // Body background'ı da ayarla
-      if (theme.backgroundGradient) {
-        document.body.style.background = theme.backgroundGradient
-      } else {
-        document.body.style.backgroundColor = theme.backgroundColor
-      }
-    }
-  }, [theme])
 
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.backgroundColor }}>
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: theme.primaryColor }}></div>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     )
   }
@@ -92,31 +62,20 @@ export default function PublicProfilePage() {
   // Profile not found
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: theme.backgroundColor }}>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2" style={{ color: theme.textColor }}>Profil Bulunamadı</h1>
-          <p style={{ color: theme.textColor, opacity: 0.7 }}>Bu profil mevcut değil.</p>
+          <h1 className="text-2xl font-bold text-white mb-2">Profil Bulunamadı</h1>
+          <p className="text-gray-400">Bu profil mevcut değil.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div 
-      className="min-h-screen"
-      style={{ 
-        background: theme.backgroundGradient || theme.backgroundColor,
-        color: theme.textColor 
-      }}
-    >
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
       <div className="relative">
         {/* Hero Section */}
-        <div 
-          className="relative border-b"
-          style={{ 
-            background: `linear-gradient(to right, ${theme.primaryColor}20, ${theme.secondaryColor}20)`,
-            borderColor: `${theme.primaryColor}30`
-          }}>
+        <div className="relative bg-gradient-to-r from-blue-900/20 to-purple-900/20 border-b border-gray-800">
           <div className="max-w-6xl mx-auto px-6 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Sol: Şirket Bilgileri */}

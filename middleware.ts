@@ -65,8 +65,8 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // Stats ve Profile API routes - dashboard internal kullanımı için public
-  if (pathname === '/api/stats' || pathname.startsWith('/api/user/stats') || pathname.startsWith('/api/user/profile') || pathname.startsWith('/api/profile/') || pathname.startsWith('/api/upload/') || pathname === '/api/database-debug' || pathname === '/api/init-users' || pathname === '/api/reset-users' || pathname === '/api/fix-passwords' || pathname === '/api/simple-password-fix' || pathname === '/api/raw-password-fix' || pathname === '/api/check-schema' || pathname === '/api/create-simple-users' || pathname === '/api/final-fix' || pathname === '/api/direct-user-fix' || pathname === '/api/list-all-users' || pathname === '/api/fix-admin-account' || pathname === '/api/users/db-register' || pathname === '/api/sync-profiles' || pathname === '/api/debug-users' || pathname === '/api/seed-production' || pathname === '/api/seed-simple' || pathname === '/api/test-users' || pathname === '/api/db-test' || pathname === '/api/add-demo' || pathname === '/api/users-list') {
+  // Public API routes
+  if (pathname.startsWith('/api/user/profile') || pathname.startsWith('/api/profile/') || pathname.startsWith('/api/admin/')) {
     return response
   }
 
@@ -78,7 +78,6 @@ export async function middleware(request: NextRequest) {
     pathname === '/login' ||
     pathname === '/kayit-ol' ||
     pathname === '/api/users/register' ||
-    pathname === '/api/simple-register' ||
     pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js|woff|woff2|ttf|eot)$/)
   ) {
     return response

@@ -91,18 +91,9 @@ export async function GET(request: NextRequest) {
             ]
           } : {}
 
-          // Fetch users with profile data
+          // Fetch users (simplified without relations)
           const allUsers = await prisma.user.findMany({
             where: whereCondition,
-            include: {
-              profile: true,
-              subscription: true,
-              _count: {
-                select: {
-                  cards: true
-                }
-              }
-            },
             orderBy: {
               createdAt: 'desc'
             }
@@ -110,7 +101,7 @@ export async function GET(request: NextRequest) {
 
           console.log(`👥 Found ${allUsers.length} users in database`)
 
-          // Transform to match frontend expectations
+          // Transform to match frontend expectations (simplified)
           const users = allUsers.map(user => ({
             id: user.id,
             email: user.email,
@@ -119,17 +110,17 @@ export async function GET(request: NextRequest) {
             isActive: user.isActive,
             emailVerified: true,
             createdAt: user.createdAt.toISOString(),
-            lastLoginAt: user.createdAt.toISOString(), // Use createdAt as fallback
+            lastLoginAt: user.createdAt.toISOString(),
             profile: {
-              slug: user.profile?.slug || 'no-profile',
-              title: user.profile?.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
-              bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
-              phone: user.profile?.phone || '+90 555 000 0000'
+              slug: user.name.toLowerCase().replace(/\s+/g, '-'),
+              title: user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı',
+              bio: `${user.name} - QART dijital kartvizit kullanıcısı`,
+              phone: '+90 555 000 0000'
             },
-            subscription: user.isAdmin ? 'QART Lifetime' : (user.subscription?.plan || 'Free'),
+            subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
             _count: {
-              cards: user._count.cards,
-              profile: user.profile ? 1 : 0
+              cards: 0,
+              profile: 1
             }
           }))
 

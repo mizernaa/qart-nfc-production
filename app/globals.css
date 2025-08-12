@@ -24,6 +24,15 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    
+    /* Theme System Variables */
+    --primary-color: #3B82F6;
+    --secondary-color: #10B981;
+    --background-color: #FFFFFF;
+    --text-color: #1F2937;
+    --card-background: #FFFFFF;
+    --card-border: #3B82F6;
+    --border-radius: 0.5rem;
   }
 
   .dark {
@@ -55,5 +64,54 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Theme System Classes */
+@layer components {
+  .theme-primary {
+    color: var(--primary-color);
+  }
+  
+  .theme-secondary {
+    color: var(--secondary-color);
+  }
+  
+  .theme-bg-primary {
+    background-color: var(--primary-color);
+  }
+  
+  .theme-bg-secondary {
+    background-color: var(--secondary-color);
+  }
+  
+  .theme-border-primary {
+    border-color: var(--primary-color);
+  }
+  
+  .theme-border-secondary {
+    border-color: var(--secondary-color);
+  }
+  
+  .theme-card {
+    background: var(--card-background);
+    border-color: var(--card-border);
+    border-radius: var(--border-radius);
+  }
+  
+  .theme-button {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    transition: all 0.2s;
+  }
+  
+  .theme-button:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+  
+  .theme-gradient {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   }
 }

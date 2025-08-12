@@ -6,7 +6,7 @@ import { Sparkles, Shield, Zap } from "lucide-react"
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen animated-bg flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-[#0A0B0D] flex items-center justify-center relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div

@@ -134,14 +134,14 @@ export default function AdminPanel() {
 
   if (loading) {
     return (
-      <div className="min-h-screen animated-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
+      <div className="min-h-screen bg-[#0A0B0D] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen animated-bg">
+    <div className="min-h-screen bg-[#0A0B0D]">
       {/* Header */}
       <header className="glass-dark border-b sticky top-0 z-50" style={{ borderColor: 'var(--card-border)' }}>
         <div className="px-6 py-4">

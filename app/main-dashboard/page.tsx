@@ -495,15 +495,15 @@ export default function MainDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen animated-bg flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--primary-color)' }}></div>
+      <div className="min-h-screen bg-[#0A0B0D] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
       </div>
     )
   }
 
 
   return (
-    <div className="min-h-screen animated-bg">
+    <div className="min-h-screen bg-[#0A0B0D]">
       {/* Header */}
       <div className="glass-dark border-b" style={{ borderColor: 'var(--card-border)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -71,8 +71,16 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    background-color: var(--background-color) !important;
+  }
+  
   body {
     @apply bg-background text-foreground;
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+    min-height: 100vh;
   }
 }
 

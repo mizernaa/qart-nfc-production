@@ -67,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('🔐 AUTH CONTEXT: Using /api/auth/db-login endpoint')
       const response = await fetch('/api/auth/db-login', {
         method: 'POST',
         headers: {

@@ -12,6 +12,12 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // DEAKTIF - Use /api/auth/db-login instead
+    return NextResponse.json(
+      { success: false, message: "Bu endpoint deaktif - /api/auth/db-login kullanın" },
+      { status: 410 }
+    )
+    
     const body = await request.json()
     
     // Validate input

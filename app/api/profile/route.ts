@@ -1,21 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { authenticateRequest } from "@/lib/auth"
 import { profileSchema } from "@/lib/validation"
-import { apiRateLimiter } from "@/lib/rate-limiter"
-import { getClientIP } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 
 export async function GET(request: NextRequest) {
   try {
-    // Rate limiting
-    const clientIP = getClientIP(request)
-    if (!apiRateLimiter.isAllowed(clientIP)) {
-      return NextResponse.json(
-        { success: false, message: "Too many requests" },
-        { status: 429 }
-      )
-    }
-
     // Authentication
     const user = await authenticateRequest(request)
     if (!user) {
@@ -50,15 +39,6 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    // Rate limiting
-    const clientIP = getClientIP(request)
-    if (!apiRateLimiter.isAllowed(clientIP)) {
-      return NextResponse.json(
-        { success: false, message: "Too many requests" },
-        { status: 429 }
-      )
-    }
-
     // Authentication
     const user = await authenticateRequest(request)
     if (!user) {

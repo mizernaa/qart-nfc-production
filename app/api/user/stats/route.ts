@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prismaUserStore } from '@/lib/prisma-user-store'
+import { PrismaClient } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
+  const prisma = new PrismaClient()
+  
   try {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
@@ -16,8 +18,8 @@ export async function GET(request: NextRequest) {
     
     // Kullanıcıyı bul
     const user = userId 
-      ? await prismaUserStore.findById(userId)
-      : await prismaUserStore.findByEmail(userEmail!)
+      ? await prisma.user.findUnique({ where: { id: userId } })
+      : await prisma.user.findUnique({ where: { email: userEmail! } })
     
     if (!user) {
       return NextResponse.json(
@@ -115,5 +117,7 @@ export async function GET(request: NextRequest) {
       { success: false, message: 'Kullanıcı istatistikleri alınamadı' },
       { status: 500 }
     )
+  } finally {
+    await prisma.$disconnect()
   }
 }

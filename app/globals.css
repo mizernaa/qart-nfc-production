@@ -72,13 +72,13 @@
   }
   
   html {
-    background-color: var(--background-color) !important;
+    min-height: 100vh;
   }
   
   body {
-    background-color: var(--background-color) !important;
-    color: var(--text-color) !important;
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
   }
 }
 

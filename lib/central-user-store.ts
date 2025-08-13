@@ -34,7 +34,7 @@ const DEFAULT_USERS: User[] = [
   {
     id: "admin-001",
     email: "admin@qart.app",
-    password: "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m", // admin123
+    password: "$2b$12$wv0CF9GyATjsdvseYavikOqqKdsu31Up7QBKh0y2pgnivU1XEcdKu", // admin123
     name: "Admin User",
     isAdmin: true,
     isActive: true,
@@ -57,7 +57,7 @@ const DEFAULT_USERS: User[] = [
   {
     id: "demo-001",
     email: "demo@qart.app",
-    password: "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m", // demo123
+    password: "$2b$12$OZHt88RF8lC2NDy6e0IsHO5hgtX7wom71.II0CO.9JKx5vCb0L8uO", // demo123
     name: "Demo User",
     isAdmin: false,
     isActive: true,

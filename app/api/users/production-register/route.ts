@@ -159,8 +159,8 @@ export async function POST(request: NextRequest) {
       registrationMethod = 'file'
     }
 
-    // If database failed or not available, use file system
-    if (registrationMethod === 'file' || !newUser) {
+    // If database failed or not available, use file system (only in development)
+    if ((registrationMethod === 'file' || !newUser) && process.env.NODE_ENV !== 'production') {
       console.log('📁 Using file system registration...')
       
       // Read existing users
@@ -207,6 +207,14 @@ export async function POST(request: NextRequest) {
 
       registrationMethod = 'file'
       console.log('✅ File system registration successful!')
+    }
+    
+    // If in production and database failed, return error
+    if (!newUser && process.env.NODE_ENV === 'production') {
+      return NextResponse.json({
+        success: false,
+        message: "Veritabanı bağlantı hatası. Lütfen tekrar deneyin."
+      }, { status: 503 })
     }
 
     // Return success response

@@ -80,6 +80,7 @@ export async function middleware(request: NextRequest) {
     pathname === '/api/users/register' ||
     pathname === '/api/users/secure-register' ||
     pathname === '/api/users/production-register' ||
+    pathname === '/api/users/simple-register' ||
     pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js|woff|woff2|ttf|eot)$/)
   ) {
     return response

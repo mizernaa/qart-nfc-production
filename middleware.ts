@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
   )
 
   // Auth routes - login sayfasına yönlendirme yapma
-  if (pathname.startsWith('/api/auth/')) {
+  if (pathname.startsWith('/api/auth/') || pathname === '/api/auth/client-login') {
     return response
   }
 

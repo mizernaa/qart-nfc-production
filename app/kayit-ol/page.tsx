@@ -66,12 +66,36 @@ export default function KayitOlPage() {
       const data = await response.json()
 
       if (data.success) {
-        setSuccess("Hesabınız başarıyla oluşturuldu! Giriş yapmak için yönlendiriliyorsunuz...")
+        setSuccess("Hesabınız başarıyla oluşturuldu! Otomatik giriş yapılıyor...")
         
-        // 2 saniye bekleyip login sayfasına yönlendir
-        setTimeout(() => {
-          router.push("/login")
-        }, 2000)
+        // Otomatik login yap
+        const loginResponse = await fetch("/api/auth/client-login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          }),
+        })
+
+        const loginData = await loginResponse.json()
+        
+        if (loginData.success) {
+          // User bilgilerini localStorage'a kaydet
+          localStorage.setItem('user', JSON.stringify(loginData.user))
+          
+          // Dashboard'a yönlendir
+          setTimeout(() => {
+            router.push("/main-dashboard")
+          }, 1000)
+        } else {
+          // Login başarısızsa login sayfasına yönlendir
+          setTimeout(() => {
+            router.push("/login")
+          }, 2000)
+        }
       } else {
         setError(data.message || "Kayıt başarısız")
       }

@@ -122,14 +122,28 @@ function saveUsersToFile() {
 function loadUsersFromFile() {
   try {
     const filePath = getUsersFilePath()
+    console.log('🔍 Loading users from:', filePath)
     if (fs.existsSync(filePath)) {
       const data = fs.readFileSync(filePath, 'utf8')
       const loadedUsers = JSON.parse(data)
+      console.log('📁 File contains', loadedUsers.length, 'users:', loadedUsers.map(u => u.email))
       
-      // Merge with default users (defaults take precedence)
-      const mergedUsers = [...DEFAULT_USERS]
+      // Merge strategy: Update default users with file data, keep non-defaults
+      const mergedUsers: User[] = []
       
-      // Add loaded users that don't conflict with defaults
+      // First, add default users but update them with file data if exists
+      DEFAULT_USERS.forEach((defaultUser) => {
+        const fileUser = loadedUsers.find((u: User) => u.email === defaultUser.email)
+        if (fileUser) {
+          // Use file version (preserves updates like password changes)
+          mergedUsers.push(fileUser)
+        } else {
+          // Use default version
+          mergedUsers.push(defaultUser)
+        }
+      })
+      
+      // Then, add non-default users from file
       loadedUsers.forEach((loadedUser: User) => {
         const isDefault = DEFAULT_USERS.find(u => u.email === loadedUser.email)
         if (!isDefault) {
@@ -317,11 +331,7 @@ export class CentralUserStore {
   }
 }
 
-// Auto-save every 30 seconds
-if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'test') {
-  setInterval(() => {
-    saveUsersToFile()
-  }, 30000)
-}
+// Auto-save disabled - using manual save on operations instead
+// Removed interval-based auto-save to prevent data loss
 
 export default CentralUserStore

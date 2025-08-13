@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  password          String
+  name              String
+  isActive          Boolean   @default(true)
+  isAdmin           Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  subscription      Subscription?
+  profile           Profile?
+  cards             Card[]
+  analytics         Analytics[]
+  leads             LeadForm[]
+  notifications     Notification[]
+}
+
+model Profile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug          String    @unique
+  title         String?
+  companyName   String?
+  bio           String?
+  phone         String?
+  email         String?
+  website       String?
+  address       String?
+  city          String?
+  country       String?
+  logoUrl       String?
+  coverImageUrl String?
+  profileImageUrl String?
+  qrCodeSettings Json?
+  themeId       String    @default("default")
+  theme         Theme     @relation(fields: [themeId], references: [id])
+  customCss     String?
+  customDomain  String?   @unique
+  isPublic      Boolean   @default(true)
+  enableLeadCapture Boolean @default(false)
+  leadFormFields Json?
+  socialLinks   SocialLink[]
+  customFields  CustomField[]
+  services      Service[]
+  testimonials  Testimonial[]
+  gallery       Gallery[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Card {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId      String    @unique
+  isActive    Boolean   @default(true)
+  tapCount    Int       @default(0)
+  lastTapped  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Theme {
+  id              String    @id @default(cuid())
+  name            String
+  primaryColor    String
+  secondaryColor  String
+  backgroundColor String
+  textColor       String
+  font            String
+  layout          String
+  borderRadius    Int       @default(8)
+  isDefault       Boolean   @default(false)
+  isPremium       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  profiles        Profile[]
+}
+
+model Analytics {
+  id          String    @id @default(cuid())
+  profileId   String
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event       String
+  source      String?
+  device      String?
+  browser     String?
+  os          String?
+  country     String?
+  city        String?
+  referrer    String?
+  duration    Int?
+  createdAt   DateTime  @default(now())
+}
+
+model Subscription {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan        String    @default("free")
+  status      String    @default("active")
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  currentPeriodEnd DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model LeadForm {
+  id          String    @id @default(cuid())
+  profileId   String
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String?
+  email       String?
+  phone       String?
+  company     String?
+  message     String?
+  customFields Json?
+  source      String?
+  createdAt   DateTime  @default(now())
+}
+
+model SocialLink {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  platform    String
+  url         String
+  icon        String?
+  order       Int       @default(0)
+  isVisible   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CustomField {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  label       String
+  value       String
+  icon        String?
+  type        String    @default("text")
+  order       Int       @default(0)
+  isVisible   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  message     String
+  type        String
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
+
+model Service {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  price       String?
+  image       String?
+  order       Int       @default(0)
+  isVisible   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Testimonial {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  role        String?
+  company     String?
+  content     String
+  rating      Int?
+  image       String?
+  order       Int       @default(0)
+  isVisible   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Gallery {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String?
+  description String?
+  imageUrl    String
+  order       Int       @default(0)
+  isVisible   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}

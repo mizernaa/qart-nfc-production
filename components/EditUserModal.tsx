@@ -19,7 +19,7 @@ export default function EditUserModal({ user, onClose, onSave }: EditUserModalPr
 
   const handleSave = async () => {
     try {
-      const response = await fetch(`/api/admin/users?id=${user.id}`, {
+      const response = await fetch(`/api/admin/hybrid-users?id=${user.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'

@@ -66,7 +66,7 @@ export default function KullaniciYonetimiPage() {
   // API'den kullanıcıları çek
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/admin/users')
+      const response = await fetch('/api/admin/hybrid-users')
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.users) {
@@ -160,7 +160,7 @@ export default function KullaniciYonetimiPage() {
 
   const toggleUserStatus = async (userId: string) => {
     try {
-      const response = await fetch(`/api/admin/users?id=${userId}&action=toggle-status`, {
+      const response = await fetch(`/api/admin/hybrid-users?id=${userId}&action=toggle-status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -185,7 +185,7 @@ export default function KullaniciYonetimiPage() {
   const deleteUser = async (userId: string) => {
     if (confirm("Bu kullanıcıyı silmek istediğinizden emin misiniz?")) {
       try {
-        const response = await fetch(`/api/admin/users?id=${userId}`, {
+        const response = await fetch(`/api/admin/hybrid-users?id=${userId}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'
@@ -239,7 +239,7 @@ export default function KullaniciYonetimiPage() {
     }
 
     try {
-      const response = await fetch("/api/admin/users", {
+      const response = await fetch("/api/admin/hybrid-users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

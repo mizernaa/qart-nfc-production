@@ -1,41 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
-
-// In-memory user storage for production fallback
-let memoryUsers: any[] = [
-  {
-    id: "admin-001",
-    email: "admin@qart.app",
-    password: "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m", // admin123
-    name: "Admin User",
-    isAdmin: true,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    profile: {
-      slug: "admin-user",
-      title: "Sistem Yöneticisi",
-      bio: "QART Sistem Yöneticisi",
-      phone: "+90 555 000 0001",
-      companyName: "QART Team"
-    }
-  },
-  {
-    id: "demo-001",
-    email: "demo@qart.app", 
-    password: "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m", // demo123
-    name: "Demo User",
-    isAdmin: false,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    profile: {
-      slug: "demo-user",
-      title: "Demo Kullanıcısı", 
-      bio: "QART Demo Kullanıcısı",
-      phone: "+90 555 000 0002",
-      companyName: ""
-    }
-  }
-]
+import { memoryUsers, addUser, findUser } from '@/lib/memory-storage'
 
 // Helper to create slug from name
 function createSlug(name: string): string {
@@ -67,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = memoryUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
+    const existingUser = findUser(email)
     if (existingUser) {
       return NextResponse.json({
         success: false,
@@ -99,7 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Add to memory storage
-    memoryUsers.push(newUser)
+    addUser(newUser)
 
     console.log('✅ User registered successfully (memory storage):', email)
 
@@ -138,7 +103,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const user = memoryUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
+    const user = findUser(email)
     if (!user) {
       return NextResponse.json({
         success: false,

@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/db-auth', {
+      const response = await fetch('/api/auth/unified-login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

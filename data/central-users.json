@@ -1,0 +1,48 @@
+[
+  {
+    "id": "admin-001",
+    "email": "admin@qart.app",
+    "password": "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m",
+    "name": "Admin User",
+    "isAdmin": true,
+    "isActive": true,
+    "emailVerified": true,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "lastLoginAt": "2025-01-01T00:00:00.000Z",
+    "profile": {
+      "slug": "admin-user",
+      "title": "Sistem Yöneticisi",
+      "bio": "QART Sistem Yöneticisi",
+      "phone": "+90 555 000 0001",
+      "companyName": "QART Team"
+    },
+    "subscription": "QART Lifetime",
+    "_count": {
+      "cards": 0,
+      "profile": 1
+    }
+  },
+  {
+    "id": "demo-001",
+    "email": "demo@qart.app",
+    "password": "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m",
+    "name": "Demo User",
+    "isAdmin": false,
+    "isActive": true,
+    "emailVerified": true,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "lastLoginAt": "2025-01-01T00:00:00.000Z",
+    "profile": {
+      "slug": "demo-user",
+      "title": "Demo Kullanıcısı",
+      "bio": "QART Demo Kullanıcısı",
+      "phone": "+90 555 000 0002",
+      "companyName": ""
+    },
+    "subscription": "Free",
+    "_count": {
+      "cards": 0,
+      "profile": 1
+    }
+  }
+]

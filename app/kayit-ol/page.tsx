@@ -51,7 +51,7 @@ export default function KayitOlPage() {
     }
 
     try {
-      const response = await fetch("/api/register-db", {
+      const response = await fetch("/api/unified-register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export default function KayitOlPage() {
         setSuccess("Hesabınız başarıyla oluşturuldu! Otomatik giriş yapılıyor...")
         
         // Otomatik login yap
-        const loginResponse = await fetch("/api/auth/db-auth", {
+        const loginResponse = await fetch("/api/auth/unified-login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

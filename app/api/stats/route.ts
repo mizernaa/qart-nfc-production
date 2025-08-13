@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { vercelUserStore } from '@/lib/vercel-user-store'
+import { CentralUserStore } from '@/lib/central-user-store'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from vercel store
-    const users = await vercelUserStore.getAllUsers()
+    // Get all users from central store
+    const users = CentralUserStore.getAllUsers()
     
     // Calculate real statistics
     const totalUsers = users.length

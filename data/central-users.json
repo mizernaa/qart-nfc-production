@@ -2,7 +2,7 @@
   {
     "id": "admin-001",
     "email": "admin@qart.app",
-    "password": "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m",
+    "password": "$2b$12$wv0CF9GyATjsdvseYavikOqqKdsu31Up7QBKh0y2pgnivU1XEcdKu",
     "name": "Admin User",
     "isAdmin": true,
     "isActive": true,
@@ -25,7 +25,7 @@
   {
     "id": "demo-001",
     "email": "demo@qart.app",
-    "password": "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m",
+    "password": "$2b$12$OZHt88RF8lC2NDy6e0IsHO5hgtX7wom71.II0CO.9JKx5vCb0L8uO",
     "name": "Demo User",
     "isAdmin": false,
     "isActive": true,
@@ -37,6 +37,29 @@
       "title": "Demo Kullanıcısı",
       "bio": "QART Demo Kullanıcısı",
       "phone": "+90 555 000 0002",
+      "companyName": ""
+    },
+    "subscription": "Free",
+    "_count": {
+      "cards": 0,
+      "profile": 1
+    }
+  },
+  {
+    "id": "user-1755116773612-9f25t1umk",
+    "email": "test@test.com",
+    "password": "$2b$12$SLv6EhUpVWyNsCyF8SC5Uu3TQsqEygRLD4sPzkUk1O9Y8wXoQGRvS",
+    "name": "Test User",
+    "isAdmin": false,
+    "isActive": true,
+    "emailVerified": true,
+    "createdAt": "2025-08-13T20:26:13.612Z",
+    "lastLoginAt": "2025-08-13T20:26:19.685Z",
+    "profile": {
+      "slug": "test-user",
+      "title": "Kullanıcı",
+      "bio": "Test User - QART dijital kartvizit kullanıcısı",
+      "phone": "+90 555 000 0000",
       "companyName": ""
     },
     "subscription": "Free",

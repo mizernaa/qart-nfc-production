@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { UniversalUserStore } from '@/lib/universal-user-store'
+import { DatabaseUserStore } from '@/lib/database-user-store'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from universal store (auto-detects environment)
-    const users = UniversalUserStore.getAllUsers()
+    // Initialize database and get all users
+    await DatabaseUserStore.initialize()
+    const users = await DatabaseUserStore.getAllUsers()
     
     // Calculate real statistics
     const totalUsers = users.length
     const activeUsers = users.filter(u => u.isActive).length
     const inactiveUsers = totalUsers - activeUsers
     const adminUsers = users.filter(u => u.isAdmin).length
-    const premiumUsers = users.filter(u => u.isAdmin).length // Currently admin = premium
+    const premiumUsers = users.filter(u => u.subscription === 'QART Lifetime' || u.subscription === 'Pro').length
     
     // Calculate growth (simplified - based on recent registrations)
     const now = new Date()
@@ -23,9 +24,10 @@ export async function GET(request: NextRequest) {
     
     const userGrowth = totalUsers > 0 ? Math.round((recentUsers / totalUsers) * 100) : 0
     
-    // Mock revenue data (would come from payment system in real app)
+    // Real revenue calculation - only count actual premium purchases (excluding admin)
+    const actualPremiumUsers = users.filter(u => !u.isAdmin && (u.subscription === 'QART Lifetime' || u.subscription === 'Pro')).length
     const revenue = {
-      total: premiumUsers * 799, // 799 TL per premium user
+      total: actualPremiumUsers * 799,
       monthly: 0, // Lifetime model, so no monthly recurring
       today: 0,
       growth: 0
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest) {
     // Activity stats
     const activities = {
       newUsers: recentUsers,
-      newOrders: premiumUsers, // Assuming all premium users have orders
+      newOrders: actualPremiumUsers, // Only actual premium purchases
       supportTickets: Math.floor(totalUsers * 0.1), // 10% of users might need support
       systemAlerts: 0
     }
@@ -57,11 +59,12 @@ export async function GET(request: NextRequest) {
       type: user.isAdmin ? 'info' : 'success'
     }))
     
-    // Create recent orders for premium users
-    const recentOrders = users.filter(u => u.isAdmin).slice(-3).map((user, index) => ({
+    // Create recent orders only for actual premium users (excluding admin)
+    const actualPremiumUsersForOrders = users.filter(u => !u.isAdmin && (u.subscription === 'QART Lifetime' || u.subscription === 'Pro'))
+    const recentOrders = actualPremiumUsersForOrders.slice(-3).map((user, index) => ({
       id: `order_${Date.now()}_${index}`,
       customer: user.name,
-      plan: 'QART Lifetime',
+      plan: user.subscription,
       amount: 799,
       status: 'completed'
     }))

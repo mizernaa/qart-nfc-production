@@ -67,8 +67,11 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      // Use universal user store (auto-detects environment)
-      const newUser = await UniversalUserStore.registerUser(email, password, name, isAdmin)
+      // Initialize PostgreSQL database store
+      await DatabaseUserStore.initialize()
+      
+      // Use PostgreSQL DatabaseUserStore for PERSISTENT storage
+      const newUser = await DatabaseUserStore.registerUser(email, password, name, isAdmin)
       
       if (!newUser) {
         return NextResponse.json(
@@ -127,9 +130,12 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    console.log('🗑️ Unified: Deleting user:', userId)
+    console.log('🗑️ PostgreSQL: Deleting user:', userId)
     
-    const success = UniversalUserStore.deleteUser(userId)
+    // Initialize PostgreSQL database store
+    await DatabaseUserStore.initialize()
+    
+    const success = await DatabaseUserStore.deleteUser(userId)
     
     if (!success) {
       return NextResponse.json(
@@ -166,9 +172,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (action === 'toggle-status') {
-      console.log('🔄 Unified: Toggling user status:', userId)
+      console.log('🔄 PostgreSQL: Toggling user status:', userId)
       
-      const updatedUser = UniversalUserStore.toggleUserStatus(userId)
+      // Initialize PostgreSQL database store
+      await DatabaseUserStore.initialize()
+      
+      const updatedUser = await DatabaseUserStore.toggleUserStatus(userId)
       
       if (!updatedUser) {
         return NextResponse.json(
@@ -184,9 +193,12 @@ export async function PATCH(request: NextRequest) {
     } else {
       // Handle general user update
       const body = await request.json()
-      console.log('📝 Unified: Updating user:', userId, body)
+      console.log('📝 PostgreSQL: Updating user:', userId, body)
       
-      const updatedUser = UniversalUserStore.updateUser(userId, body)
+      // Initialize PostgreSQL database store
+      await DatabaseUserStore.initialize()
+      
+      const updatedUser = await DatabaseUserStore.updateUser(userId, body)
       
       if (!updatedUser) {
         return NextResponse.json(

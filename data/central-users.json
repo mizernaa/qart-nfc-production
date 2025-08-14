@@ -2,13 +2,13 @@
   {
     "id": "admin-001",
     "email": "admin@qart.app",
-    "password": "$2b$12$wv0CF9GyATjsdvseYavikOqqKdsu31Up7QBKh0y2pgnivU1XEcdKu",
+    "password": "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m",
     "name": "Admin User",
     "isAdmin": true,
     "isActive": true,
     "emailVerified": true,
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "lastLoginAt": "2025-08-14T05:59:53.292Z",
+    "lastLoginAt": "2025-01-01T00:00:00.000Z",
     "profile": {
       "slug": "admin-user",
       "title": "Sistem Yöneticisi",
@@ -25,13 +25,13 @@
   {
     "id": "demo-001",
     "email": "demo@qart.app",
-    "password": "$2b$12$OZHt88RF8lC2NDy6e0IsHO5hgtX7wom71.II0CO.9JKx5vCb0L8uO",
+    "password": "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m",
     "name": "Demo User",
     "isAdmin": false,
     "isActive": true,
     "emailVerified": true,
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "lastLoginAt": "2025-08-14T06:00:03.712Z",
+    "lastLoginAt": "2025-01-01T00:00:00.000Z",
     "profile": {
       "slug": "demo-user",
       "title": "Demo Kullanıcısı",

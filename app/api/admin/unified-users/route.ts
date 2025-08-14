@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { CentralUserStore } from "@/lib/central-user-store"
+import { DatabaseUserStore } from "@/lib/database-user-store"
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,20 +9,26 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
     
-    // Get users from central store
-    const allUsers = search ? 
-      CentralUserStore.searchUsers(search) : 
-      CentralUserStore.getAllUsers()
+    // Initialize database and get users
+    await DatabaseUserStore.initialize()
+    const allUsers = await DatabaseUserStore.getAllUsers()
+    
+    // Filter by search if provided
+    const filteredUsers = search ? 
+      allUsers.filter(user => 
+        user.name.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase())
+      ) : allUsers
 
-    console.log(`✅ Central Store: Found ${allUsers.length} users`)
+    console.log(`✅ Database Store: Found ${filteredUsers.length} users`)
 
     return NextResponse.json({
       success: true,
-      users: allUsers,
+      users: filteredUsers,
       pagination: {
         page: 1,
-        limit: allUsers.length,
-        total: allUsers.length,
+        limit: filteredUsers.length,
+        total: filteredUsers.length,
         pages: 1
       }
     })
@@ -59,8 +65,9 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      // Register using central store
-      const newUser = await CentralUserStore.registerUser(email, password, name, isAdmin)
+      // Initialize database and register user
+      await DatabaseUserStore.initialize()
+      const newUser = await DatabaseUserStore.registerUser(email, password, name, isAdmin)
       
       if (!newUser) {
         return NextResponse.json(
@@ -121,7 +128,7 @@ export async function DELETE(request: NextRequest) {
 
     console.log('🗑️ Unified: Deleting user:', userId)
     
-    const success = CentralUserStore.deleteUser(userId)
+    const success = await DatabaseUserStore.deleteUser(userId)
     
     if (!success) {
       return NextResponse.json(
@@ -160,7 +167,7 @@ export async function PATCH(request: NextRequest) {
     if (action === 'toggle-status') {
       console.log('🔄 Unified: Toggling user status:', userId)
       
-      const updatedUser = CentralUserStore.toggleUserStatus(userId)
+      const updatedUser = await DatabaseUserStore.toggleUserStatus(userId)
       
       if (!updatedUser) {
         return NextResponse.json(
@@ -178,7 +185,7 @@ export async function PATCH(request: NextRequest) {
       const body = await request.json()
       console.log('📝 Unified: Updating user:', userId, body)
       
-      const updatedUser = CentralUserStore.updateUser(userId, body)
+      const updatedUser = await DatabaseUserStore.updateUser(userId, body)
       
       if (!updatedUser) {
         return NextResponse.json(

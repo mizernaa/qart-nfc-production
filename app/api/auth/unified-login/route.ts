@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { CentralUserStore } from "@/lib/central-user-store"
+import { DatabaseUserStore } from "@/lib/database-user-store"
 
 const loginSchema = z.object({
   email: z.string().email("Geçerli bir email adresi girin"),
@@ -28,8 +28,9 @@ export async function POST(request: NextRequest) {
 
     console.log("🔐 Unified login attempt:", email)
     
-    // Authenticate using central store
-    const user = await CentralUserStore.authenticateUser(email, password)
+    // Initialize database and authenticate user
+    await DatabaseUserStore.initialize()
+    const user = await DatabaseUserStore.authenticateUser(email, password)
     
     if (!user) {
       console.log("❌ Authentication failed:", email)

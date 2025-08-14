@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL
+      url: process.env.DATABASE_URL_NEW || process.env.DATABASE_URL
     }
   }
 })

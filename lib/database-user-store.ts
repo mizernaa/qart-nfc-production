@@ -4,8 +4,14 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
-// Initialize Prisma client
-const prisma = new PrismaClient()
+// Initialize Prisma client with explicit datasource URL
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL
+    }
+  }
+})
 
 interface UserWithProfile {
   id: string

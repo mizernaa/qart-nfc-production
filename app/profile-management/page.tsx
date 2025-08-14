@@ -250,15 +250,20 @@ export default function ProfileManagementPage() {
 
     try {
       setLoading(true)
-      const imageUrl = await handleImageUpload(file, 'profile')
+      const result = await handleImageUpload(file, 'profile')
       setProfileData(prev => ({
         ...prev,
         personal: {
           ...prev.personal,
-          profileImage: imageUrl
+          profileImage: result
         }
       }))
-      console.log('Profile image updated:', imageUrl)
+      
+      console.log('Profile image updated:', result)
+      
+      // Show success message with optimization info
+      alert(`✅ Profil fotoğrafı başarıyla yüklendi!\n📏 150x150 pixel boyutunda optimize edildi\n🎯 Yüz tespiti ile otomatik kırpıldı\n⭕ Circular (yuvarlak) format uygulandı`)
+      
     } catch (error) {
       alert('Profil resmi yüklenirken hata oluştu: ' + error.message)
     } finally {
@@ -273,15 +278,20 @@ export default function ProfileManagementPage() {
 
     try {
       setLoading(true)
-      const logoUrl = await handleImageUpload(file, 'logo')
+      const result = await handleImageUpload(file, 'logo')
       setProfileData(prev => ({
         ...prev,
         company: {
           ...prev.company,
-          logo: logoUrl
+          logo: result
         }
       }))
-      console.log('Company logo updated:', logoUrl)
+      
+      console.log('Company logo updated:', result)
+      
+      // Show success message with optimization info
+      alert(`✅ Şirket logosu başarıyla yüklendi!\n📏 200x200 pixel maksimum boyutunda optimize edildi\n🔲 Orantılar korundu\n🌟 Şeffaf arka plan uygulandı`)
+      
     } catch (error) {
       alert('Logo yüklenirken hata oluştu: ' + error.message)
     } finally {
@@ -304,7 +314,12 @@ export default function ProfileManagementPage() {
           coverImage: coverUrl
         }
       }))
+      
       console.log('Cover image updated:', coverUrl)
+      
+      // Show success message with optimization info
+      alert(`✅ Kapak görseli başarıyla yüklendi!\n📏 1200x400 pixel boyutunda optimize edildi\n🎯 Merkez odaklı kırpıldı\n🖼️ Banner format uygulandı`)
+      
     } catch (error) {
       alert('Kapak resmi yüklenirken hata oluştu: ' + error.message)
     } finally {
@@ -982,9 +997,18 @@ export default function ProfileManagementPage() {
                             <input
                               type="file"
                               accept="image/*"
-                              onChange={(e) => {
+                              onChange={async (e) => {
                                 const file = e.target.files?.[0]
-                                if (file) handleFileUpload(file, 'profile')
+                                if (file) {
+                                  try {
+                                    const url = await handleImageUpload(file, 'gallery')
+                                    const updated = [...profileData.services]
+                                    updated[index].imageUrl = url
+                                    setProfileData({ ...profileData, services: updated })
+                                  } catch (error) {
+                                    alert('Görsel yüklenirken hata oluştu: ' + error.message)
+                                  }
+                                }
                               }}
                               className="hidden"
                               id={`service-upload-${index}`}

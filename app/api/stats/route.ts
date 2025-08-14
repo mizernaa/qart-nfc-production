@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { DatabaseUserStore } from '@/lib/database-user-store'
+import { CentralUserStore } from '@/lib/central-user-store'
 
 export async function GET(request: NextRequest) {
   try {
-    // Initialize database and get all users
-    await DatabaseUserStore.initialize()
-    const users = await DatabaseUserStore.getAllUsers()
+    // Get all users from file-based central store
+    const users = CentralUserStore.getAllUsers()
     
     // Calculate real statistics
     const totalUsers = users.length

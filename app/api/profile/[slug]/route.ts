@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { DatabaseUserStore } from '@/lib/database-user-store'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   try {
@@ -14,9 +12,17 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       )
     }
     
-    console.log('🔍 Looking for profile with slug:', slug)
+    console.log('🔍 Public profile requested for slug:', slug)
     
-    // Kullanıcı adından slug oluştur
+    // Initialize DatabaseUserStore
+    await DatabaseUserStore.initialize()
+    
+    // Get all users and find by profile slug
+    const users = await DatabaseUserStore.getAllUsers()
+    
+    console.log(`👥 Found ${users.length} users`)
+    
+    // Create slug from name function
     const createSlug = (name: string) => {
       return name
         .toLowerCase()
@@ -30,64 +36,68 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .replace(/\s+/g, '-')
     }
     
-    // Database'den tüm kullanıcıları al
-    const users = await prisma.$queryRaw`
-      SELECT id, email, name, "isAdmin", "isActive", "createdAt"
-      FROM "User" 
-      WHERE "isActive" = true
-      ORDER BY "createdAt" DESC
-    ` as any[]
+    // Find user by profile slug or generated slug from name
+    const user = users.find(u => {
+      const profileSlug = u.profile?.slug
+      const generatedSlug = createSlug(u.name || '')
+      
+      console.log(`👤 Checking user: ${u.name}, profile slug: ${profileSlug}, generated: ${generatedSlug}`)
+      
+      return profileSlug === slug || generatedSlug === slug
+    })
     
-    console.log(`👥 Found ${users.length} active users`)
-    
-    // Slug'a göre kullanıcı bul
-    const user = users.find(u => createSlug(u.name) === slug)
-    
-    if (!user) {
+    if (!user || !user.isActive) {
+      console.log('❌ Profile not found or inactive:', slug)
       return NextResponse.json(
         { success: false, message: 'Profil bulunamadı' },
         { status: 404 }
       )
     }
     
-    console.log('✅ Found user:', user.name, user.email)
-    
-    // Gerçek profil verisini al
-    const realProfile = await prisma.profile.findFirst({
-      where: { userId: user.id }
-    })
-    
-    console.log('🔍 Real profile found:', realProfile ? 'YES' : 'NO')
-    if (realProfile) {
-      console.log('📄 Profile data:', {
-        logoUrl: realProfile.logoUrl,
-        profileImage: realProfile.profileImage,
-        coverImageUrl: realProfile.coverImageUrl
-      })
+    // Check if profile is public
+    if (user.profile?.isPublic === false) {
+      console.log('❌ Profile is private:', slug)
+      return NextResponse.json(
+        { success: false, message: 'Bu profil özeldir' },
+        { status: 403 }
+      )
     }
     
-    // Gerçek profil verisi ile response oluştur
+    console.log('✅ Public profile found:', user.name)
+    
+    // Build public profile data (excluding sensitive information)
     const profile = {
+      // Basic info
       name: user.name,
-      title: realProfile?.title || (user.isAdmin ? "Sistem Yöneticisi" : "QART Kullanıcısı"),
-      bio: realProfile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
-      companyName: realProfile?.companyName || (user.isAdmin ? "QART Team" : ""),
-      phone: realProfile?.phone || "+90 555 000 0000",
-      email: user.email,
-      website: realProfile?.website || "",
-      address: realProfile?.address || "",
-      city: "İstanbul",
-      country: "Türkiye", 
-      whatsapp: realProfile?.whatsapp || realProfile?.phone || "+90 555 000 0000",
-      slug: createSlug(user.name),
-      isPremium: user.isAdmin,
-      isPublic: realProfile?.isPublic ?? true,
-      profileImage: realProfile?.profileImage || "",
-      coverImageUrl: realProfile?.coverImageUrl || "",
-      logoUrl: realProfile?.logoUrl || "",
-      theme: realProfile?.theme || "modern",
+      title: user.profile?.title || (user.isAdmin ? "Sistem Yöneticisi" : "QART Kullanıcısı"),
+      bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
       
-      // Kullanıcıya özgü istatistikler
+      // Contact info
+      phone: user.profile?.phone || "+90 555 000 0000",
+      whatsapp: user.profile?.whatsapp || user.profile?.phone || "+90 555 000 0000",
+      email: user.email,
+      website: user.profile?.website || "",
+      address: user.profile?.address || "",
+      city: "İstanbul",
+      country: "Türkiye",
+      
+      // Company info
+      companyName: user.profile?.companyName || (user.isAdmin ? "QART Team" : ""),
+      profileImage: user.profile?.profileImage || "/api/placeholder/150/150",
+      logoUrl: user.profile?.logoUrl || "",
+      coverImageUrl: user.profile?.coverImageUrl || "",
+      
+      // Status
+      isPremium: user.subscription === 'QART Lifetime' || user.subscription === 'Pro' || user.isAdmin,
+      subscriptionPlan: user.subscription || (user.isAdmin ? "QART Lifetime" : "Free"),
+      isActive: user.isActive,
+      isPublic: user.profile?.isPublic !== false, // Default to true
+      
+      // Settings
+      theme: user.profile?.theme || "modern",
+      slug: user.profile?.slug || createSlug(user.name || ''),
+      
+      // Stats - user specific
       stats: {
         customers: user.isAdmin ? "500+" : "50+",
         experience: user.isAdmin ? "5+ yıl" : "2+ yıl",
@@ -95,7 +105,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         employees: user.isAdmin ? "10+" : "1-5"
       },
       
-      // Temel hizmetler
+      // Services - expandable
       services: [
         {
           title: "Dijital Kartvizit",
@@ -105,13 +115,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         },
         {
           title: "QR Kod Oluşturma",
-          description: "Özelleştirilebilir QR kod tasarımları",
+          description: "Özelleştirilebilir QR kod tasarımları", 
           price: "Dahil",
           icon: "qr"
-        }
+        },
+        ...(user.isPremium || user.isAdmin ? [
+          {
+            title: "Premium Analitik",
+            description: "Detaylı görüntüleme ve etkileşim analizi",
+            price: "Premium",
+            icon: "analytics"
+          }
+        ] : [])
       ],
       
-      // Temel özellikler
+      // Features - expandable
       features: [
         {
           title: "Kolay Paylaşım",
@@ -119,7 +137,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           icon: "share"
         },
         {
-          title: "Analitik Takibi",
+          title: "Analitik Takibi", 
           description: "Görüntüleme istatistikleri ve analiz",
           icon: "analytics"
         },
@@ -127,8 +145,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           title: "Mobil Uyumlu",
           description: "Tüm cihazlarda mükemmel görünüm",
           icon: "mobile"
-        }
+        },
+        ...(user.isPremium || user.isAdmin ? [
+          {
+            title: "Premium Özellikler",
+            description: "Gelişmiş customization ve branding",
+            icon: "premium"
+          }
+        ] : [])
       ]
+    }
+    
+    // Record view analytics (optional - could be implemented later)
+    try {
+      console.log('📊 Profile view recorded for:', slug)
+    } catch (error) {
+      // Non-critical, don't fail the request
+      console.error('Analytics error:', error)
     }
     
     return NextResponse.json({
@@ -137,12 +170,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     })
     
   } catch (error) {
-    console.error('Error fetching profile by slug:', error)
+    console.error('Error fetching public profile:', error)
     return NextResponse.json(
       { success: false, message: 'Profil bilgisi alınamadı' },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }

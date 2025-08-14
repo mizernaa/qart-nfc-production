@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useParams } from "next/navigation"
+import QRCode from "qrcode"
 import { 
   Phone,
   Mail,
@@ -18,7 +19,13 @@ import {
   Star,
   Users,
   Calendar,
-  BadgeCheck
+  BadgeCheck,
+  QrCode,
+  Share2,
+  Copy,
+  Download,
+  Check,
+  ExternalLink
 } from "lucide-react"
 
 export default function PublicProfilePage() {
@@ -26,6 +33,9 @@ export default function PublicProfilePage() {
   const slug = params.slug as string
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [showQR, setShowQR] = useState(false)
 
   // Profil verilerini API'den çek
   useEffect(() => {
@@ -49,6 +59,78 @@ export default function PublicProfilePage() {
 
     fetchProfile()
   }, [slug])
+
+  // QR Kod oluşturma
+  useEffect(() => {
+    const generateQR = async () => {
+      if (!profile?.slug) return
+      
+      try {
+        const url = `https://qart-nfc-production.vercel.app/${profile.slug}`
+        const qrDataUrl = await QRCode.toDataURL(url, {
+          width: 256,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#ffffff'
+          }
+        })
+        setQrCodeUrl(qrDataUrl)
+      } catch (err) {
+        console.error('QR kod oluşturulamadı:', err)
+      }
+    }
+    
+    if (profile) {
+      generateQR()
+    }
+  }, [profile])
+
+  // Link kopyalama
+  const copyToClipboard = async () => {
+    try {
+      const url = `https://qart-nfc-production.vercel.app/${profile.slug}`
+      await navigator.clipboard.writeText(url)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (err) {
+      console.error('Kopyalama başarısız:', err)
+    }
+  }
+
+  // QR Kod indirme
+  const downloadQRCode = () => {
+    if (!qrCodeUrl) return
+    
+    const link = document.createElement('a')
+    link.download = `qart-qr-${profile.slug}.png`
+    link.href = qrCodeUrl
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  // Share API
+  const shareProfile = async () => {
+    const url = `https://qart-nfc-production.vercel.app/${profile.slug}`
+    const title = `${profile.name} - QART Dijital Kartvizit`
+    const text = profile.bio || `${profile.name}'in dijital kartvizitini görüntüleyin`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title,
+          text,
+          url
+        })
+      } catch (err) {
+        console.error('Paylaşım hatası:', err)
+      }
+    } else {
+      // Fallback to copy
+      copyToClipboard()
+    }
+  }
 
   // Loading state
   if (loading) {
@@ -222,6 +304,76 @@ export default function PublicProfilePage() {
                         WhatsApp
                       </a>
                     )}
+                  </div>
+
+                  {/* QR Kod ve Share Butonları */}
+                  <div className="mt-6 pt-6 border-t border-gray-700">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold text-white">Bu Profili Paylaş</h4>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => setShowQR(!showQR)}
+                          className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
+                          title="QR Kod"
+                        >
+                          <QrCode className="h-4 w-4 text-gray-300" />
+                        </button>
+                        <button
+                          onClick={copyToClipboard}
+                          className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
+                          title="Linki Kopyala"
+                        >
+                          {copySuccess ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4 text-gray-300" />}
+                        </button>
+                        <button
+                          onClick={shareProfile}
+                          className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+                          title="Paylaş"
+                        >
+                          <Share2 className="h-4 w-4 text-white" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* QR Kod Modal */}
+                    {showQR && qrCodeUrl && (
+                      <div className="bg-gray-800 rounded-lg p-4 text-center">
+                        <img 
+                          src={qrCodeUrl} 
+                          alt="QR Code" 
+                          className="w-32 h-32 mx-auto mb-3 bg-white p-2 rounded"
+                        />
+                        <p className="text-xs text-gray-400 mb-3">
+                          Bu QR kodu taratarak profile erişin
+                        </p>
+                        <button
+                          onClick={downloadQRCode}
+                          className="w-full flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition"
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          QR Kod İndir
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Profil URL */}
+                    <div className="mt-3">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          value={`https://qart-nfc-production.vercel.app/${profile.slug}`}
+                          readOnly
+                          className="flex-1 px-3 py-2 bg-gray-800 text-gray-300 rounded-lg text-xs font-mono border border-gray-700"
+                        />
+                        <button
+                          onClick={() => window.open(`https://qart-nfc-production.vercel.app/${profile.slug}`, '_blank')}
+                          className="p-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition"
+                          title="Yeni Sekmede Aç"
+                        >
+                          <ExternalLink className="h-4 w-4 text-gray-300" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

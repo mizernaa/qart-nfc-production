@@ -343,7 +343,7 @@ export default function MainDashboardPage() {
   // Link kopyalama
   const copyToClipboard = async () => {
     try {
-      const url = `https://qart.app/${user?.isAdmin ? 'admin-profile' : profile.slug}`
+      const url = `https://qart-nfc-production.vercel.app/${profile.slug || 'profile'}`
       await navigator.clipboard.writeText(url)
       setCopySuccess(true)
       setTimeout(() => setCopySuccess(false), 2000)

@@ -66,18 +66,23 @@ export default function KullaniciYonetimiPage() {
   // API'den kullanıcıları çek
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/admin/unified-users')
+      const response = await fetch('/api/admin/unified-users', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
       if (response.ok) {
         const data = await response.json()
         if (data.success && data.users) {
           // API'den gelen kullanıcıları formatla
           const formattedUsers = data.users.map((user: any) => ({
             ...user,
-            profileSlug: user.name?.toLowerCase().replace(/\s+/g, '-') || 'user',
-            subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
+            profileSlug: user.profile?.slug || user.name?.toLowerCase().replace(/\s+/g, '-') || 'user',
+            subscription: user.subscription || (user.isAdmin ? 'QART Lifetime' : 'Free'),
             totalViews: 0,
             totalLeads: 0,
-            lastLogin: user.createdAt || new Date().toISOString(),
+            lastLogin: user.lastLoginAt || user.createdAt || new Date().toISOString(),
             emailVerified: true
           }))
           setUsers(formattedUsers)
@@ -214,8 +219,8 @@ export default function KullaniciYonetimiPage() {
   }
 
   const viewUserProfile = (user: any) => {
-    // Kullanıcının public profiline git
-    const slug = user.name.toLowerCase()
+    // Kullanıcının public profiline git - gerçek slug kullan
+    const slug = user.profileSlug || user.profile?.slug || user.name.toLowerCase()
       .replace(/ğ/g, 'g')
       .replace(/ü/g, 'u')
       .replace(/ş/g, 's')
@@ -643,7 +648,8 @@ export default function KullaniciYonetimiPage() {
                               </button>
                               <button
                                 onClick={() => {
-                                  navigator.clipboard.writeText(`${window.location.origin}/${user.name.toLowerCase().replace(/\s+/g, '-')}`)
+                                  const slug = user.profileSlug || user.profile?.slug || user.name.toLowerCase().replace(/\s+/g, '-')
+                                  navigator.clipboard.writeText(`${window.location.origin}/${slug}`)
                                   alert('Profil linki kopyalandı!')
                                   setDropdownOpen(null)
                                 }}

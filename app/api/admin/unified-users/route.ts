@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { CentralUserStore } from "@/lib/central-user-store"
+import { UniversalUserStore } from "@/lib/universal-user-store"
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
     
-    // Get users from file-based central store
-    const allUsers = CentralUserStore.getAllUsers()
+    // Get users from universal store (auto-detects environment)
+    const allUsers = UniversalUserStore.getAllUsers()
     
     // Filter by search if provided
     const filteredUsers = search ? 
@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      // Use file-based central user store
-      const newUser = await CentralUserStore.registerUser(email, password, name, isAdmin)
+      // Use universal user store (auto-detects environment)
+      const newUser = await UniversalUserStore.registerUser(email, password, name, isAdmin)
       
       if (!newUser) {
         return NextResponse.json(
@@ -126,7 +126,7 @@ export async function DELETE(request: NextRequest) {
 
     console.log('🗑️ Unified: Deleting user:', userId)
     
-    const success = CentralUserStore.deleteUser(userId)
+    const success = UniversalUserStore.deleteUser(userId)
     
     if (!success) {
       return NextResponse.json(
@@ -165,7 +165,7 @@ export async function PATCH(request: NextRequest) {
     if (action === 'toggle-status') {
       console.log('🔄 Unified: Toggling user status:', userId)
       
-      const updatedUser = CentralUserStore.toggleUserStatus(userId)
+      const updatedUser = UniversalUserStore.toggleUserStatus(userId)
       
       if (!updatedUser) {
         return NextResponse.json(
@@ -183,7 +183,7 @@ export async function PATCH(request: NextRequest) {
       const body = await request.json()
       console.log('📝 Unified: Updating user:', userId, body)
       
-      const updatedUser = CentralUserStore.updateUser(userId, body)
+      const updatedUser = UniversalUserStore.updateUser(userId, body)
       
       if (!updatedUser) {
         return NextResponse.json(

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { CentralUserStore } from '@/lib/central-user-store'
+import { UniversalUserStore } from '@/lib/universal-user-store'
 
 const registerSchema = z.object({
   email: z.string().email("Geçerli bir email adresi girin"),
@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
     const { email, password, name } = validation.data
     
     try {
-      // Use file-based central user store
-      const newUser = await CentralUserStore.registerUser(email, password, name, false)
+      // Use universal user store (auto-detects environment)
+      const newUser = await UniversalUserStore.registerUser(email, password, name, false)
       
       if (!newUser) {
         return NextResponse.json({

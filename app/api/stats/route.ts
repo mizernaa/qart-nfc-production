@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { CentralUserStore } from '@/lib/central-user-store'
+import { UniversalUserStore } from '@/lib/universal-user-store'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get all users from file-based central store
-    const users = CentralUserStore.getAllUsers()
+    // Get all users from universal store (auto-detects environment)
+    const users = UniversalUserStore.getAllUsers()
     
     // Calculate real statistics
     const totalUsers = users.length

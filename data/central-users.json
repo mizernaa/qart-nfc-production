@@ -2,13 +2,13 @@
   {
     "id": "admin-001",
     "email": "admin@qart.app",
-    "password": "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m",
+    "password": "$2b$12$wv0CF9GyATjsdvseYavikOqqKdsu31Up7QBKh0y2pgnivU1XEcdKu",
     "name": "Admin User",
     "isAdmin": true,
     "isActive": true,
     "emailVerified": true,
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "lastLoginAt": "2025-01-01T00:00:00.000Z",
+    "lastLoginAt": "2025-08-14T05:59:53.292Z",
     "profile": {
       "slug": "admin-user",
       "title": "Sistem Yöneticisi",
@@ -25,18 +25,41 @@
   {
     "id": "demo-001",
     "email": "demo@qart.app",
-    "password": "$2b$12$SSoWCDr5fU.jLH8eKfJlF.9XDNz4oX3WMkJhf0KCMnGQHqZ0KX2.m",
+    "password": "$2b$12$OZHt88RF8lC2NDy6e0IsHO5hgtX7wom71.II0CO.9JKx5vCb0L8uO",
     "name": "Demo User",
     "isAdmin": false,
     "isActive": true,
     "emailVerified": true,
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "lastLoginAt": "2025-01-01T00:00:00.000Z",
+    "lastLoginAt": "2025-08-14T06:00:03.712Z",
     "profile": {
       "slug": "demo-user",
       "title": "Demo Kullanıcısı",
       "bio": "QART Demo Kullanıcısı",
       "phone": "+90 555 000 0002",
+      "companyName": ""
+    },
+    "subscription": "Free",
+    "_count": {
+      "cards": 0,
+      "profile": 1
+    }
+  },
+  {
+    "id": "user-1755116579602-201m5e52b",
+    "email": "unified@example.com",
+    "password": "$2b$12$ZmWbxKxP80UIX5AVP5d7e.Vr0emZgHN9k273dyM2RcDkEpBjndLbG",
+    "name": "Unified Test User",
+    "isAdmin": false,
+    "isActive": true,
+    "emailVerified": true,
+    "createdAt": "2025-08-13T20:22:59.603Z",
+    "lastLoginAt": "2025-08-13T20:22:59.603Z",
+    "profile": {
+      "slug": "unified-test-user",
+      "title": "Kullanıcı",
+      "bio": "Unified Test User - QART dijital kartvizit kullanıcısı",
+      "phone": "+90 555 000 0000",
       "companyName": ""
     },
     "subscription": "Free",

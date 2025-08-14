@@ -128,17 +128,20 @@ function loadUsersFromFile() {
       const loadedUsers = JSON.parse(data)
       console.log('📁 File contains', loadedUsers.length, 'users:', loadedUsers.map(u => u.email))
       
-      // Merge strategy: Update default users with file data, keep non-defaults
+      // Merge strategy: Default users override file data (maintains correct hashes)
       const mergedUsers: User[] = []
       
-      // First, add default users but update them with file data if exists
+      // First, add default users (they have correct password hashes)
       DEFAULT_USERS.forEach((defaultUser) => {
         const fileUser = loadedUsers.find((u: User) => u.email === defaultUser.email)
         if (fileUser) {
-          // Use file version (preserves updates like password changes)
-          mergedUsers.push(fileUser)
+          // Use default version but preserve lastLoginAt from file
+          mergedUsers.push({
+            ...defaultUser,
+            lastLoginAt: fileUser.lastLoginAt || defaultUser.lastLoginAt
+          })
         } else {
-          // Use default version
+          // Use default version as-is
           mergedUsers.push(defaultUser)
         }
       })

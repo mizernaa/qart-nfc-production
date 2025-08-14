@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
-import fs from 'fs'
+import { v2 as cloudinary } from 'cloudinary'
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,45 +36,47 @@ export async function POST(request: NextRequest) {
     if (file.size > maxSize) {
       return NextResponse.json(
         { success: false, message: "File too large. Maximum size is 10MB." },
-        { status: 400 }
+        { status: 500 }
       )
     }
 
-    // Convert file to buffer
+    // Convert file to buffer and then to base64
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+    const base64 = `data:${file.type};base64,${buffer.toString('base64')}`
     
-    // Generate unique filename
+    // Generate unique public_id
     const timestamp = Date.now()
-    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.]/g, '_')
-    const filename = `${type}_${timestamp}_${sanitizedName}`
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.]/g, '_').replace(/\.[^/.]+$/, "")
+    const publicId = `qart/${type}/${timestamp}_${sanitizedName}`
     
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads')
-    if (!fs.existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true })
-    }
+    console.log('📤 Uploading to Cloudinary:', publicId)
     
-    // Save file to public/uploads directory
-    const filePath = path.join(uploadsDir, filename)
-    await writeFile(filePath, buffer)
+    // Upload to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(base64, {
+      public_id: publicId,
+      folder: `qart/${type}`,
+      resource_type: "image",
+      transformation: [
+        { width: 1000, height: 1000, crop: "limit", quality: "auto" },
+        { fetch_format: "auto" }
+      ]
+    })
     
-    // Create public URL
-    const publicUrl = `/uploads/${filename}`
-    
-    console.log(`✅ File saved locally: ${publicUrl}`)
+    console.log('✅ Cloudinary upload successful:', uploadResult.secure_url)
 
     return NextResponse.json({
       success: true,
-      message: "File uploaded successfully",
-      url: publicUrl,
+      message: "File uploaded successfully to Cloudinary",
+      url: uploadResult.secure_url,
       fileName: file.name,
       type,
-      size: file.size
+      size: file.size,
+      cloudinaryId: uploadResult.public_id
     })
 
   } catch (error) {
-    console.error('Local upload error:', error)
+    console.error('Cloudinary upload error:', error)
     return NextResponse.json(
       { success: false, message: "Upload failed: " + (error instanceof Error ? error.message : 'Unknown error') },
       { status: 500 }

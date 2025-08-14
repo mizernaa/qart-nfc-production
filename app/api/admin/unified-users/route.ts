@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
-import { UniversalUserStore } from "@/lib/universal-user-store"
+import { DatabaseUserStore } from "@/lib/database-user-store"
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 Unified: Fetching all users from central store...')
+    console.log('🔍 PostgreSQL: Fetching all users from database...')
     
     // Get query parameters
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search') || ''
     
-    // Get users from universal store (auto-detects environment)
-    const allUsers = UniversalUserStore.getAllUsers()
+    // Initialize database store
+    await DatabaseUserStore.initialize()
+    
+    // Get users from PostgreSQL database (PERSISTENT storage)
+    const allUsers = await DatabaseUserStore.getAllUsers()
     
     // Filter by search if provided
     const filteredUsers = search ? 

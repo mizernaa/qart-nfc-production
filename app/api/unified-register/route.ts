@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { UniversalUserStore } from '@/lib/universal-user-store'
+import { DatabaseUserStore } from '@/lib/database-user-store'
 
 const registerSchema = z.object({
   email: z.string().email("Geçerli bir email adresi girin"),
@@ -11,7 +11,7 @@ const registerSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    console.log('🔐 Unified registration attempt:', { email: body.email, name: body.name })
+    console.log('🔐 PostgreSQL registration attempt:', { email: body.email, name: body.name })
 
     // Validate input
     const validation = registerSchema.safeParse(body)
@@ -25,8 +25,11 @@ export async function POST(request: NextRequest) {
     const { email, password, name } = validation.data
     
     try {
-      // Use universal user store (auto-detects environment)
-      const newUser = await UniversalUserStore.registerUser(email, password, name, false)
+      // Initialize PostgreSQL database store
+      await DatabaseUserStore.initialize()
+      
+      // Use PostgreSQL DatabaseUserStore for PERSISTENT storage
+      const newUser = await DatabaseUserStore.registerUser(email, password, name, false)
       
       if (!newUser) {
         return NextResponse.json({

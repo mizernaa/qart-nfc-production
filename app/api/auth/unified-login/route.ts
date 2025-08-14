@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
-import { UniversalUserStore } from "@/lib/universal-user-store"
+import { DatabaseUserStore } from "@/lib/database-user-store"
 
 const loginSchema = z.object({
   email: z.string().email("Geçerli bir email adresi girin"),
@@ -26,16 +26,17 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = validation.data
 
-    console.log("🔐 Login attempt:", email)
+    console.log("🔐 PostgreSQL login attempt:", email)
     console.log("🌐 Environment:", process.env.NODE_ENV)
+    console.log("🔗 Database URL exists:", !!process.env.DATABASE_URL)
     
-    // Use UniversalUserStore (temporary fallback for production)
-    console.log("🔄 Initializing UniversalUserStore...")
-    await UniversalUserStore.initialize()
-    console.log("✅ UniversalUserStore initialized")
+    // Use PostgreSQL DatabaseUserStore for PERSISTENT storage
+    console.log("🔄 Initializing DatabaseUserStore...")
+    await DatabaseUserStore.initialize()
+    console.log("✅ DatabaseUserStore initialized")
     
     console.log("🔐 Authenticating user...")
-    const user = await UniversalUserStore.authenticateUser(email, password)
+    const user = await DatabaseUserStore.authenticateUser(email, password)
     console.log("🔐 Authentication result:", user ? "SUCCESS" : "FAILED")
     
     if (!user) {

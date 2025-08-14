@@ -27,10 +27,18 @@ export async function POST(request: NextRequest) {
     const { email, password } = validation.data
 
     console.log("🔐 PostgreSQL login attempt:", email)
+    console.log("🌐 Environment:", process.env.NODE_ENV)
+    console.log("🔗 Database URL exists:", !!process.env.DATABASE_URL)
+    console.log("🔗 Database URL start:", process.env.DATABASE_URL?.substring(0, 20))
     
     // Use PostgreSQL database store (production-grade solution)
+    console.log("🔄 Initializing DatabaseUserStore...")
     await DatabaseUserStore.initialize()
+    console.log("✅ DatabaseUserStore initialized")
+    
+    console.log("🔐 Authenticating user...")
     const user = await DatabaseUserStore.authenticateUser(email, password)
+    console.log("🔐 Authentication result:", user ? "SUCCESS" : "FAILED")
     
     if (!user) {
       console.log("❌ Authentication failed:", email)

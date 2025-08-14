@@ -35,6 +35,28 @@ const DEFAULT_USERS = [
 async function seedUsers() {
   console.log('🌱 Seeding PostgreSQL database with default users...')
   
+  // First, ensure default theme exists
+  let defaultTheme = await prisma.theme.findFirst({
+    where: { id: 'default' }
+  })
+  
+  if (!defaultTheme) {
+    defaultTheme = await prisma.theme.create({
+      data: {
+        id: 'default',
+        name: 'Default Theme',
+        primaryColor: '#3B82F6',
+        secondaryColor: '#1E40AF',
+        backgroundColor: '#FFFFFF',
+        textColor: '#1F2937',
+        font: 'Inter',
+        layout: 'modern',
+        isDefault: true
+      }
+    })
+    console.log('✅ Created default theme')
+  }
+  
   for (const userData of DEFAULT_USERS) {
     try {
       // Check if user already exists
@@ -59,7 +81,6 @@ async function seedUsers() {
           name: userData.name,
           isAdmin: userData.isAdmin,
           isActive: true,
-          emailVerified: true,
           createdAt: new Date('2025-01-01T00:00:00.000Z'),
           profile: {
             create: {

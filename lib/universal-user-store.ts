@@ -15,6 +15,16 @@ class UniversalUserStore {
     return this.isProduction() ? ProductionUserStore : CentralUserStore
   }
 
+  static async initialize() {
+    const store = this.getStore()
+    console.log(`🚀 Initializing ${this.isProduction() ? 'ProductionUserStore' : 'CentralUserStore'}`)
+    
+    // Initialize the appropriate store if it has an initialize method
+    if (store.initialize) {
+      await store.initialize()
+    }
+  }
+
   static async authenticateUser(email: string, password: string) {
     const store = this.getStore()
     console.log(`🔐 Using ${this.isProduction() ? 'ProductionUserStore' : 'CentralUserStore'} for auth:`, email)

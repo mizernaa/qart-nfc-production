@@ -222,6 +222,70 @@ export class DatabaseUserStore {
     }
   }
 
+  // Get user by email (without password check)
+  static async getUserByEmail(email: string): Promise<UserWithProfile | null> {
+    try {
+      console.log('👤 Getting user by email:', email)
+      return await this.findUserByEmail(email)
+    } catch (error) {
+      console.error('❌ Error getting user by email:', error)
+      return null
+    }
+  }
+
+  // Get user by ID
+  static async getUserById(id: string): Promise<UserWithProfile | null> {
+    try {
+      console.log('👤 Getting user by ID:', id)
+      const user = await prisma.user.findUnique({
+        where: { id },
+        include: {
+          profile: true,
+          _count: {
+            select: {
+              cards: true
+            }
+          }
+        }
+      })
+
+      if (!user) {
+        console.log('❌ User not found:', id)
+        return null
+      }
+
+      console.log('✅ User found:', user.email)
+
+      return {
+        id: user.id,
+        email: user.email,
+        password: user.password,
+        name: user.name,
+        isAdmin: user.isAdmin,
+        isActive: user.isActive,
+        emailVerified: true,
+        createdAt: user.createdAt,
+        lastLoginAt: user.updatedAt,
+        profile: user.profile ? {
+          slug: user.profile.slug,
+          title: user.profile.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
+          bio: user.profile.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
+          phone: user.profile.phone || '+90 555 000 0000',
+          companyName: user.profile.companyName || (user.isAdmin ? 'QART Team' : '')
+        } : undefined,
+        subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
+        _count: {
+          cards: user._count?.cards || 0,
+          profile: user.profile ? 1 : 0
+        }
+      }
+
+    } catch (error) {
+      console.error('❌ Error getting user by ID:', error)
+      return null
+    }
+  }
+
   // Authenticate user
   static async authenticateUser(email: string, password: string): Promise<UserWithProfile | null> {
     try {
@@ -359,7 +423,21 @@ export class DatabaseUserStore {
     isAdmin: boolean
     isActive: boolean
     subscription: string
-    phone: string
+    profile: {
+      slug: string
+      title: string
+      bio: string
+      phone: string
+      whatsapp: string
+      website: string
+      address: string
+      companyName: string
+      profileImage: string
+      coverImageUrl: string
+      logoUrl: string
+      isPublic: boolean
+      theme: string
+    }
   }>): Promise<UserWithProfile | null> {
     try {
       const userData: any = {}
@@ -370,7 +448,11 @@ export class DatabaseUserStore {
       if (updates.email) userData.email = updates.email.toLowerCase()
       if (updates.isAdmin !== undefined) userData.isAdmin = updates.isAdmin
       if (updates.isActive !== undefined) userData.isActive = updates.isActive
-      if (updates.phone) profileData.phone = updates.phone
+      
+      // Handle profile updates
+      if (updates.profile) {
+        Object.assign(profileData, updates.profile)
+      }
 
       // Update user
       const updatedUser = await prisma.user.update({

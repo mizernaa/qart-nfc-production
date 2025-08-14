@@ -216,51 +216,99 @@ export default function ProfileManagementPage() {
     setLoading(false)
   }, [])
 
-  const handleFileUpload = async (file: File, type: 'profile' | 'cover' | 'logo') => {
+
+  // Image upload fonksiyonu
+  const handleImageUpload = async (file: File, type: string) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('type', type)
+
     try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('type', type)
-      
-      console.log('📸 Görsel yükleniyor:', type, file.name)
-      
       const response = await fetch('/api/upload/image', {
         method: 'POST',
         body: formData
       })
+
+      const result = await response.json()
       
-      if (!response.ok) {
-        throw new Error('Upload failed')
+      if (result.success) {
+        console.log(`✅ ${type} upload başarılı:`, result.url)
+        return result.url
+      } else {
+        throw new Error(result.message || 'Upload başarısız')
       }
-      
-      const { url } = await response.json()
-      console.log('✅ Görsel yüklendi, URL:', url)
-      
-      // Update the appropriate field in state
-      if (type === 'profile') {
-        setProfileData(prev => ({
-          ...prev,
-          personal: { ...prev.personal, profileImage: url }
-        }))
-      } else if (type === 'cover') {
-        setProfileData(prev => ({
-          ...prev,
-          personal: { ...prev.personal, coverImage: url }
-        }))
-      } else if (type === 'logo') {
-        setProfileData(prev => ({
-          ...prev,
-          company: { ...prev.company, logo: url }
-        }))
-      }
-      
-      // Otomatik kaydet - görsel yüklendikten hemen sonra
-      await handleSave()
-      
-      alert('Görsel başarıyla yüklendi ve kaydedildi!')
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Görsel yüklenirken hata oluştu!')
+      throw error
+    }
+  }
+
+  // Profile image upload handler
+  const handleProfileImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      setLoading(true)
+      const imageUrl = await handleImageUpload(file, 'profile')
+      setProfileData(prev => ({
+        ...prev,
+        personal: {
+          ...prev.personal,
+          profileImage: imageUrl
+        }
+      }))
+      console.log('Profile image updated:', imageUrl)
+    } catch (error) {
+      alert('Profil resmi yüklenirken hata oluştu: ' + error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Logo upload handler
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      setLoading(true)
+      const logoUrl = await handleImageUpload(file, 'logo')
+      setProfileData(prev => ({
+        ...prev,
+        company: {
+          ...prev.company,
+          logo: logoUrl
+        }
+      }))
+      console.log('Company logo updated:', logoUrl)
+    } catch (error) {
+      alert('Logo yüklenirken hata oluştu: ' + error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Cover image upload handler
+  const handleCoverImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      setLoading(true)
+      const coverUrl = await handleImageUpload(file, 'cover')
+      setProfileData(prev => ({
+        ...prev,
+        personal: {
+          ...prev.personal,
+          coverImage: coverUrl
+        }
+      }))
+      console.log('Cover image updated:', coverUrl)
+    } catch (error) {
+      alert('Kapak resmi yüklenirken hata oluştu: ' + error.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -477,10 +525,7 @@ export default function ProfileManagementPage() {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) handleFileUpload(file, 'profile')
-                          }}
+                          onChange={handleProfileImageUpload}
                           className="hidden"
                           id="profile-upload"
                         />
@@ -499,10 +544,7 @@ export default function ProfileManagementPage() {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) handleFileUpload(file, 'cover')
-                          }}
+                          onChange={handleCoverImageUpload}
                           className="hidden"
                           id="cover-upload"
                         />
@@ -636,10 +678,7 @@ export default function ProfileManagementPage() {
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) handleFileUpload(file, 'logo')
-                          }}
+                          onChange={handleLogoUpload}
                           className="hidden"
                           id="logo-upload"
                         />

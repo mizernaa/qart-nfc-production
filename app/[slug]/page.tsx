@@ -312,21 +312,21 @@ END:VCARD`
   // Yükleme ekranı
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-900 to-indigo-900 flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-slate-800 flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-green-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-yellow-500/20 rounded-full blur-3xl animate-pulse delay-500" />
         </div>
         
         <div className="relative z-10 text-center">
           <div className="relative mb-8">
             <div className="w-24 h-24 mx-auto relative">
-              <div className="absolute inset-0 border-4 border-rainbow-500 rounded-full animate-spin bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500">
+              <div className="absolute inset-0 border-4 border-cyan-500 rounded-full animate-spin bg-gradient-to-r from-cyan-500 via-emerald-500 to-yellow-500">
                 <div className="w-3 h-3 bg-white rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1"></div>
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-2xl">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl">
                   <Sparkles className="h-6 w-6 text-white animate-pulse" />
                 </div>
               </div>
@@ -334,12 +334,12 @@ END:VCARD`
           </div>
           
           <div className="space-y-4">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">QART</h2>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent">QART</h2>
             <p className="text-white/80 text-lg animate-pulse">Dijital kartvizit yükleniyor...</p>
             <div className="flex justify-center space-x-2">
-              <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-100"></div>
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-200"></div>
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce delay-100"></div>
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce delay-200"></div>
             </div>
           </div>
         </div>
@@ -374,18 +374,18 @@ END:VCARD`
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 relative overflow-hidden">
-      {/* Dinamik Arkaplan Efektleri */}
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-slate-800 relative overflow-hidden">
+      {/* Dinamik Arkaplan Efektleri - Siber Renk Paleti */}
       <div className="absolute inset-0">
         {/* Ana gradient orbs */}
-        <div className={`absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full blur-3xl opacity-30 transform transition-all duration-6000 ${animationPhase === 0 ? 'translate-x-0 translate-y-0' : animationPhase === 1 ? 'translate-x-32 translate-y-16' : animationPhase === 2 ? 'translate-x-16 translate-y-32' : 'translate-x-8 translate-y-8'}`} />
-        <div className={`absolute top-1/4 right-0 w-80 h-80 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full blur-3xl opacity-25 transform transition-all duration-6000 ${animationPhase === 1 ? 'translate-x-0 translate-y-0' : animationPhase === 2 ? '-translate-x-24 translate-y-12' : animationPhase === 3 ? '-translate-x-12 translate-y-24' : '-translate-x-6 translate-y-6'}`} />
-        <div className={`absolute bottom-0 left-1/3 w-72 h-72 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full blur-3xl opacity-20 transform transition-all duration-6000 ${animationPhase === 2 ? 'translate-x-0 translate-y-0' : animationPhase === 3 ? 'translate-x-20 -translate-y-8' : animationPhase === 0 ? 'translate-x-10 -translate-y-16' : 'translate-x-5 -translate-y-4'}`} />
+        <div className={`absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full blur-3xl opacity-30 transform transition-all duration-6000 ${animationPhase === 0 ? 'translate-x-0 translate-y-0' : animationPhase === 1 ? 'translate-x-32 translate-y-16' : animationPhase === 2 ? 'translate-x-16 translate-y-32' : 'translate-x-8 translate-y-8'}`} />
+        <div className={`absolute top-1/4 right-0 w-80 h-80 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full blur-3xl opacity-25 transform transition-all duration-6000 ${animationPhase === 1 ? 'translate-x-0 translate-y-0' : animationPhase === 2 ? '-translate-x-24 translate-y-12' : animationPhase === 3 ? '-translate-x-12 translate-y-24' : '-translate-x-6 translate-y-6'}`} />
+        <div className={`absolute bottom-0 left-1/3 w-72 h-72 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-full blur-3xl opacity-20 transform transition-all duration-6000 ${animationPhase === 2 ? 'translate-x-0 translate-y-0' : animationPhase === 3 ? 'translate-x-20 -translate-y-8' : animationPhase === 0 ? 'translate-x-10 -translate-y-16' : 'translate-x-5 -translate-y-4'}`} />
         <div className={`absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-br from-orange-500 to-red-500 rounded-full blur-3xl opacity-15 transform transition-all duration-6000 ${animationPhase === 3 ? 'translate-x-0 translate-y-0' : animationPhase === 0 ? 'translate-x-16 translate-y-12' : animationPhase === 1 ? 'translate-x-8 translate-y-20' : 'translate-x-4 translate-y-10'}`} />
         
         {/* Mouse takip efekti */}
         <div 
-          className="absolute w-32 h-32 bg-gradient-to-br from-yellow-400 to-pink-400 rounded-full blur-2xl opacity-10 pointer-events-none transition-all duration-500"
+          className="absolute w-32 h-32 bg-gradient-to-br from-cyan-400 to-emerald-400 rounded-full blur-2xl opacity-10 pointer-events-none transition-all duration-500"
           style={{
             left: mousePosition.x - 64,
             top: mousePosition.y - 64,
@@ -399,10 +399,10 @@ END:VCARD`
           <div className="flex items-center justify-between">
             {/* QART Logosu */}
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
-                <Diamond className="h-5 w-5 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 via-emerald-500 to-yellow-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
+                <Diamond className="h-5 w-5 text-black font-bold" />
               </div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">QART</div>
+              <div className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent">QART</div>
             </div>
             
             {/* Canlı Bilgiler */}
@@ -425,14 +425,14 @@ END:VCARD`
             <div className="flex items-center space-x-3">
               <button
                 onClick={shareProfile}
-                className="p-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
+                className="p-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
                 title="Profili Paylaş"
               >
                 <Share2 className="h-5 w-5 text-white" />
               </button>
               <button
                 onClick={() => setShowQR(true)}
-                className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
+                className="p-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 rounded-xl transition-all duration-300 hover:scale-110 shadow-lg"
                 title="QR Kod Göster"
               >
                 <QrCode className="h-5 w-5 text-white" />
@@ -453,7 +453,7 @@ END:VCARD`
               <div className="relative inline-block">
                 {/* Profil Fotoğrafı */}
                 <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0">
-                  <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 rounded-full animate-spin" style={{animationDuration: '8s'}}></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 via-emerald-500 to-yellow-500 rounded-full animate-spin" style={{animationDuration: '8s'}}></div>
                   <div className="absolute inset-2 rounded-full overflow-hidden bg-white p-1">
                     {profile.profileImage ? (
                       <img 
@@ -475,7 +475,7 @@ END:VCARD`
 
                   {/* Premium Badge */}
                   {profile.isPremium && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white p-3 rounded-full shadow-xl animate-pulse">
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-black p-3 rounded-full shadow-xl animate-pulse">
                       <Crown className="h-6 w-6" />
                     </div>
                   )}
@@ -484,7 +484,7 @@ END:VCARD`
 
               {/* İsim ve Ünvan */}
               <div className="space-y-4">
-                <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent leading-tight">
+                <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent leading-tight">
                   {profile.name}
                 </h1>
                 <h2 className="text-2xl md:text-3xl font-light text-white/90">{profile.title}</h2>
@@ -533,31 +533,31 @@ END:VCARD`
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-6">
                 {/* Görüntülenme */}
-                <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
+                <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
                   <div className="text-4xl font-black text-white mb-2">{viewCount.toLocaleString()}</div>
                   <div className="text-white/70 font-medium">Profil Görüntülenmesi</div>
-                  <Eye className="h-6 w-6 text-pink-400 mx-auto mt-2 animate-pulse" />
+                  <Eye className="h-6 w-6 text-cyan-400 mx-auto mt-2 animate-pulse" />
                 </div>
 
                 {/* Durum */}
-                <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
+                <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
                   <div className="text-4xl font-black text-white mb-2">Aktif</div>
                   <div className="text-white/70 font-medium">Çevrimiçi Durumu</div>
-                  <Zap className="h-6 w-6 text-green-400 mx-auto mt-2 animate-pulse" />
+                  <Zap className="h-6 w-6 text-emerald-400 mx-auto mt-2 animate-pulse" />
                 </div>
 
                 {/* Deneyim */}
-                <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
+                <div className="bg-gradient-to-br from-yellow-500/20 to-amber-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
                   <div className="text-4xl font-black text-white mb-2">{experienceYears}+</div>
                   <div className="text-white/70 font-medium">Yıl Deneyim</div>
-                  <Trophy className="h-6 w-6 text-blue-400 mx-auto mt-2 animate-pulse" />
+                  <Trophy className="h-6 w-6 text-yellow-400 mx-auto mt-2 animate-pulse" />
                 </div>
 
                 {/* Proje */}
-                <div className="bg-gradient-to-br from-purple-500/20 to-indigo-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
+                <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
                   <div className="text-4xl font-black text-white mb-2">{projectCount}+</div>
                   <div className="text-white/70 font-medium">Tamamlanan Proje</div>
-                  <Rocket className="h-6 w-6 text-purple-400 mx-auto mt-2 animate-pulse" />
+                  <Rocket className="h-6 w-6 text-orange-400 mx-auto mt-2 animate-pulse" />
                 </div>
               </div>
 
@@ -587,7 +587,7 @@ END:VCARD`
         <section className="relative py-20 px-6">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-6">
+              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent mb-6">
                 Uzmanlık Alanlarım
               </h2>
               <p className="text-xl text-white/80 max-w-3xl mx-auto">
@@ -601,37 +601,37 @@ END:VCARD`
                 { 
                   skill: 'Strateji Geliştirme', 
                   icon: Target, 
-                  gradient: 'from-red-500 to-pink-500',
+                  gradient: 'from-cyan-500 to-blue-500',
                   description: 'Vizyoner yaklaşımla geleceği planlama'
                 },
                 { 
                   skill: 'İnovasyon Yönetimi', 
                   icon: Lightbulb, 
-                  gradient: 'from-yellow-500 to-orange-500',
+                  gradient: 'from-yellow-500 to-amber-500',
                   description: 'Yaratıcı çözümlerle değişimi yönetme'
                 },
                 { 
                   skill: 'Liderlik & Mentorluk', 
                   icon: Crown, 
-                  gradient: 'from-purple-500 to-indigo-500',
+                  gradient: 'from-orange-500 to-red-500',
                   description: 'Ekipleri başarıya ulaştırma sanatı'
                 },
                 { 
                   skill: 'Dijital Dönüşüm', 
                   icon: Cpu, 
-                  gradient: 'from-cyan-500 to-blue-500',
+                  gradient: 'from-emerald-500 to-green-500',
                   description: 'Teknoloji ile geleceği şekillendirme'
                 },
                 { 
                   skill: 'Proje Yönetimi', 
                   icon: CheckCircle, 
-                  gradient: 'from-green-500 to-emerald-500',
+                  gradient: 'from-blue-500 to-cyan-500',
                   description: 'Karmaşık projeleri zamanında teslim'
                 },
                 { 
                   skill: 'Analitik Düşünce', 
                   icon: BarChart3, 
-                  gradient: 'from-indigo-500 to-purple-500',
+                  gradient: 'from-gray-600 to-gray-700',
                   description: 'Verilerle hikaye anlatma yeteneği'
                 }
               ].map((item, index) => {
@@ -917,11 +917,11 @@ END:VCARD`
           <div className="max-w-7xl mx-auto text-center">
             <div className="mb-12">
               <div className="flex items-center justify-center space-x-4 mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 rounded-3xl flex items-center justify-center shadow-2xl animate-pulse">
-                  <Diamond className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 via-emerald-500 to-yellow-500 rounded-3xl flex items-center justify-center shadow-2xl animate-pulse">
+                  <Diamond className="h-8 w-8 text-black font-bold" />
                 </div>
                 <div>
-                  <div className="text-4xl font-black bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">QART</div>
+                  <div className="text-4xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent">QART</div>
                   <div className="text-sm text-white/60 tracking-widest">DİJİTAL KARTVİZİT</div>
                 </div>
               </div>
@@ -984,7 +984,7 @@ END:VCARD`
       <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center space-y-4">
         <button
           onClick={() => setShowQR(true)}
-          className="group w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300"
+          className="group w-16 h-16 bg-gradient-to-br from-emerald-600 to-green-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300"
           title="QR Kod Göster"
         >
           <QrCode className="h-7 w-7 group-hover:animate-pulse" />
@@ -992,7 +992,7 @@ END:VCARD`
         
         <button
           onClick={shareProfile}
-          className="group w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300"
+          className="group w-16 h-16 bg-gradient-to-br from-cyan-600 to-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300"
           title="Profili Paylaş"
         >
           <Share2 className="h-7 w-7 group-hover:animate-pulse" />
@@ -1012,7 +1012,7 @@ END:VCARD`
             
             <div className="text-center space-y-8">
               <div className="space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto shadow-xl animate-pulse">
+                <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center mx-auto shadow-xl animate-pulse">
                   <QrCode className="h-8 w-8 text-white" />
                 </div>
                 <div>
@@ -1061,7 +1061,7 @@ END:VCARD`
                       link.href = qrCodeUrl
                       link.click()
                     }}
-                    className="group bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 px-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-2"
+                    className="group bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white py-4 px-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-2"
                   >
                     <Download className="h-5 w-5 group-hover:animate-pulse" />
                     <span>QR İndir</span>

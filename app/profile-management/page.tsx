@@ -8,7 +8,7 @@ import {
   FileText, CreditCard, Award, Briefcase, GraduationCap,
   Package, Star, ShoppingBag, Receipt, Landmark, Upload,
   Plus, Trash2, Eye, EyeOff, CheckCircle, AlertCircle,
-  Camera, Link2, MessageSquare, DollarSign, Shield
+  Camera, Link2, MessageSquare, DollarSign, Shield, Palette
 } from "lucide-react"
 
 export default function ProfileManagementPage() {
@@ -16,6 +16,8 @@ export default function ProfileManagementPage() {
   const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState("personal")
   const [user, setUser] = useState<any>(null)
+  const [themes, setThemes] = useState<any[]>([])
+  const [selectedTheme, setSelectedTheme] = useState("default")
 
   // Comprehensive Profile Data
   const [profileData, setProfileData] = useState({
@@ -135,8 +137,38 @@ export default function ProfileManagementPage() {
     features: [],
 
     // Hizmetler
-    services: []
+    services: [],
+
+    // Tema Seçimi
+    theme: {
+      currentTheme: "default",
+      availableThemes: []
+    }
   })
+
+  // Tema verilerini çek
+  const fetchThemes = async (userEmail: string) => {
+    try {
+      console.log('🎨 Temalar yükleniyor:', userEmail)
+      const response = await fetch(`/api/themes?userEmail=${encodeURIComponent(userEmail)}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          console.log('✅ Temalar yüklendi:', data.themes.length)
+          setThemes(data.themes)
+          setProfileData(prev => ({
+            ...prev,
+            theme: {
+              ...prev.theme,
+              availableThemes: data.themes
+            }
+          }))
+        }
+      }
+    } catch (error) {
+      console.error('❌ Tema yükleme hatası:', error)
+    }
+  }
 
   // Kullanıcı ve profil verilerini çek
   const fetchUserProfile = async (userEmail: string) => {
@@ -192,6 +224,47 @@ export default function ProfileManagementPage() {
     }
   }
 
+  // Tema değişikliğini kaydet
+  const handleThemeChange = async (themeId: string) => {
+    try {
+      console.log('🎨 Tema değiştiriliyor:', themeId)
+      setSelectedTheme(themeId)
+      
+      const response = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: user.email,
+          themeId: themeId
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          console.log('✅ Tema başarıyla değiştirildi:', themeId)
+          setSaved(true)
+          setTimeout(() => setSaved(false), 2000)
+          
+          // Profile data'yı güncelle
+          setProfileData(prev => ({
+            ...prev,
+            theme: {
+              ...prev.theme,
+              currentTheme: themeId
+            }
+          }))
+        }
+      } else {
+        console.error('❌ Tema değiştirme hatası')
+      }
+    } catch (error) {
+      console.error('❌ Tema değiştirme hatası:', error)
+    }
+  }
+
   // Component mount olduğunda kullanıcı verilerini çek
   useEffect(() => {
     const savedUser = localStorage.getItem("user")
@@ -203,6 +276,8 @@ export default function ProfileManagementPage() {
         
         // Kullanıcı profil bilgilerini API'den çek
         fetchUserProfile(userData.email)
+        // Tema verilerini API'den çek
+        fetchThemes(userData.email)
       } catch (error) {
         console.error("Error parsing user data:", error)
         window.location.href = "/login"
@@ -416,6 +491,7 @@ export default function ProfileManagementPage() {
     { id: "contact", label: "İletişim", icon: Phone },
     { id: "location", label: "Lokasyon", icon: MapPin },
     { id: "social", label: "Sosyal Medya", icon: Link2 },
+    { id: "theme", label: "Tema", icon: Palette },
     { id: "documents", label: "Belgeler", icon: FileText },
     { id: "google", label: "Google İşletme", icon: Star },
     { id: "ecommerce", label: "E-Ticaret", icon: ShoppingBag },

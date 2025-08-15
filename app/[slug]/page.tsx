@@ -12,39 +12,72 @@ import {
   Twitter, Youtube, Github, MessageCircle, Shield, Zap, Target,
   TrendingUp, Heart, Coffee, Rocket, Code, Palette, Camera,
   DollarSign, ShoppingBag, FileText, Play, Pause, Volume2, VolumeX,
-  ArrowUp, Menu, X, Send, User, GraduationCap, Package
+  ArrowUp, Menu, X, Send, User, GraduationCap, Package, Sparkles,
+  Eye, HeartHandshake, Flame, Crown, Diamond, Gem
 } from "lucide-react"
 import toast, { Toaster } from "react-hot-toast"
 import QRCode from "qrcode"
 
-// Particle Background Component
-const ParticleBackground = () => {
+// Epic Animated Background Component
+const EpicBackground = ({ theme }: { theme: any }) => {
   return (
-    <div className="fixed inset-0 z-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" />
-      <div className="absolute inset-0 opacity-20">
-        {[...Array(50)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute animate-float"
+    <div className="fixed inset-0 z-0 overflow-hidden">
+      {/* Dynamic Gradient Background */}
+      <div 
+        className="absolute inset-0 opacity-90"
+        style={{
+          background: `radial-gradient(ellipse at top, ${theme?.primaryColor || '#f59e0b'}15, ${theme?.backgroundColor || '#000000'}), 
+                      linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}08, ${theme?.secondaryColor || '#d97706'}12, ${theme?.backgroundColor || '#000000'})`
+        }}
+      />
+      
+      {/* Floating Orbs */}
+      <div className="absolute inset-0">
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={`orb-${i}`}
+            className="absolute rounded-full blur-xl opacity-20"
             style={{
+              background: `radial-gradient(circle, ${theme?.primaryColor || '#f59e0b'}40, transparent)`,
+              width: `${120 + Math.random() * 80}px`,
+              height: `${120 + Math.random() * 80}px`,
               left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 10}s`,
-              animationDuration: `${15 + Math.random() * 20}s`
+              top: `${Math.random() * 100}%`
             }}
-          >
-            <div className="w-1 h-1 bg-cyan-500/30 rounded-full blur-sm" />
-          </div>
+            animate={{
+              x: [0, Math.random() * 100 - 50, 0],
+              y: [0, Math.random() * 100 - 50, 0],
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.3, 0.1]
+            }}
+            transition={{
+              duration: 8 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 2
+            }}
+          />
         ))}
+      </div>
+      
+      {/* Geometric Patterns */}
+      <div className="absolute inset-0 opacity-5">
+        <svg className="w-full h-full" viewBox="0 0 100 100">
+          <defs>
+            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+              <path d="M 10 0 L 0 0 0 10" fill="none" stroke={theme?.primaryColor || '#f59e0b'} strokeWidth="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
       </div>
     </div>
   )
 }
 
-// 3D Card Component
-const Card3D = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
-  const [transform, setTransform] = useState("")
+// Epic 3D Card Component with Glow Effects
+const EpicCard = ({ children, className = "", theme }: { children: React.ReactNode, className?: string, theme?: any }) => {
+  const [isHovered, setIsHovered] = useState(false)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const cardRef = useRef<HTMLDivElement>(null)
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -52,23 +85,45 @@ const Card3D = ({ children, className = "" }: { children: React.ReactNode, class
     const rect = cardRef.current.getBoundingClientRect()
     const x = (e.clientX - rect.left) / rect.width
     const y = (e.clientY - rect.top) / rect.height
-    setTransform(`perspective(1000px) rotateY(${(x - 0.5) * 10}deg) rotateX(${(y - 0.5) * -10}deg)`)
-  }
-
-  const handleMouseLeave = () => {
-    setTransform("")
+    setMousePosition({ x: x * 100, y: y * 100 })
   }
 
   return (
-    <div
+    <motion.div
       ref={cardRef}
-      className={`transition-all duration-300 ${className}`}
-      style={{ transform, transformStyle: "preserve-3d" }}
+      className={`relative group ${className}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      whileHover={{ 
+        scale: 1.02,
+        rotateY: 5,
+        rotateX: 2
+      }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      style={{ transformStyle: "preserve-3d" }}
     >
-      {children}
-    </div>
+      {/* Glow Effect */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl blur-xl"
+        style={{
+          background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, ${theme?.primaryColor || '#f59e0b'}40, transparent 50%)`,
+          transform: 'translateZ(-10px)'
+        }}
+      />
+      
+      {/* Card Content */}
+      <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
+        {/* Shine Effect */}
+        <div 
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+          style={{
+            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, ${theme?.primaryColor || '#f59e0b'}15, transparent 60%)`
+          }}
+        />
+        {children}
+      </div>
+    </motion.div>
   )
 }
 
@@ -254,8 +309,19 @@ END:VCARD`
         fontFamily: theme?.font || "Inter"
       }}
     >
-      <Toaster position="top-right" />
-      <ParticleBackground />
+      <Toaster 
+        position="top-right" 
+        toastOptions={{
+          style: {
+            background: theme?.backgroundColor || '#000000',
+            color: theme?.textColor || '#ffffff',
+            border: `1px solid ${theme?.primaryColor || '#f59e0b'}40`,
+            borderRadius: '12px',
+            backdropFilter: 'blur(20px)'
+          }
+        }}
+      />
+      <EpicBackground theme={theme} />
       
       {/* Custom Cursor */}
       <div 
@@ -382,277 +448,567 @@ END:VCARD`
         </AnimatePresence>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center py-20">
-        <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Side - Info */}
+      {/* 🚀 EPIC HERO SECTION */}
+      <section className="relative min-h-screen flex items-center justify-center py-20 overflow-hidden">
+        {/* Floating Elements */}
+        <div className="absolute inset-0 z-10">
+          {[Crown, Diamond, Sparkles, Gem].map((Icon, i) => (
+            <motion.div
+              key={i}
+              className="absolute opacity-20"
+              style={{
+                left: `${20 + i * 20}%`,
+                top: `${30 + i * 15}%`,
+                color: theme?.primaryColor || '#f59e0b'
+              }}
+              animate={{
+                y: [0, -20, 0],
+                rotate: [0, 360],
+                scale: [1, 1.2, 1]
+              }}
+              transition={{
+                duration: 3 + i,
+                repeat: Infinity,
+                delay: i * 0.5
+              }}
+            >
+              <Icon className="w-8 h-8" />
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-20">
+          {/* 🎯 Left Side - Epic Info Display */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -100 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-8"
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            className="space-y-10"
           >
-            <div>
-              <h1 className="text-5xl md:text-7xl font-bold mb-4">
-                <span 
-                  className="bg-clip-text text-transparent"
+            {/* Status Badge */}
+            <motion.div 
+              className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border backdrop-blur-xl"
+              style={{
+                borderColor: `${theme?.primaryColor || '#f59e0b'}40`,
+                background: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}10, ${theme?.secondaryColor || '#d97706'}10)`,
+                boxShadow: `0 8px 32px ${theme?.primaryColor || '#f59e0b'}20`
+              }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.5, type: "spring" }}
+            >
+              <div 
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{ backgroundColor: theme?.primaryColor || '#f59e0b' }}
+              />
+              <span 
+                className="text-sm font-medium"
+                style={{ color: theme?.primaryColor || '#f59e0b' }}
+              >
+                {profile.subscriptionPlan || 'Pro Kullanıcı'} • Aktif
+              </span>
+              <Eye className="w-4 h-4" style={{ color: theme?.primaryColor || '#f59e0b' }} />
+            </motion.div>
+
+            {/* Epic Name Display */}
+            <div className="space-y-4">
+              <motion.h1 
+                className="text-6xl md:text-8xl font-black leading-none tracking-tight"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+              >
+                <motion.span 
+                  className="block bg-clip-text text-transparent relative"
                   style={{
-                    backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"}, ${theme?.primaryColor || "#06b6d4"})`
+                    backgroundImage: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'} 0%, ${theme?.secondaryColor || '#d97706'} 50%, ${theme?.primaryColor || '#f59e0b'} 100%)`,
+                    filter: 'drop-shadow(0 0 20px rgba(245, 158, 11, 0.3))'
+                  }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    textShadow: `0 0 30px ${theme?.primaryColor || '#f59e0b'}80`
                   }}
                 >
                   {profile.name}
-                </span>
-              </h1>
-              <p 
-                className="text-2xl opacity-80"
-                style={{ color: theme?.textColor || "#ffffff" }}
+                  <motion.div
+                    className="absolute -top-2 -right-2"
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Sparkles className="w-8 h-8 text-yellow-400" />
+                  </motion.div>
+                </motion.span>
+              </motion.h1>
+              
+              {/* Title with animation */}
+              <motion.p 
+                className="text-3xl md:text-4xl font-bold opacity-90"
+                style={{ color: theme?.textColor || '#ffffff' }}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
               >
                 {profile.title}
-              </p>
+              </motion.p>
+              
+              {/* Company with crown */}
               {profile.companyName && (
-                <p 
-                  className="text-xl mt-2"
-                  style={{ color: theme?.primaryColor || "#06b6d4" }}
+                <motion.p 
+                  className="text-2xl font-semibold flex items-center gap-2"
+                  style={{ color: theme?.primaryColor || '#f59e0b' }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 }}
                 >
+                  <Crown className="w-6 h-6" />
                   {profile.companyName}
-                </p>
+                </motion.p>
               )}
             </div>
 
-            <p 
-              className="text-lg leading-relaxed opacity-80"
-              style={{ color: theme?.textColor || "#ffffff" }}
+            {/* Bio with typewriter effect */}
+            <motion.p 
+              className="text-xl leading-relaxed"
+              style={{ color: theme?.textColor || '#ffffff' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 1 }}
             >
               {profile.bio}
-            </p>
+            </motion.p>
 
-            <div className="flex flex-wrap gap-4">
-              <button
+            {/* Epic Action Buttons */}
+            <motion.div 
+              className="flex flex-wrap gap-6"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 0.6 }}
+            >
+              <motion.button
                 onClick={handleVCardDownload}
-                className="px-8 py-3 rounded-full hover:shadow-xl transition-all flex items-center space-x-2"
+                className="group relative px-8 py-4 rounded-2xl font-bold transition-all duration-300 flex items-center space-x-3 overflow-hidden"
                 style={{
-                  backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`,
-                  boxShadow: `0 10px 25px ${theme?.primaryColor || "#06b6d4"}40`
+                  background: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}, ${theme?.secondaryColor || '#d97706'})`,
+                  boxShadow: `0 10px 30px ${theme?.primaryColor || '#f59e0b'}40`,
+                  color: theme?.backgroundColor || '#000000'
                 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: `0 15px 40px ${theme?.primaryColor || '#f59e0b'}60`
+                }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Download className="w-5 h-5" />
-                <span>Rehbere Ekle</span>
-              </button>
+                <motion.div
+                  className="absolute inset-0 bg-white/20"
+                  initial={{ x: '-100%' }}
+                  whileHover={{ x: '100%' }}
+                  transition={{ duration: 0.6 }}
+                />
+                <Download className="w-6 h-6 relative z-10" />
+                <span className="relative z-10">Rehbere Ekle</span>
+                <HeartHandshake className="w-5 h-5 relative z-10" />
+              </motion.button>
               
-              <button
+              <motion.button
                 onClick={handleShare}
-                className="px-8 py-3 rounded-full hover:opacity-80 transition-all flex items-center space-x-2"
+                className="group px-8 py-4 rounded-2xl font-bold transition-all duration-300 flex items-center space-x-3 backdrop-blur-xl"
                 style={{
-                  border: `1px solid ${theme?.primaryColor || "#06b6d4"}80`,
-                  backgroundColor: `${theme?.primaryColor || "#06b6d4"}20`
+                  border: `2px solid ${theme?.primaryColor || '#f59e0b'}60`,
+                  background: `${theme?.primaryColor || '#f59e0b'}10`,
+                  color: theme?.textColor || '#ffffff'
                 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  backgroundColor: `${theme?.primaryColor || '#f59e0b'}20`,
+                  borderColor: `${theme?.primaryColor || '#f59e0b'}80`
+                }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="w-6 h-6" />
                 <span>Paylaş</span>
-              </button>
-            </div>
+                <motion.div
+                  animate={{ rotate: [0, 15, -15, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Flame className="w-5 h-5" />
+                </motion.div>
+              </motion.button>
+            </motion.div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            {/* Epic Quick Stats */}
+            <motion.div 
+              className="grid grid-cols-2 md:grid-cols-3 gap-6"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.6 }}
+            >
               {profile.companyFoundedYear && (
-                <div 
-                  className="text-center p-4 rounded-xl backdrop-blur-sm"
-                  style={{
-                    backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
-                    border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
-                  }}
-                >
-                  <div 
-                    className="text-3xl font-bold"
-                    style={{ color: theme?.primaryColor || "#06b6d4" }}
-                  >
-                    {new Date().getFullYear() - parseInt(profile.companyFoundedYear)}+
+                <EpicCard theme={theme} className="group cursor-pointer">
+                  <div className="text-center p-6 space-y-2">
+                    <motion.div 
+                      className="text-4xl font-black"
+                      style={{ color: theme?.primaryColor || '#f59e0b' }}
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      {new Date().getFullYear() - parseInt(profile.companyFoundedYear)}+
+                    </motion.div>
+                    <div 
+                      className="text-sm font-medium"
+                      style={{ color: theme?.textColor || '#ffffff' }}
+                    >
+                      🏆 Yıllık Deneyim
+                    </div>
                   </div>
-                  <div 
-                    className="text-sm opacity-70"
-                    style={{ color: theme?.textColor || "#ffffff" }}
-                  >
-                    Yıllık Deneyim
-                  </div>
-                </div>
+                </EpicCard>
               )}
+              
               {profile.companyEmployeeCount && (
-                <div 
-                  className="text-center p-4 rounded-xl backdrop-blur-sm"
-                  style={{
-                    backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
-                    border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
-                  }}
-                >
-                  <div 
-                    className="text-3xl font-bold"
-                    style={{ color: theme?.primaryColor || "#06b6d4" }}
-                  >
-                    {profile.companyEmployeeCount}
+                <EpicCard theme={theme} className="group cursor-pointer">
+                  <div className="text-center p-6 space-y-2">
+                    <motion.div 
+                      className="text-4xl font-black"
+                      style={{ color: theme?.primaryColor || '#f59e0b' }}
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      {profile.companyEmployeeCount}
+                    </motion.div>
+                    <div 
+                      className="text-sm font-medium"
+                      style={{ color: theme?.textColor || '#ffffff' }}
+                    >
+                      👥 Takım Üyesi
+                    </div>
                   </div>
-                  <div 
-                    className="text-sm opacity-70"
-                    style={{ color: theme?.textColor || "#ffffff" }}
-                  >
-                    Çalışan
-                  </div>
-                </div>
+                </EpicCard>
               )}
-              <div 
-                className="text-center p-4 rounded-xl backdrop-blur-sm"
-                style={{
-                  backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
-                  border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
-                }}
-              >
-                <div 
-                  className="text-3xl font-bold"
-                  style={{ color: theme?.primaryColor || "#06b6d4" }}
-                >
-                  24/7
+              
+              <EpicCard theme={theme} className="group cursor-pointer">
+                <div className="text-center p-6 space-y-2">
+                  <motion.div 
+                    className="text-4xl font-black"
+                    style={{ color: theme?.primaryColor || '#f59e0b' }}
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    24/7
+                  </motion.div>
+                  <div 
+                    className="text-sm font-medium"
+                    style={{ color: theme?.textColor || '#ffffff' }}
+                  >
+                    ⚡ Erişilebilir
+                  </div>
                 </div>
-                <div 
-                  className="text-sm opacity-70"
-                  style={{ color: theme?.textColor || "#ffffff" }}
-                >
-                  Erişilebilir
-                </div>
-              </div>
-            </div>
+              </EpicCard>
+            </motion.div>
           </motion.div>
 
-          {/* Right Side - Visual */}
+          {/* 🎨 Right Side - Epic Visual Card */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            initial={{ opacity: 0, scale: 0.5, rotateY: 90 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.5 }}
             className="relative"
           >
-            <Card3D>
-              <div 
-                className="relative p-8 rounded-3xl backdrop-blur-sm"
-                style={{
-                  backgroundImage: `linear-gradient(to bottom right, ${theme?.primaryColor || "#06b6d4"}1A, ${theme?.secondaryColor || "#3b82f6"}1A)`,
-                  border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
-                }}
-              >
-                {/* Profile Image */}
-                <div className="relative mx-auto w-64 h-64 mb-6">
+            {/* Background glow */}
+            <div 
+              className="absolute inset-0 rounded-3xl blur-3xl opacity-30"
+              style={{
+                background: `radial-gradient(ellipse, ${theme?.primaryColor || '#f59e0b'}, ${theme?.secondaryColor || '#d97706'})`,
+                transform: 'scale(1.1)'
+              }}
+            />
+            
+            <EpicCard theme={theme} className="max-w-md mx-auto">
+              <div className="relative p-8 space-y-8">
+                {/* Header with floating icons */}
+                <motion.div 
+                  className="text-center relative"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <div className="absolute -top-2 -right-2">
+                    <motion.div
+                      animate={{ rotate: [0, 360] }}
+                      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                    >
+                      <Crown className="w-8 h-8" style={{ color: theme?.primaryColor || '#f59e0b' }} />
+                    </motion.div>
+                  </div>
+                  <h3 
+                    className="text-2xl font-bold mb-2"
+                    style={{ color: theme?.textColor || '#ffffff' }}
+                  >
+                    📱 Dijital Kartvizit
+                  </h3>
                   <div 
-                    className="absolute inset-0 rounded-full blur-2xl opacity-50 animate-pulse"
+                    className="h-1 w-20 mx-auto rounded-full"
+                    style={{ background: `linear-gradient(to right, ${theme?.primaryColor || '#f59e0b'}, ${theme?.secondaryColor || '#d97706'})` }}
+                  />
+                </motion.div>
+
+                {/* Epic Profile Image */}
+                <motion.div 
+                  className="relative mx-auto w-48 h-48"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 1 }}
+                >
+                  {/* Rotating ring */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-4 border-dashed opacity-30"
+                    style={{ borderColor: theme?.primaryColor || '#f59e0b' }}
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  />
+                  
+                  {/* Glow effect */}
+                  <div 
+                    className="absolute inset-2 rounded-full blur-xl opacity-40 animate-pulse"
                     style={{
-                      backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`
+                      background: `radial-gradient(circle, ${theme?.primaryColor || '#f59e0b'}, ${theme?.secondaryColor || '#d97706'})`
                     }}
                   />
+                  
+                  {/* Profile image or placeholder */}
                   {profile.profileImage ? (
-                    <img
+                    <motion.img
                       src={profile.profileImage}
                       alt={profile.name}
-                      className="relative w-full h-full object-cover rounded-full border-4"
-                      style={{ borderColor: `${theme?.primaryColor || "#06b6d4"}80` }}
+                      className="relative w-full h-full object-cover rounded-full border-4 z-10"
+                      style={{ 
+                        borderColor: theme?.primaryColor || '#f59e0b',
+                        boxShadow: `0 0 40px ${theme?.primaryColor || '#f59e0b'}40`
+                      }}
+                      whileHover={{ scale: 1.05, rotateZ: 5 }}
                     />
                   ) : (
-                    <div 
-                      className="relative w-full h-full rounded-full flex items-center justify-center"
+                    <motion.div 
+                      className="relative w-full h-full rounded-full flex items-center justify-center border-4 z-10"
                       style={{
-                        backgroundImage: `linear-gradient(to bottom right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`
+                        background: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}, ${theme?.secondaryColor || '#d97706'})`,
+                        borderColor: theme?.primaryColor || '#f59e0b',
+                        boxShadow: `0 0 40px ${theme?.primaryColor || '#f59e0b'}40`
                       }}
+                      whileHover={{ scale: 1.05, rotateZ: 5 }}
                     >
-                      <User className="w-32 h-32 text-white/50" />
-                    </div>
+                      <User className="w-20 h-20 text-white/70" />
+                    </motion.div>
                   )}
-                </div>
-
-                {/* Contact Buttons */}
-                <div className="space-y-3">
-                  {profile.phone && (
-                    <a
-                      href={`tel:${profile.phone}`}
-                      className="flex items-center justify-between p-4 rounded-xl transition-all group"
+                  
+                  {/* Floating sparkles */}
+                  {[...Array(4)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute"
                       style={{
-                        backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
-                        color: theme?.textColor || "#ffffff"
+                        left: `${20 + i * 20}%`,
+                        top: `${10 + i * 25}%`,
+                        color: theme?.primaryColor || '#f59e0b'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}1A`
+                      animate={{
+                        y: [0, -10, 0],
+                        opacity: [0.3, 1, 0.3],
+                        scale: [0.8, 1.2, 0.8]
                       }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}0D`
+                      transition={{
+                        duration: 2 + i * 0.5,
+                        repeat: Infinity,
+                        delay: i * 0.3
                       }}
                     >
-                      <div className="flex items-center space-x-3">
-                        <Phone 
-                          className="w-5 h-5"
-                          style={{ color: theme?.primaryColor || "#06b6d4" }}
-                        />
-                        <span>{profile.phone}</span>
+                      <Sparkles className="w-4 h-4" />
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* Epic Contact Buttons */}
+                <motion.div 
+                  className="space-y-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2, staggerChildren: 0.1 }}
+                >
+                  {profile.phone && (
+                    <motion.a
+                      href={`tel:${profile.phone}`}
+                      className="group flex items-center justify-between p-4 rounded-2xl transition-all duration-300 backdrop-blur-xl"
+                      style={{
+                        background: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}10, ${theme?.secondaryColor || '#d97706'}10)`,
+                        border: `1px solid ${theme?.primaryColor || '#f59e0b'}30`,
+                        color: theme?.textColor || '#ffffff'
+                      }}
+                      whileHover={{ 
+                        scale: 1.02,
+                        backgroundColor: `${theme?.primaryColor || '#f59e0b'}20`,
+                        borderColor: `${theme?.primaryColor || '#f59e0b'}60`
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <motion.div
+                          className="p-2 rounded-xl"
+                          style={{ backgroundColor: `${theme?.primaryColor || '#f59e0b'}20` }}
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                        >
+                          <Phone 
+                            className="w-5 h-5"
+                            style={{ color: theme?.primaryColor || '#f59e0b' }}
+                          />
+                        </motion.div>
+                        <div>
+                          <span className="text-sm opacity-70">Telefon</span>
+                          <div className="font-semibold">{profile.phone}</div>
+                        </div>
                       </div>
-                      <ChevronRight 
-                        className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
-                        style={{ color: theme?.primaryColor || "#06b6d4" }}
-                      />
-                    </a>
+                      <motion.div
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        <ChevronRight 
+                          className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
+                          style={{ color: theme?.primaryColor || '#f59e0b' }}
+                        />
+                      </motion.div>
+                    </motion.a>
                   )}
                   
                   {profile.email && (
-                    <a
+                    <motion.a
                       href={`mailto:${profile.email}`}
-                      className="flex items-center justify-between p-4 rounded-xl transition-all group"
+                      className="group flex items-center justify-between p-4 rounded-2xl transition-all duration-300 backdrop-blur-xl"
                       style={{
-                        backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
-                        color: theme?.textColor || "#ffffff"
+                        background: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}10, ${theme?.secondaryColor || '#d97706'}10)`,
+                        border: `1px solid ${theme?.primaryColor || '#f59e0b'}30`,
+                        color: theme?.textColor || '#ffffff'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}1A`
+                      whileHover={{ 
+                        scale: 1.02,
+                        backgroundColor: `${theme?.primaryColor || '#f59e0b'}20`,
+                        borderColor: `${theme?.primaryColor || '#f59e0b'}60`
                       }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}0D`
-                      }}
+                      whileTap={{ scale: 0.98 }}
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 }}
                     >
-                      <div className="flex items-center space-x-3">
-                        <Mail 
-                          className="w-5 h-5"
-                          style={{ color: theme?.primaryColor || "#06b6d4" }}
-                        />
-                        <span className="truncate">{profile.email}</span>
+                      <div className="flex items-center space-x-4">
+                        <motion.div
+                          className="p-2 rounded-xl"
+                          style={{ backgroundColor: `${theme?.primaryColor || '#f59e0b'}20` }}
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                        >
+                          <Mail 
+                            className="w-5 h-5"
+                            style={{ color: theme?.primaryColor || '#f59e0b' }}
+                          />
+                        </motion.div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-sm opacity-70">E-posta</span>
+                          <div className="font-semibold truncate">{profile.email}</div>
+                        </div>
                       </div>
-                      <ChevronRight 
-                        className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
-                        style={{ color: theme?.primaryColor || "#06b6d4" }}
-                      />
-                    </a>
+                      <motion.div
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                      >
+                        <ChevronRight 
+                          className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
+                          style={{ color: theme?.primaryColor || '#f59e0b' }}
+                        />
+                      </motion.div>
+                    </motion.a>
                   )}
                   
                   {profile.whatsapp && (
-                    <a
+                    <motion.a
                       href={`https://wa.me/${profile.whatsapp.replace(/\D/g, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 rounded-xl transition-all group"
+                      className="group flex items-center justify-between p-4 rounded-2xl transition-all duration-300 backdrop-blur-xl"
                       style={{
-                        backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
-                        color: theme?.textColor || "#ffffff"
+                        background: `linear-gradient(135deg, #25D366 10, #128C7E 10)`,
+                        border: `1px solid #25D36630`,
+                        color: '#ffffff'
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}1A`
+                      whileHover={{ 
+                        scale: 1.02,
+                        backgroundColor: '#25D366 20',
+                        borderColor: '#25D366 60'
                       }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}0D`
-                      }}
+                      whileTap={{ scale: 0.98 }}
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
                     >
-                      <div className="flex items-center space-x-3">
-                        <MessageCircle className="w-5 h-5 text-green-400" />
-                        <span>WhatsApp</span>
+                      <div className="flex items-center space-x-4">
+                        <motion.div
+                          className="p-2 rounded-xl bg-green-500/20"
+                          whileHover={{ scale: 1.1, rotate: 5 }}
+                        >
+                          <MessageCircle className="w-5 h-5 text-green-400" />
+                        </motion.div>
+                        <div>
+                          <span className="text-sm opacity-70">WhatsApp</span>
+                          <div className="font-semibold">Mesaj Gönder</div>
+                        </div>
                       </div>
-                      <ChevronRight 
-                        className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
-                        style={{ color: theme?.secondaryColor || "#3b82f6" }}
-                      />
-                    </a>
+                      <motion.div
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                      >
+                        <ChevronRight 
+                          className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
+                          style={{ color: '#25D366' }}
+                        />
+                      </motion.div>
+                    </motion.a>
                   )}
-                </div>
+                  
+                  {/* QR Code Section */}
+                  {qrCodeUrl && (
+                    <motion.div
+                      className="text-center p-6 rounded-2xl backdrop-blur-xl border"
+                      style={{
+                        background: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}05, ${theme?.secondaryColor || '#d97706'}05)`,
+                        borderColor: `${theme?.primaryColor || '#f59e0b'}30`
+                      }}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 1.4 }}
+                    >
+                      <motion.div
+                        className="inline-block p-4 rounded-2xl bg-white"
+                        whileHover={{ scale: 1.05, rotate: 2 }}
+                        style={{
+                          boxShadow: `0 10px 30px ${theme?.primaryColor || '#f59e0b'}20`
+                        }}
+                      >
+                        <img 
+                          src={qrCodeUrl} 
+                          alt="QR Code" 
+                          className="w-32 h-32 mx-auto"
+                        />
+                      </motion.div>
+                      <div className="mt-4">
+                        <h4 
+                          className="font-bold mb-1"
+                          style={{ color: theme?.textColor || '#ffffff' }}
+                        >
+                          📱 QR Kod ile Bağlan
+                        </h4>
+                        <p className="text-sm opacity-70" style={{ color: theme?.textColor || '#ffffff' }}>
+                          Telefon kamerasıyla tarayın
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
               </div>
-            </Card3D>
+            </EpicCard>
           </motion.div>
         </div>
 
@@ -699,7 +1055,7 @@ END:VCARD`
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              <Card3D>
+              <EpicCard theme={theme}>
                 <div 
                   className="p-8 rounded-2xl backdrop-blur-sm"
                   style={{
@@ -743,9 +1099,9 @@ END:VCARD`
                     )}
                   </div>
                 </div>
-              </Card3D>
+              </EpicCard>
 
-              <Card3D>
+              <EpicCard theme={theme}>
                 <div 
                   className="p-8 rounded-2xl backdrop-blur-sm"
                   style={{
@@ -770,7 +1126,7 @@ END:VCARD`
                     {profile.companyDescription || profile.bio}
                   </p>
                 </div>
-              </Card3D>
+              </EpicCard>
             </div>
           </div>
         </section>
@@ -809,13 +1165,13 @@ END:VCARD`
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <Card3D>
+                <EpicCard theme={theme}>
                   <div className="p-6 bg-white/5 rounded-xl backdrop-blur-sm border border-cyan-500/20 hover:border-cyan-500/50 transition-all group">
                     <service.icon className="w-12 h-12 text-cyan-400 mb-4 group-hover:scale-110 transition-transform" />
                     <h3 className="text-xl font-bold mb-2">{service.title}</h3>
                     <p className="text-gray-400">{service.desc}</p>
                   </div>
-                </Card3D>
+                </EpicCard>
               </motion.div>
             ))}
           </div>
@@ -840,7 +1196,7 @@ END:VCARD`
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              <Card3D>
+              <EpicCard theme={theme}>
                 <div className="p-8 bg-white/5 rounded-2xl backdrop-blur-sm border border-cyan-500/20">
                   <MapPin className="w-12 h-12 text-cyan-400 mb-4" />
                   <h3 className="text-2xl font-bold mb-4">Adres Bilgileri</h3>
@@ -875,9 +1231,9 @@ END:VCARD`
                     </a>
                   )}
                 </div>
-              </Card3D>
+              </EpicCard>
 
-              <Card3D>
+              <EpicCard theme={theme}>
                 <div className="p-8 bg-white/5 rounded-2xl backdrop-blur-sm border border-cyan-500/20">
                   <Clock className="w-12 h-12 text-cyan-400 mb-4" />
                   <h3 className="text-2xl font-bold mb-4">Şu Anki Saat</h3>
@@ -893,7 +1249,7 @@ END:VCARD`
                     })}
                   </p>
                 </div>
-              </Card3D>
+              </EpicCard>
             </div>
           </div>
         </section>
@@ -971,7 +1327,7 @@ END:VCARD`
 
               {/* QR Code */}
               <div className="flex justify-center items-center">
-                <Card3D>
+                <EpicCard theme={theme}>
                   <div className="p-8 bg-white/5 rounded-2xl backdrop-blur-sm border border-cyan-500/20 text-center">
                     <h3 className="text-xl font-bold mb-4">QR Kod ile Paylaş</h3>
                     {qrCodeUrl && (
@@ -979,7 +1335,7 @@ END:VCARD`
                     )}
                     <p className="text-sm text-gray-400 mt-4">Kameranızla tarayın</p>
                   </div>
-                </Card3D>
+                </EpicCard>
               </div>
             </div>
           </div>

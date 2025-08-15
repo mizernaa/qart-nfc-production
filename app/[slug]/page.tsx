@@ -85,7 +85,7 @@ const SocialIcon = ({ platform }: { platform: string }) => {
   return icons[platform] || <Globe className="w-5 h-5" />
 }
 
-export default function ProfilePage({ params }: { params: { slug: string } }) {
+export default function ProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const [profile, setProfile] = useState<any>(null)
   const [theme, setTheme] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -101,7 +101,8 @@ export default function ProfilePage({ params }: { params: { slug: string } }) {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`/api/profile/${params.slug}`)
+        const { slug } = await params
+        const response = await fetch(`/api/profile/${slug}`)
         if (!response.ok) throw new Error("Profile not found")
         const data = await response.json()
         if (!data.success) throw new Error(data.message)
@@ -146,7 +147,7 @@ export default function ProfilePage({ params }: { params: { slug: string } }) {
       }
     }
     fetchProfile()
-  }, [params.slug])
+  }, [])
 
   // Scroll handler
   useEffect(() => {

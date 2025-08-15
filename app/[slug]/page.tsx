@@ -90,16 +90,14 @@ import {
   FileCheck,
   FolderOpen,
   Handshake,
-  Wifi,
-  Signal,
-  Battery,
-  Smartphone,
-  Monitor,
-  CreditCard,
-  Fingerprint,
-  Lock,
-  Unlock,
-  Key
+  MousePointer2,
+  Focus,
+  Scan,
+  ContactRound,
+  GraduationCap,
+  Crown,
+  Diamond,
+  ChevronUp
 } from "lucide-react"
 
 export default function PublicProfilePage() {
@@ -110,13 +108,14 @@ export default function PublicProfilePage() {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [copySuccess, setCopySuccess] = useState(false)
   const [showQR, setShowQR] = useState(false)
-  const [activeSection, setActiveSection] = useState('hero')
+  const [showContactForm, setShowContactForm] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [scrollY, setScrollY] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const [viewCount, setViewCount] = useState(0)
   const [currentTime, setCurrentTime] = useState('')
-  const parallaxRef = useRef<HTMLDivElement>(null)
+  const [activeSection, setActiveSection] = useState(0)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   // Real-time clock
   useEffect(() => {
@@ -124,16 +123,15 @@ export default function PublicProfilePage() {
       const now = new Date()
       setCurrentTime(now.toLocaleTimeString('tr-TR', { 
         hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit'
+        minute: '2-digit'
       }))
     }
     updateTime()
-    const interval = setInterval(updateTime, 1000)
+    const interval = setInterval(updateTime, 60000) // Update every minute
     return () => clearInterval(interval)
   }, [])
 
-  // Mouse tracking for interactive effects
+  // Mouse tracking for subtle effects
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
@@ -146,6 +144,14 @@ export default function PublicProfilePage() {
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY)
+      // Update active section based on scroll
+      const sections = document.querySelectorAll('[data-section]')
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect()
+        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+          setActiveSection(index)
+        }
+      })
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
@@ -153,7 +159,7 @@ export default function PublicProfilePage() {
 
   // Visibility animation
   useEffect(() => {
-    setIsVisible(true)
+    setTimeout(() => setIsVisible(true), 100)
   }, [])
 
   // Profil verilerini API'den çek
@@ -167,7 +173,7 @@ export default function PublicProfilePage() {
           const data = await response.json()
           if (data.success) {
             setProfile(data.profile)
-            setViewCount(Math.floor(Math.random() * 10000) + 2500)
+            setViewCount(Math.floor(Math.random() * 15000) + 5000)
           }
         }
       } catch (error) {
@@ -207,26 +213,24 @@ export default function PublicProfilePage() {
     }
   }, [profile])
 
-  // Contact handlers with enhanced UX
+  // Contact handlers
   const handleCall = () => {
     if (profile.phone) {
-      // Add haptic feedback if available
-      if (navigator.vibrate) navigator.vibrate(50)
       window.open(`tel:${profile.phone}`, '_self')
     }
   }
 
   const handleWhatsApp = () => {
     if (profile.whatsapp) {
-      const message = encodeURIComponent(`🌟 Merhaba ${profile.name}!\n\nQART dijital kartvizitinizden ulaşıyorum. Size nasıl yardımcı olabilirim?\n\n✨ QART ile tanıştım`)
+      const message = encodeURIComponent(`Merhaba ${profile.name}, QART dijital kartvizitinizden ulaşıyorum.`)
       window.open(`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}?text=${message}`, '_blank')
     }
   }
 
   const handleEmail = () => {
     if (profile.email) {
-      const subject = encodeURIComponent(`✉️ ${profile.name} - QART Kartvizit İletişimi`)
-      const body = encodeURIComponent(`Sayın ${profile.name},\n\nQART dijital kartvizitiniz aracılığıyla size ulaşıyorum.\n\n📱 Profil: https://qart-nfc-production.vercel.app/${profile.slug}\n\nİyi günler dilerim.\n`)
+      const subject = encodeURIComponent(`${profile.name} - İletişim`)
+      const body = encodeURIComponent(`Sayın ${profile.name},\n\nQART dijital kartvizitiniz aracılığıyla size ulaşıyorum.\n\nProfil: https://qart-nfc-production.vercel.app/${profile.slug}\n\nSaygılarımla,`)
       window.open(`mailto:${profile.email}?subject=${subject}&body=${body}`, '_self')
     }
   }
@@ -240,8 +244,8 @@ export default function PublicProfilePage() {
 
   const shareProfile = async () => {
     const url = `https://qart-nfc-production.vercel.app/${profile.slug}`
-    const title = `🌟 ${profile.name} - ${profile.title}`
-    const text = `📱 ${profile.bio || profile.name + ' dijital kartvizit'}\n\n✨ QART ile tanışın`
+    const title = `${profile.name} - ${profile.title}`
+    const text = `${profile.bio || profile.name + ' dijital kartvizit'}`
 
     if (navigator.share) {
       try {
@@ -271,69 +275,54 @@ TEL;TYPE=CELL:${profile.whatsapp || ''}
 EMAIL;TYPE=WORK:${profile.email || ''}
 URL:${profile.website || ''}
 ADR;TYPE=WORK:;;${profile.address || ''};;;;
-NOTE:📱 QART Dijital Kartvizit\\n${profile.bio || ''}\\n✨ https://qart-nfc-production.vercel.app/${profile.slug}
+NOTE:QART Dijital Kartvizit - ${profile.bio || ''}
 PHOTO;VALUE=URL:${profile.profileImage || ''}
 LOGO;VALUE=URL:${profile.logoUrl || ''}
-X-SOCIALPROFILE;TYPE=linkedin:https://linkedin.com/in/${profile.slug}
-X-SOCIALPROFILE;TYPE=twitter:https://twitter.com/${profile.slug}
-X-SOCIALPROFILE;TYPE=instagram:https://instagram.com/${profile.slug}
 END:VCARD`
 
     const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `${profile.name.replace(/\s+/g, '_')}_QART_Contact.vcf`
+    link.download = `${profile.name.replace(/\s+/g, '_')}_Contact.vcf`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
   }
 
-  // Loading state with stunning animation
+  // Stunning loading animation
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center relative overflow-hidden">
-        {/* Animated Background */}
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center relative overflow-hidden">
+        {/* Subtle Background Effects */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/30 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute bottom-1/4 left-1/2 w-80 h-80 bg-pink-500/25 rounded-full blur-3xl animate-pulse delay-500" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gray-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
         
-        {/* Loading Content */}
+        {/* Professional Loader */}
         <div className="relative z-10 text-center">
-          {/* Stunning Loader */}
           <div className="relative mb-8">
-            <div className="w-32 h-32 mx-auto relative">
-              {/* Outer Ring */}
-              <div className="absolute inset-0 border-4 border-white/20 rounded-full animate-spin"></div>
-              {/* Middle Ring */}
-              <div className="absolute inset-2 border-4 border-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-spin" style={{animationDirection: 'reverse'}}></div>
-              {/* Inner Ring */}
-              <div className="absolute inset-4 border-4 border-pink-400 rounded-full animate-ping"></div>
-              {/* Center Icon */}
+            <div className="w-24 h-24 mx-auto relative">
+              {/* Elegant spinning ring */}
+              <div className="absolute inset-0 border-2 border-gray-700 rounded-full animate-spin">
+                <div className="w-2 h-2 bg-white rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1"></div>
+              </div>
+              {/* Center logo */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 rounded-2xl flex items-center justify-center transform rotate-45 animate-pulse">
-                  <CreditCard className="h-8 w-8 text-white transform -rotate-45" />
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
+                  <ContactRound className="h-6 w-6 text-black" />
                 </div>
               </div>
             </div>
           </div>
           
-          {/* Loading Text */}
-          <div className="space-y-4">
-            <h2 className="text-3xl font-bold text-white mb-2">
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                QART
-              </span>
+          <div className="space-y-3">
+            <h2 className="text-2xl font-light text-white tracking-wider">
+              QART
             </h2>
-            <p className="text-white/80 text-lg font-medium">Dijital kartvizit yükleniyor...</p>
-            <div className="flex items-center justify-center space-x-1 text-white/60">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce delay-100"></div>
-              <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce delay-200"></div>
-            </div>
+            <p className="text-gray-400 font-light">Loading digital business card...</p>
           </div>
         </div>
       </div>
@@ -343,23 +332,18 @@ END:VCARD`
   // Profile not found
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-900 via-pink-900 to-purple-900 flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-red-500/30 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        </div>
-        
-        <div className="relative z-10 text-center max-w-md px-6">
-          <div className="w-32 h-32 mx-auto bg-red-500/20 rounded-full flex items-center justify-center mb-8 backdrop-blur-sm border border-red-500/30">
-            <X className="h-16 w-16 text-red-400" />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+        <div className="text-center max-w-md px-6">
+          <div className="w-24 h-24 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-8">
+            <X className="h-12 w-12 text-gray-400" />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">Profil Bulunamadı</h1>
-          <p className="text-white/70 mb-8 text-lg">Aradığınız dijital kartvizit mevcut değil veya gizli olarak ayarlanmış.</p>
+          <h1 className="text-3xl font-light text-white mb-4">Profile Not Found</h1>
+          <p className="text-gray-400 mb-8">The digital business card you're looking for doesn't exist or is private.</p>
           <button 
             onClick={() => window.location.href = '/'}
-            className="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-2xl transition-all duration-300 font-semibold text-lg shadow-2xl shadow-red-500/25 transform hover:scale-105"
+            className="px-8 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors"
           >
-            🏠 Ana Sayfaya Dön
+            Return Home
           </button>
         </div>
       </div>
@@ -367,275 +351,247 @@ END:VCARD`
   }
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-hidden relative">
-      {/* Dynamic Background with Parallax */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
+      {/* Sophisticated Background */}
       <div className="fixed inset-0 z-0">
-        {/* Animated Gradient Background */}
+        {/* Subtle gradient overlay */}
         <div 
-          className="absolute inset-0 opacity-80"
+          className="absolute inset-0 opacity-30"
           style={{
-            background: `
-              radial-gradient(circle at ${mousePosition.x / window.innerWidth * 100}% ${mousePosition.y / window.innerHeight * 100}%, 
-                rgba(147, 51, 234, 0.3) 0%, 
-                rgba(59, 130, 246, 0.2) 25%, 
-                rgba(16, 185, 129, 0.1) 50%, 
-                rgba(0, 0, 0, 0.9) 100%
-              )
-            `
+            background: `radial-gradient(circle at ${mousePosition.x / window.innerWidth * 100}% ${mousePosition.y / window.innerHeight * 100}%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 30%, transparent 70%)`
           }}
         />
         
-        {/* Floating Elements */}
-        <div className="absolute inset-0">
-          {Array.from({ length: 50 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute animate-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${3 + Math.random() * 4}s`
-              }}
-            >
-              <div 
-                className="w-1 h-1 bg-white/20 rounded-full"
-                style={{ transform: `translate(${scrollY * 0.1}px, ${scrollY * 0.05}px)` }}
+        {/* Geometric patterns */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 left-0 w-full h-full">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute border border-white/20"
+                style={{
+                  left: `${(i % 4) * 25}%`,
+                  top: `${Math.floor(i / 4) * 20}%`,
+                  width: '25%',
+                  height: '20%',
+                  transform: `translateY(${scrollY * 0.1}px)`
+                }}
               />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Cover Image with Parallax */}
+        {/* Cover image with sophisticated overlay */}
         {profile.coverImageUrl && (
           <div 
-            className="absolute inset-0 opacity-20"
-            style={{ transform: `translateY(${scrollY * 0.5}px)` }}
+            className="absolute inset-0 opacity-15"
+            style={{ transform: `translateY(${scrollY * 0.3}px)` }}
           >
             <img 
               src={profile.coverImageUrl} 
               alt="Cover" 
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40" />
           </div>
         )}
       </div>
 
-      {/* Top Status Bar (iPhone Style) */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <div className="flex items-center justify-between px-6 py-3 text-sm">
-          <div className="flex items-center space-x-2">
-            <div className="flex space-x-1">
-              <div className="w-1 h-3 bg-white rounded-full"></div>
-              <div className="w-1 h-3 bg-white rounded-full"></div>
-              <div className="w-1 h-3 bg-white/50 rounded-full"></div>
+      {/* Premium Top Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Brand */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                <Diamond className="h-4 w-4 text-black" />
+              </div>
+              <span className="font-light text-sm tracking-widest">QART</span>
             </div>
-            <span className="text-white/80 text-xs">QART</span>
-          </div>
-          
-          <div className="text-white font-medium">{currentTime}</div>
-          
-          <div className="flex items-center space-x-1">
-            <Wifi className="h-4 w-4 text-white" />
-            <Signal className="h-4 w-4 text-white" />
-            <div className="flex items-center space-x-1">
-              <Battery className="h-4 w-4 text-white" />
-              <span className="text-xs text-white/80">100%</span>
+            
+            {/* Time & Status */}
+            <div className="flex items-center space-x-6 text-sm text-gray-400">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4" />
+                <span>{currentTime}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Eye className="h-4 w-4" />
+                <span>{viewCount.toLocaleString()}</span>
+              </div>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={shareProfile}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                title="Share Profile"
+              >
+                <Share2 className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setShowQR(true)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                title="QR Code"
+              >
+                <QrCode className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 pt-16">
-        {/* Hero Card Section */}
-        <section className="min-h-screen flex items-center justify-center p-6 relative">
-          {/* Digital Business Card */}
+      <div className="relative z-10 pt-20">
+        {/* Hero Business Card */}
+        <section 
+          data-section
+          className="min-h-screen flex items-center justify-center p-6 relative"
+        >
           <div 
-            className={`relative transform transition-all duration-1000 ${
-              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+            ref={cardRef}
+            className={`transform transition-all duration-1000 ${
+              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
             }`}
             style={{
               transform: `
-                translateY(${scrollY * 0.1}px) 
-                rotateX(${mousePosition.y / window.innerHeight * 5 - 2.5}deg) 
-                rotateY(${mousePosition.x / window.innerWidth * 5 - 2.5}deg)
-              `,
-              transformStyle: 'preserve-3d'
+                translateY(${scrollY * 0.05}px) 
+                perspective(1000px) 
+                rotateX(${(mousePosition.y - window.innerHeight / 2) / 50}deg) 
+                rotateY(${(mousePosition.x - window.innerWidth / 2) / 50}deg)
+              `
             }}
           >
-            {/* Card Container */}
-            <div className="relative w-full max-w-md mx-auto">
-              {/* Premium Glow Effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 rounded-3xl blur opacity-75 animate-pulse"></div>
+            {/* Premium Business Card */}
+            <div className="relative w-full max-w-lg mx-auto">
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 via-white to-gray-600 rounded-2xl blur-sm opacity-50"></div>
               
-              {/* Main Card */}
-              <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-3xl p-8 shadow-2xl border border-white/20 backdrop-blur-md overflow-hidden">
-                {/* Card Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <svg className="w-full h-full" viewBox="0 0 400 300">
-                    <defs>
-                      <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="white" strokeWidth="0.5"/>
-                      </pattern>
-                    </defs>
-                    <rect width="400" height="300" fill="url(#grid)" />
-                  </svg>
-                </div>
-
-                {/* QART Branding */}
-                <div className="absolute top-4 right-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                      <Zap className="h-4 w-4 text-white" />
+              {/* Card */}
+              <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl overflow-hidden border border-gray-700 shadow-2xl">
+                {/* Card Header */}
+                <div className="relative p-8 pb-6">
+                  {/* Premium indicator */}
+                  {profile.isPremium && (
+                    <div className="absolute top-4 right-4">
+                      <div className="bg-gradient-to-r from-gray-400 to-gray-200 text-black px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                        <Crown className="h-3 w-3" />
+                        <span>PREMIUM</span>
+                      </div>
                     </div>
-                    <span className="text-white/60 text-sm font-bold">QART</span>
-                  </div>
-                </div>
+                  )}
 
-                {/* Premium Badge */}
-                {profile.isPremium && (
-                  <div className="absolute top-4 left-4">
-                    <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 shadow-lg">
-                      <Sparkles className="h-3 w-3" />
-                      <span>PREMIUM</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Profile Section */}
-                <div className="relative mt-6 text-center">
-                  {/* Profile Image with Holographic Effect */}
-                  <div className="relative inline-block mb-6">
-                    <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 via-blue-600 to-green-600 rounded-full blur opacity-75 animate-spin-slow"></div>
-                    <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-white/30 shadow-2xl">
-                      {profile.profileImage ? (
-                        <img 
-                          src={profile.profileImage} 
-                          alt={profile.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                          <UserCircle className="h-12 w-12 text-white" />
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Online Status */}
-                    <div className="absolute bottom-1 right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                  {/* Profile Image */}
+                  <div className="text-center mb-6">
+                    <div className="relative inline-block">
+                      <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-gray-600 shadow-xl">
+                        {profile.profileImage ? (
+                          <img 
+                            src={profile.profileImage} 
+                            alt={profile.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
+                            <UserCircle className="h-14 w-14 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                      {/* Status indicator */}
+                      <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Name & Title */}
-                  <div className="space-y-2 mb-6">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+                  {/* Profile Info */}
+                  <div className="text-center space-y-3">
+                    <h1 className="text-3xl font-light text-white tracking-wide">
                       {profile.name}
                     </h1>
-                    <p className="text-white/80 font-medium">{profile.title}</p>
+                    <p className="text-gray-300 font-light text-lg">{profile.title}</p>
                     {profile.companyName && (
-                      <div className="flex items-center justify-center space-x-2 text-white/60">
+                      <div className="flex items-center justify-center space-x-2 text-gray-400">
                         <Building className="h-4 w-4" />
-                        <span className="text-sm">{profile.companyName}</span>
+                        <span className="text-sm font-light">{profile.companyName}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Stats Row */}
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-white">{viewCount.toLocaleString()}</div>
-                      <div className="text-xs text-white/60">Görüntüleme</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-green-400">AKTİF</div>
-                      <div className="text-xs text-white/60">Durum</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-400">5+</div>
-                      <div className="text-xs text-white/60">Yıl</div>
-                    </div>
-                  </div>
-
                   {/* Bio */}
-                  <p className="text-white/70 text-sm leading-relaxed mb-6 px-2">
+                  <p className="text-center text-gray-400 text-sm leading-relaxed mt-4 px-4">
                     {profile.bio}
                   </p>
+                </div>
 
-                  {/* Action Buttons Grid */}
-                  <div className="grid grid-cols-2 gap-3 mb-6">
+                {/* Stats Bar */}
+                <div className="border-t border-gray-700 px-8 py-4">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-white font-light text-lg">{viewCount.toLocaleString()}</div>
+                      <div className="text-gray-500 text-xs font-light">VIEWS</div>
+                    </div>
+                    <div>
+                      <div className="text-emerald-400 font-light text-lg">ONLINE</div>
+                      <div className="text-gray-500 text-xs font-light">STATUS</div>
+                    </div>
+                    <div>
+                      <div className="text-white font-light text-lg">5+</div>
+                      <div className="text-gray-500 text-xs font-light">YEARS</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="border-t border-gray-700 p-6">
+                  <div className="grid grid-cols-2 gap-3 mb-4">
                     <button
                       onClick={handleCall}
-                      className="group relative bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg shadow-green-500/25"
+                      className="group bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
                     >
-                      <div className="flex items-center justify-center space-x-2">
-                        <PhoneCall className="h-4 w-4 group-hover:animate-bounce" />
-                        <span className="font-medium">Ara</span>
-                      </div>
+                      <PhoneCall className="h-4 w-4" />
+                      <span className="font-light">Call</span>
                     </button>
 
                     <button
                       onClick={handleWhatsApp}
-                      className="group relative bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg shadow-green-600/25"
+                      className="group bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
                     >
-                      <div className="flex items-center justify-center space-x-2">
-                        <MessageCircle className="h-4 w-4 group-hover:animate-bounce" />
-                        <span className="font-medium">WhatsApp</span>
-                      </div>
+                      <MessageCircle className="h-4 w-4" />
+                      <span className="font-light">WhatsApp</span>
                     </button>
 
                     <button
                       onClick={handleEmail}
-                      className="group relative bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-500/25"
+                      className="group bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
                     >
-                      <div className="flex items-center justify-center space-x-2">
-                        <Mail className="h-4 w-4 group-hover:animate-bounce" />
-                        <span className="font-medium">E-posta</span>
-                      </div>
+                      <Mail className="h-4 w-4" />
+                      <span className="font-light">Email</span>
                     </button>
 
                     <button
                       onClick={handleWebsite}
-                      className="group relative bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-3 px-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg shadow-purple-500/25"
+                      className="group bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
                     >
-                      <div className="flex items-center justify-center space-x-2">
-                        <Globe className="h-4 w-4 group-hover:animate-bounce" />
-                        <span className="font-medium">Website</span>
-                      </div>
+                      <Globe className="h-4 w-4" />
+                      <span className="font-light">Website</span>
                     </button>
                   </div>
 
-                  {/* Bottom Actions */}
-                  <div className="flex justify-center space-x-3">
-                    <button
-                      onClick={() => setShowQR(true)}
-                      className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20"
-                    >
-                      <QrCode className="h-5 w-5 text-white" />
-                    </button>
-                    
-                    <button
-                      onClick={shareProfile}
-                      className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20"
-                    >
-                      <Share2 className="h-5 w-5 text-white" />
-                    </button>
-                    
-                    <button
-                      onClick={handleSaveContact}
-                      className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg shadow-indigo-500/25 flex items-center justify-center space-x-2"
-                    >
-                      <Download className="h-4 w-4" />
-                      <span className="font-medium">Kişilere Kaydet</span>
-                    </button>
-                  </div>
+                  {/* Save Contact */}
+                  <button
+                    onClick={handleSaveContact}
+                    className="w-full bg-white text-black py-3 px-6 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>Save to Contacts</span>
+                  </button>
                 </div>
 
                 {/* Company Logo */}
                 {profile.logoUrl && (
-                  <div className="absolute bottom-4 left-4 w-12 h-12 bg-white/10 rounded-xl p-2 backdrop-blur-sm border border-white/20">
+                  <div className="absolute bottom-4 left-4 w-10 h-10 bg-white/10 rounded-lg p-2 backdrop-blur-sm">
                     <img 
                       src={profile.logoUrl} 
                       alt="Logo" 
@@ -647,75 +603,72 @@ END:VCARD`
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/60 animate-bounce">
-            <ChevronDown className="h-6 w-6" />
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-gray-500 animate-bounce">
+            <ChevronDown className="h-5 w-5" />
           </div>
         </section>
 
-        {/* Additional Information Sections */}
-        <section className="py-20 px-6">
-          <div className="max-w-4xl mx-auto space-y-12">
+        {/* Professional Information */}
+        <section data-section className="py-20 px-6">
+          <div className="max-w-5xl mx-auto space-y-16">
             
-            {/* Skills & Expertise */}
-            <div 
-              className="bg-gradient-to-br from-gray-900/80 to-black/80 rounded-3xl p-8 backdrop-blur-md border border-white/20 transform transition-all duration-1000 hover:scale-105"
-              style={{
-                transform: `translateY(${Math.max(0, scrollY - 400) * 0.1}px)`
-              }}
-            >
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
-                  <Award className="h-6 w-6 text-white" />
+            {/* Expertise */}
+            <div className="bg-gradient-to-br from-gray-900/90 to-black/90 rounded-2xl p-10 border border-gray-800 backdrop-blur-sm">
+              <div className="flex items-center space-x-4 mb-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
+                  <GraduationCap className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">Uzmanlık Alanları</h3>
+                <h3 className="text-3xl font-light text-white">Expertise</h3>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {['Strateji', 'İnovasyon', 'Liderlik', 'Pazarlama', 'Teknoloji', 'Yönetim'].map((skill, index) => (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {['Strategy', 'Innovation', 'Leadership', 'Marketing', 'Technology', 'Management'].map((skill, index) => (
                   <div
                     key={skill}
-                    className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-xl p-4 text-center transform transition-all duration-300 hover:scale-105 hover:bg-purple-500/30"
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 text-center hover:bg-gray-700/50 transition-all duration-300"
                   >
-                    <span className="text-white font-medium">{skill}</span>
+                    <span className="text-white font-light">{skill}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Services Showcase */}
+            {/* Services */}
             {profile.services && profile.services.length > 0 && (
-              <div className="bg-gradient-to-br from-gray-900/80 to-black/80 rounded-3xl p-8 backdrop-blur-md border border-white/20">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center">
+              <div className="bg-gradient-to-br from-gray-900/90 to-black/90 rounded-2xl p-10 border border-gray-800 backdrop-blur-sm">
+                <div className="flex items-center space-x-4 mb-8">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
                     <Briefcase className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Hizmetlerimiz</h3>
+                  <h3 className="text-3xl font-light text-white">Services</h3>
                 </div>
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   {profile.services.map((service: any, index: number) => (
                     <div
                       key={index}
-                      className="bg-gradient-to-br from-white/5 to-white/10 rounded-2xl p-6 border border-white/20 hover:border-white/40 transition-all duration-300 transform hover:scale-105"
+                      className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300"
                     >
                       <div className="flex items-start justify-between mb-4">
-                        <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
-                          <Zap className="h-5 w-5 text-white" />
+                        <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
+                          <Target className="h-5 w-5 text-white" />
                         </div>
                         {service.price && (
-                          <span className="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                          <span className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-light">
                             {service.price}
                           </span>
                         )}
                       </div>
                       
-                      <h4 className="text-lg font-bold text-white mb-2">{service.title}</h4>
-                      <p className="text-white/70 text-sm mb-4">{service.description}</p>
+                      <h4 className="text-lg font-light text-white mb-2">{service.title}</h4>
+                      <p className="text-gray-400 text-sm mb-4 font-light">{service.description}</p>
                       
-                      <button className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white py-2 px-4 rounded-lg transition-all duration-300 font-medium">
-                        Detaylı Bilgi
+                      <button 
+                        onClick={() => setShowContactForm(true)}
+                        className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-all duration-300 font-light"
+                      >
+                        Learn More
                       </button>
                     </div>
                   ))}
@@ -724,26 +677,26 @@ END:VCARD`
             )}
 
             {/* Contact Information */}
-            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 rounded-3xl p-8 backdrop-blur-md border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center">
-                  <Phone className="h-6 w-6 text-white" />
+            <div className="bg-gradient-to-br from-gray-900/90 to-black/90 rounded-2xl p-10 border border-gray-800 backdrop-blur-sm">
+              <div className="flex items-center space-x-4 mb-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
+                  <ContactRound className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">İletişim Bilgileri</h3>
+                <h3 className="text-3xl font-light text-white">Contact</h3>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid md:grid-cols-2 gap-6">
                 {profile.phone && (
                   <a
                     href={`tel:${profile.phone}`}
-                    className="flex items-center space-x-4 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl hover:bg-green-500/30 transition-all duration-300 transform hover:scale-105"
+                    className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
                   >
-                    <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
                       <Phone className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-white/60 text-sm">Telefon</p>
-                      <p className="text-white font-semibold">{profile.phone}</p>
+                      <p className="text-gray-400 text-sm font-light">Phone</p>
+                      <p className="text-white font-light">{profile.phone}</p>
                     </div>
                   </a>
                 )}
@@ -751,26 +704,42 @@ END:VCARD`
                 {profile.email && (
                   <a
                     href={`mailto:${profile.email}`}
-                    className="flex items-center space-x-4 p-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl hover:bg-blue-500/30 transition-all duration-300 transform hover:scale-105"
+                    className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
                   >
-                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
                       <Mail className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-white/60 text-sm">E-posta</p>
-                      <p className="text-white font-semibold">{profile.email}</p>
+                      <p className="text-gray-400 text-sm font-light">Email</p>
+                      <p className="text-white font-light">{profile.email}</p>
+                    </div>
+                  </a>
+                )}
+
+                {profile.website && (
+                  <a
+                    href={profile.website}
+                    target="_blank"
+                    className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
+                  >
+                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
+                      <Globe className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm font-light">Website</p>
+                      <p className="text-white font-light">{profile.website}</p>
                     </div>
                   </a>
                 )}
 
                 {profile.address && (
-                  <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30 rounded-xl md:col-span-2">
-                    <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                  <div className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl md:col-span-2">
+                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
                       <MapPin className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-white/60 text-sm">Adres</p>
-                      <p className="text-white font-semibold">{profile.address}</p>
+                      <p className="text-gray-400 text-sm font-light">Address</p>
+                      <p className="text-white font-light">{profile.address}</p>
                     </div>
                   </div>
                 )}
@@ -778,20 +747,20 @@ END:VCARD`
             </div>
 
             {/* Social Media */}
-            <div className="bg-gradient-to-br from-gray-900/80 to-black/80 rounded-3xl p-8 backdrop-blur-md border border-white/20">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-xl flex items-center justify-center">
+            <div className="bg-gradient-to-br from-gray-900/90 to-black/90 rounded-2xl p-10 border border-gray-800 backdrop-blur-sm">
+              <div className="flex items-center space-x-4 mb-8">
+                <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
                   <Share2 className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">Sosyal Medya</h3>
+                <h3 className="text-3xl font-light text-white">Connect</h3>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  { name: 'LinkedIn', icon: Linkedin, color: 'from-blue-600 to-blue-700', url: '#' },
-                  { name: 'Instagram', icon: Instagram, color: 'from-pink-500 to-purple-600', url: '#' },
-                  { name: 'Twitter', icon: Twitter, color: 'from-sky-400 to-blue-500', url: '#' },
-                  { name: 'Facebook', icon: Facebook, color: 'from-blue-500 to-blue-600', url: '#' }
+                  { name: 'LinkedIn', icon: Linkedin, url: '#' },
+                  { name: 'Instagram', icon: Instagram, url: '#' },
+                  { name: 'Twitter', icon: Twitter, url: '#' },
+                  { name: 'Facebook', icon: Facebook, url: '#' }
                 ].map((social, index) => {
                   const Icon = social.icon
                   return (
@@ -799,10 +768,10 @@ END:VCARD`
                       key={index}
                       href={social.url}
                       target="_blank"
-                      className={`group flex flex-col items-center space-y-3 p-4 bg-gradient-to-br ${social.color} rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg`}
+                      className="group flex flex-col items-center space-y-3 p-6 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
                     >
-                      <Icon className="h-8 w-8 text-white group-hover:animate-bounce" />
-                      <span className="text-white font-medium text-sm">{social.name}</span>
+                      <Icon className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
+                      <span className="text-white font-light text-sm">{social.name}</span>
                     </a>
                   )
                 })}
@@ -815,60 +784,61 @@ END:VCARD`
       {/* Floating QR Button */}
       <button
         onClick={() => setShowQR(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full shadow-2xl flex items-center justify-center transform transition-all duration-300 hover:scale-110 animate-pulse"
+        className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-white text-black rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all duration-300"
+        title="QR Code"
       >
-        <QrCode className="h-6 w-6 text-white" />
+        <QrCode className="h-5 w-5" />
       </button>
 
       {/* QR Code Modal */}
       {showQR && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-          <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8 max-w-sm w-full border border-white/20 shadow-2xl">
+          <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 max-w-sm w-full border border-gray-700 shadow-2xl">
             <button
               onClick={() => setShowQR(false)}
-              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"
+              className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors"
             >
               <X className="h-5 w-5 text-white" />
             </button>
             
             <div className="text-center space-y-6">
               <div className="flex items-center justify-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
-                  <QrCode className="h-5 w-5 text-white" />
+                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                  <QrCode className="h-5 w-5 text-black" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">QR Kod</h3>
+                <h3 className="text-2xl font-light text-white">QR Code</h3>
               </div>
               
-              <div className="bg-white rounded-2xl p-6">
+              <div className="bg-white rounded-xl p-6">
                 {qrCodeUrl && (
-                  <img src={qrCodeUrl} alt="QR Code" className="w-full max-w-64 mx-auto" />
+                  <img src={qrCodeUrl} alt="QR Code" className="w-full max-w-48 mx-auto" />
                 )}
               </div>
               
-              <p className="text-white/70">
-                Bu QR kodu taratarak dijital kartvizite anında erişim sağlayabilirsiniz
+              <p className="text-gray-400 font-light">
+                Scan this QR code to instantly access the digital business card
               </p>
               
               <div className="flex space-x-3">
                 <button
                   onClick={shareProfile}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center space-x-2"
+                  className="flex-1 bg-white text-black py-3 px-4 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2"
                 >
                   {copySuccess ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  <span>{copySuccess ? 'Kopyalandı!' : 'Paylaş'}</span>
+                  <span>{copySuccess ? 'Copied!' : 'Share'}</span>
                 </button>
                 
                 <button
                   onClick={() => {
                     const link = document.createElement('a')
-                    link.download = `${profile.name.replace(/\s+/g, '_')}_QART_QR.png`
+                    link.download = `${profile.name.replace(/\s+/g, '_')}_QR.png`
                     link.href = qrCodeUrl
                     link.click()
                   }}
-                  className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors flex items-center space-x-2"
+                  className="px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center space-x-2"
                 >
                   <Download className="h-4 w-4" />
-                  <span>İndir</span>
+                  <span>Download</span>
                 </button>
               </div>
             </div>
@@ -876,23 +846,68 @@ END:VCARD`
         </div>
       )}
 
-      {/* Custom CSS for animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-        .animate-spin-slow {
-          animation: spin-slow 3s linear infinite;
-        }
-      `}</style>
+      {/* Contact Form Modal */}
+      {showContactForm && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 max-w-lg w-full border border-gray-700 shadow-2xl">
+            <button
+              onClick={() => setShowContactForm(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+            
+            <div className="space-y-6">
+              <h3 className="text-2xl font-light text-white">Get in Touch</h3>
+              
+              <form className="space-y-4">
+                <div>
+                  <label className="block text-sm font-light text-gray-400 mb-2">Name</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
+                    placeholder="Your name"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-light text-gray-400 mb-2">Email</label>
+                  <input
+                    type="email"
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
+                    placeholder="your@email.com"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-light text-gray-400 mb-2">Message</label>
+                  <textarea
+                    rows={4}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
+                    placeholder="Your message..."
+                  />
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowContactForm(false)}
+                    className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors font-light"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-white text-black rounded-lg hover:bg-gray-100 transition-colors font-medium"
+                  >
+                    Send Message
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

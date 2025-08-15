@@ -182,6 +182,17 @@ export default function ProfilePage({ params }: { params: Promise<{ slug: string
     )
   }
 
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-4">Profil Bulunamadı</h1>
+          <p className="text-gray-400">Bu profil mevcut değil veya erişilemez durumda.</p>
+        </div>
+      </div>
+    )
+  }
+
   const handleShare = async () => {
     try {
       await navigator.share({

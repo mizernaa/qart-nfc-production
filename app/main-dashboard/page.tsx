@@ -300,10 +300,105 @@ export default function MainDashboardPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  const handleSaveProfile = () => {
-    console.log("Saving profile:", profile)
-    setEditMode(false)
-    alert("Profil başarıyla güncellendi!")
+  const handleSaveProfile = async () => {
+    if (!user?.email) return
+    
+    setLoading(true)
+    try {
+      console.log("💾 Profil kaydediliyor:", profile)
+      
+      // Gerçek API çağrısı - profil güncelleme
+      const response = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: user.email,
+          name: profile.name,
+          title: profile.title,
+          bio: profile.bio,
+          phone: profile.phone,
+          whatsapp: profile.whatsapp,
+          website: profile.website,
+          address: profile.address,
+          companyName: profile.companyName,
+          profileImage: profile.profileImage,
+          coverImageUrl: profile.coverImageUrl,
+          logoUrl: profile.logoUrl,
+          isPublic: true,
+          theme: "modern"
+        })
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log("✅ Profil başarıyla kaydedildi")
+        setEditMode(false)
+        alert("Profil başarıyla güncellendi!")
+        
+        // Profili yenile
+        await fetchUserProfile(user.email)
+      } else {
+        throw new Error(result.message || 'Profil kaydetme başarısız')
+      }
+    } catch (error) {
+      console.error("❌ Profil kaydetme hatası:", error)
+      alert("Profil kaydedilirken bir hata oluştu: " + error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Image upload fonksiyonu
+  const handleImageUpload = async (file: File, type: string) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('type', type)
+
+    try {
+      setLoading(true)
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        console.log(`✅ ${type} upload başarılı:`, result.url)
+        return result.url
+      } else {
+        throw new Error(result.message || 'Upload başarısız')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Resim yüklenirken hata oluştu: ' + error.message)
+      throw error
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Cover image upload handler
+  const handleCoverImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      const coverUrl = await handleImageUpload(file, 'cover')
+      setProfile(prev => ({
+        ...prev,
+        coverImageUrl: coverUrl
+      }))
+      
+      console.log('Cover image updated:', coverUrl)
+      alert(`✅ Kapak görseli başarıyla yüklendi!\n📏 1200x400 pixel boyutunda optimize edildi`)
+      
+    } catch (error) {
+      // Error already handled in handleImageUpload
+    }
   }
 
   const handleRefresh = async () => {

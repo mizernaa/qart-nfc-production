@@ -444,140 +444,165 @@ END:VCARD`
 
       {/* Ana İçerik - Tam Sayfa Yayılım */}
       <main className="relative pt-20">
-        {/* Hero Bölümü - Tam Genişlik */}
-        <section className="relative min-h-screen flex items-center justify-center px-6 py-20">
-          <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
-            
-            {/* Sol Taraf - Profil Bilgileri */}
-            <div className="space-y-8 text-center lg:text-left">
-              <div className="relative inline-block">
-                {/* Profil Fotoğrafı */}
-                <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto lg:mx-0">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 via-emerald-500 to-yellow-500 rounded-full animate-spin" style={{animationDuration: '8s'}}></div>
-                  <div className="absolute inset-2 rounded-full overflow-hidden bg-white p-1">
-                    {profile.profileImage ? (
-                      <img 
-                        src={profile.profileImage} 
-                        alt={profile.name}
-                        className="w-full h-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
-                        <UserCircle className="h-24 w-24 md:h-32 md:w-32 text-gray-400" />
+        {/* Hero Bölümü - Düzeltilmiş Layout */}
+        <section className="relative py-20 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-16 items-center min-h-screen">
+              
+              {/* Sol Taraf - Profil Bilgileri */}
+              <div className="flex flex-col items-center lg:items-start space-y-8">
+                {/* Profil Fotoğrafı Container */}
+                <div className="relative">
+                  <div className="relative w-56 h-56 mx-auto lg:mx-0">
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500 via-emerald-500 to-yellow-500 rounded-full animate-spin" style={{animationDuration: '8s'}}></div>
+                    <div className="absolute inset-2 rounded-full overflow-hidden bg-white">
+                      {profile.profileImage ? (
+                        <img 
+                          src={profile.profileImage} 
+                          alt={profile.name}
+                          className="w-full h-full object-cover rounded-full"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center">
+                          <UserCircle className="h-32 w-32 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Çevrimiçi Durum */}
+                    <div className="absolute bottom-4 right-4 bg-gradient-to-r from-emerald-400 to-green-500 rounded-full p-3 shadow-xl animate-bounce border-4 border-white">
+                      <div className="w-4 h-4 bg-white rounded-full"></div>
+                    </div>
+
+                    {/* Premium Badge */}
+                    {profile.isPremium && (
+                      <div className="absolute -top-3 -right-3 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-black p-3 rounded-full shadow-xl animate-pulse border-4 border-white">
+                        <Crown className="h-7 w-7" />
                       </div>
                     )}
                   </div>
-                  
-                  {/* Çevrimiçi Durum */}
-                  <div className="absolute bottom-4 right-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full p-3 shadow-xl animate-bounce">
-                    <div className="w-4 h-4 bg-white rounded-full"></div>
+                </div>
+
+                {/* İsim ve Ünvan Container */}
+                <div className="text-center lg:text-left space-y-8">
+                  <div className="space-y-6">
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent leading-tight">
+                      {profile.name}
+                    </h1>
+                    <h2 className="text-xl md:text-2xl lg:text-3xl font-light text-white/90 leading-relaxed">
+                      {profile.title}
+                    </h2>
+                    {profile.companyName && (
+                      <div className="flex items-center justify-center lg:justify-start space-x-3 text-white/70">
+                        <Building className="h-6 w-6 flex-shrink-0" />
+                        <span className="text-lg font-medium leading-relaxed">{profile.companyName}</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Premium Badge */}
-                  {profile.isPremium && (
-                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-black p-3 rounded-full shadow-xl animate-pulse">
-                      <Crown className="h-6 w-6" />
+                  {/* Biyografi */}
+                  <div className="max-w-2xl mx-auto lg:mx-0">
+                    <p className="text-lg md:text-xl text-white/80 leading-relaxed">
+                      {profile.bio}
+                    </p>
+                  </div>
+
+                  {/* Ana İletişim Butonları */}
+                  <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                    <button
+                      onClick={handleCall}
+                      className="group px-6 py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center space-x-3"
+                    >
+                      <PhoneCall className="h-5 w-5 group-hover:animate-pulse" />
+                      <span className="leading-none">Telefon Et</span>
+                    </button>
+
+                    <button
+                      onClick={handleWhatsApp}
+                      className="group px-6 py-4 bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center space-x-3"
+                    >
+                      <MessageCircle className="h-5 w-5 group-hover:animate-pulse" />
+                      <span className="leading-none">WhatsApp</span>
+                    </button>
+
+                    <button
+                      onClick={handleEmail}
+                      className="group px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center space-x-3"
+                    >
+                      <Mail className="h-5 w-5 group-hover:animate-pulse" />
+                      <span className="leading-none">E-posta</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sağ Taraf - İstatistikler ve Aksiyonlar */}
+              <div className="space-y-8">
+                {/* İstatistik Kartları */}
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Görüntülenme */}
+                  <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
+                    <div className="text-3xl font-black text-white mb-3">
+                      {viewCount.toLocaleString()}
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* İsim ve Ünvan */}
-              <div className="space-y-4">
-                <h1 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent leading-tight">
-                  {profile.name}
-                </h1>
-                <h2 className="text-2xl md:text-3xl font-light text-white/90">{profile.title}</h2>
-                {profile.companyName && (
-                  <div className="flex items-center justify-center lg:justify-start space-x-3 text-white/70">
-                    <Building className="h-6 w-6" />
-                    <span className="text-xl font-medium">{profile.companyName}</span>
+                    <div className="text-white/70 text-sm font-medium mb-3">
+                      Profil Görüntülenme
+                    </div>
+                    <Eye className="h-5 w-5 text-cyan-400 mx-auto animate-pulse" />
                   </div>
-                )}
-              </div>
 
-              {/* Biyografi */}
-              <p className="text-xl text-white/80 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                {profile.bio}
-              </p>
+                  {/* Durum */}
+                  <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
+                    <div className="text-3xl font-black text-emerald-400 mb-3">
+                      Aktif
+                    </div>
+                    <div className="text-white/70 text-sm font-medium mb-3">
+                      Çevrimiçi Durum
+                    </div>
+                    <Zap className="h-5 w-5 text-emerald-400 mx-auto animate-pulse" />
+                  </div>
 
-              {/* Ana İletişim Butonları */}
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                <button
-                  onClick={handleCall}
-                  className="group px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-110 shadow-xl flex items-center space-x-3"
-                >
-                  <PhoneCall className="h-5 w-5 group-hover:animate-pulse" />
-                  <span>Telefon Et</span>
-                </button>
+                  {/* Deneyim */}
+                  <div className="bg-gradient-to-br from-yellow-500/20 to-amber-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
+                    <div className="text-3xl font-black text-yellow-400 mb-3">
+                      {experienceYears}+
+                    </div>
+                    <div className="text-white/70 text-sm font-medium mb-3">
+                      Yıl Deneyim
+                    </div>
+                    <Trophy className="h-5 w-5 text-yellow-400 mx-auto animate-pulse" />
+                  </div>
 
-                <button
-                  onClick={handleWhatsApp}
-                  className="group px-8 py-4 bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-110 shadow-xl flex items-center space-x-3"
-                >
-                  <MessageCircle className="h-5 w-5 group-hover:animate-pulse" />
-                  <span>WhatsApp</span>
-                </button>
-
-                <button
-                  onClick={handleEmail}
-                  className="group px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-110 shadow-xl flex items-center space-x-3"
-                >
-                  <Mail className="h-5 w-5 group-hover:animate-pulse" />
-                  <span>E-posta Gönder</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Sağ Taraf - Canlı İstatistikler */}
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                {/* Görüntülenme */}
-                <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
-                  <div className="text-4xl font-black text-white mb-2">{viewCount.toLocaleString()}</div>
-                  <div className="text-white/70 font-medium">Profil Görüntülenmesi</div>
-                  <Eye className="h-6 w-6 text-cyan-400 mx-auto mt-2 animate-pulse" />
+                  {/* Proje */}
+                  <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
+                    <div className="text-3xl font-black text-orange-400 mb-3">
+                      {projectCount}+
+                    </div>
+                    <div className="text-white/70 text-sm font-medium mb-3">
+                      Tamamlanan Proje
+                    </div>
+                    <Rocket className="h-5 w-5 text-orange-400 mx-auto animate-pulse" />
+                  </div>
                 </div>
 
-                {/* Durum */}
-                <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
-                  <div className="text-4xl font-black text-white mb-2">Aktif</div>
-                  <div className="text-white/70 font-medium">Çevrimiçi Durumu</div>
-                  <Zap className="h-6 w-6 text-emerald-400 mx-auto mt-2 animate-pulse" />
+                {/* Aksiyon Butonları */}
+                <div className="space-y-4">
+                  <button
+                    onClick={handleSaveContact}
+                    className="w-full px-8 py-4 bg-gradient-to-r from-gray-800 to-black hover:from-black hover:to-gray-800 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
+                  >
+                    <Download className="h-5 w-5" />
+                    <span>Kişilere Kaydet</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowContactForm(true)}
+                    className="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
+                  >
+                    <Send className="h-5 w-5" />
+                    <span>Mesaj Gönder</span>
+                  </button>
                 </div>
-
-                {/* Deneyim */}
-                <div className="bg-gradient-to-br from-yellow-500/20 to-amber-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
-                  <div className="text-4xl font-black text-white mb-2">{experienceYears}+</div>
-                  <div className="text-white/70 font-medium">Yıl Deneyim</div>
-                  <Trophy className="h-6 w-6 text-yellow-400 mx-auto mt-2 animate-pulse" />
-                </div>
-
-                {/* Proje */}
-                <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-6 text-center hover:scale-105 transition-all duration-300">
-                  <div className="text-4xl font-black text-white mb-2">{projectCount}+</div>
-                  <div className="text-white/70 font-medium">Tamamlanan Proje</div>
-                  <Rocket className="h-6 w-6 text-orange-400 mx-auto mt-2 animate-pulse" />
-                </div>
-              </div>
-
-              {/* Hızlı Aksiyonlar */}
-              <div className="space-y-4">
-                <button
-                  onClick={handleSaveContact}
-                  className="w-full px-8 py-4 bg-gradient-to-r from-gray-800 to-black hover:from-black hover:to-gray-800 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
-                >
-                  <Download className="h-5 w-5" />
-                  <span>Kişilere Kaydet</span>
-                </button>
-                
-                <button
-                  onClick={() => setShowContactForm(true)}
-                  className="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
-                >
-                  <Send className="h-5 w-5" />
-                  <span>Mesaj Gönder</span>
-                </button>
               </div>
             </div>
           </div>
@@ -586,11 +611,11 @@ END:VCARD`
         {/* Yetkinlik Alanları - Yayılmış Layout */}
         <section className="relative py-20 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent mb-6">
+            <div className="text-center mb-16 space-y-6">
+              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent leading-tight">
                 Uzmanlık Alanlarım
               </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto">
+              <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
                 Yıllara dayanan deneyim ve sürekli öğrenme tutkumla kazandığım profesyonel yetkinliklerim
               </p>
             </div>
@@ -639,15 +664,15 @@ END:VCARD`
                 return (
                   <div
                     key={item.skill}
-                    className={`group bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 hover:bg-white/10 transition-all duration-500 hover:scale-105 hover:-translate-y-2 ${
+                    className={`group bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 hover:bg-white/10 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col ${
                       index % 2 === 0 ? 'lg:translate-y-8' : 'lg:-translate-y-4'
                     }`}
                   >
                     <div className={`w-16 h-16 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl`}>
                       <Icon className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-3">{item.skill}</h3>
-                    <p className="text-white/70 leading-relaxed">{item.description}</p>
+                    <h3 className="text-2xl font-bold text-white mb-4 leading-tight">{item.skill}</h3>
+                    <p className="text-white/70 leading-relaxed text-base flex-grow">{item.description}</p>
                   </div>
                 )
               })}
@@ -658,11 +683,11 @@ END:VCARD`
         {/* Profesyonel Hizmetler - Yaratıcı Layout */}
         <section className="relative py-20 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent mb-6">
+            <div className="text-center mb-16 space-y-6">
+              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent leading-tight">
                 Sunduğum Hizmetler
               </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto">
+              <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
                 Her projede mükemmellik arayışıyla, size özel çözümler geliştiriyorum
               </p>
             </div>
@@ -704,12 +729,12 @@ END:VCARD`
                   >
                     {/* Hizmet Bilgileri */}
                     <div className={`space-y-6 ${!isEven ? 'lg:col-start-2' : ''}`}>
-                      <div className="flex items-center space-x-4">
-                        <div className={`w-16 h-16 bg-gradient-to-br ${service.gradient} rounded-2xl flex items-center justify-center shadow-xl`}>
+                      <div className="flex items-start space-x-4">
+                        <div className={`w-16 h-16 bg-gradient-to-br ${service.gradient} rounded-2xl flex items-center justify-center shadow-xl flex-shrink-0`}>
                           <Icon className="h-8 w-8 text-white" />
                         </div>
-                        <div>
-                          <h3 className="text-3xl font-bold text-white">{service.title}</h3>
+                        <div className="space-y-3 min-w-0 flex-1">
+                          <h3 className="text-3xl font-bold text-white leading-tight break-words">{service.title}</h3>
                           <span className={`inline-block px-4 py-2 bg-gradient-to-r ${service.gradient} text-white rounded-full text-lg font-bold shadow-lg`}>
                             {service.price}
                           </span>
@@ -719,14 +744,14 @@ END:VCARD`
                       <p className="text-xl text-white/80 leading-relaxed">{service.description}</p>
                       
                       {/* Özellikler */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {service.features.map((feature, featureIndex) => (
                           <div
                             key={featureIndex}
-                            className="flex items-center space-x-2 text-white/70"
+                            className="flex items-center space-x-3 text-white/70 py-2"
                           >
-                            <CheckCircle className="h-5 w-5 text-green-400" />
-                            <span>{feature}</span>
+                            <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
+                            <span className="text-base leading-relaxed">{feature}</span>
                           </div>
                         ))}
                       </div>
@@ -756,11 +781,11 @@ END:VCARD`
         {/* İletişim Bilgileri - Yaratıcı Dizilim */}
         <section className="relative py-20 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-pink-400 via-rose-400 to-orange-400 bg-clip-text text-transparent mb-6">
+            <div className="text-center mb-16 space-y-6">
+              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-pink-400 via-rose-400 to-orange-400 bg-clip-text text-transparent leading-tight">
                 Benimle İletişime Geçin
               </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto">
+              <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
                 Her türlü soru, öneri ve iş birliği teklifleriniz için 7/24 ulaşabilirsiniz
               </p>
             </div>
@@ -775,9 +800,9 @@ END:VCARD`
                   <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl">
                     <Phone className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Telefon</h3>
-                  <p className="text-white/80 font-medium mb-2">{profile.phone}</p>
-                  <p className="text-sm text-white/60">Anlık arama için tıklayın</p>
+                  <h3 className="text-xl font-bold text-white mb-3 leading-tight">Telefon</h3>
+                  <p className="text-white/80 font-medium mb-3 leading-relaxed break-all">{profile.phone}</p>
+                  <p className="text-sm text-white/60 leading-relaxed">Anlık arama için tıklayın</p>
                 </a>
               )}
 
@@ -789,9 +814,9 @@ END:VCARD`
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl">
                     <Mail className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">E-posta</h3>
-                  <p className="text-white/80 font-medium mb-2 break-all">{profile.email}</p>
-                  <p className="text-sm text-white/60">Detaylı mesaj gönderin</p>
+                  <h3 className="text-xl font-bold text-white mb-3 leading-tight">E-posta</h3>
+                  <p className="text-white/80 font-medium mb-3 break-all leading-relaxed">{profile.email}</p>
+                  <p className="text-sm text-white/60 leading-relaxed">Detaylı mesaj gönderin</p>
                 </a>
               )}
 
@@ -804,9 +829,9 @@ END:VCARD`
                   <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl">
                     <Globe className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Web Sitesi</h3>
-                  <p className="text-white/80 font-medium mb-2 break-all">{profile.website}</p>
-                  <p className="text-sm text-white/60">Portfolyoma göz atın</p>
+                  <h3 className="text-xl font-bold text-white mb-3 leading-tight">Web Sitesi</h3>
+                  <p className="text-white/80 font-medium mb-3 break-all leading-relaxed">{profile.website}</p>
+                  <p className="text-sm text-white/60 leading-relaxed">Portfolyoma göz atın</p>
                 </a>
               )}
 
@@ -814,9 +839,9 @@ END:VCARD`
                 <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl">
                   <Clock className="h-8 w-8 text-white animate-pulse" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">7/24 Destek</h3>
-                <p className="text-white/80 font-medium mb-2">Her zaman erişilebilir</p>
-                <p className="text-sm text-white/60">Hızlı dönüş garantisi</p>
+                <h3 className="text-xl font-bold text-white mb-3 leading-tight">7/24 Destek</h3>
+                <p className="text-white/80 font-medium mb-3 leading-relaxed">Her zaman erişilebilir</p>
+                <p className="text-sm text-white/60 leading-relaxed">Hızlı dönüş garantisi</p>
               </div>
             </div>
 
@@ -824,13 +849,13 @@ END:VCARD`
             {profile.address && (
               <div className="mt-12 max-w-4xl mx-auto">
                 <div className="bg-gradient-to-br from-gray-500/20 to-gray-600/20 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center hover:scale-105 transition-all duration-500">
-                  <div className="flex items-center justify-center space-x-6">
-                    <div className="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center shadow-xl">
+                  <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6">
+                    <div className="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center shadow-xl flex-shrink-0">
                       <MapPin className="h-8 w-8 text-white" />
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-white mb-2">Ofis Adresim</h3>
-                      <p className="text-xl text-white/80">{profile.address}</p>
+                    <div className="text-center md:text-left">
+                      <h3 className="text-2xl font-bold text-white mb-3 leading-tight">Ofis Adresim</h3>
+                      <p className="text-xl text-white/80 leading-relaxed break-words">{profile.address}</p>
                     </div>
                   </div>
                 </div>
@@ -842,11 +867,11 @@ END:VCARD`
         {/* Sosyal Medya - Dinamik Layout */}
         <section className="relative py-20 px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-6">
+            <div className="text-center mb-16 space-y-6">
+              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight">
                 Sosyal Medyada Takip Edin
               </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto">
+              <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
                 Güncel içeriklerim, proje gelişimlerim ve sektörel paylaşımlarım için beni takip edin
               </p>
             </div>
@@ -898,9 +923,9 @@ END:VCARD`
                     <div className={`w-16 h-16 bg-gradient-to-br ${social.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl`}>
                       <Icon className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{social.name}</h3>
-                    <p className="text-white/60 mb-2">{social.description}</p>
-                    <div className="text-lg font-bold text-white mb-4">{social.followers} takipçi</div>
+                    <h3 className="text-xl font-bold text-white mb-3 leading-tight">{social.name}</h3>
+                    <p className="text-white/60 mb-3 leading-relaxed">{social.description}</p>
+                    <div className="text-lg font-bold text-white mb-4 leading-relaxed">{social.followers} takipçi</div>
                     <div className="inline-flex items-center text-sm text-white/70 group-hover:text-white transition-colors">
                       <span>Takip Et</span>
                       <ArrowUpRight className="h-4 w-4 ml-1 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
@@ -931,47 +956,47 @@ END:VCARD`
             </div>
 
             <div className="grid md:grid-cols-3 gap-8 mb-12 text-white/60">
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-4">Hızlı Erişim</h4>
-                <div className="space-y-2">
-                  <div>Ana Sayfa</div>
-                  <div>Hakkımda</div>
-                  <div>Hizmetler</div>
-                  <div>İletişim</div>
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-white mb-4 leading-tight">Hızlı Erişim</h4>
+                <div className="space-y-3">
+                  <div className="leading-relaxed">Ana Sayfa</div>
+                  <div className="leading-relaxed">Hakkımda</div>
+                  <div className="leading-relaxed">Hizmetler</div>
+                  <div className="leading-relaxed">İletişim</div>
                 </div>
               </div>
               
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-4">QART Özellikleri</h4>
-                <div className="space-y-2">
-                  <div>NFC Teknolojisi</div>
-                  <div>QR Kod Entegrasyonu</div>
-                  <div>Anlık Paylaşım</div>
-                  <div>Mobil Optimizasyon</div>
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-white mb-4 leading-tight">QART Özellikleri</h4>
+                <div className="space-y-3">
+                  <div className="leading-relaxed">NFC Teknolojisi</div>
+                  <div className="leading-relaxed">QR Kod Entegrasyonu</div>
+                  <div className="leading-relaxed">Anlık Paylaşım</div>
+                  <div className="leading-relaxed">Mobil Optimizasyon</div>
                 </div>
               </div>
               
-              <div>
-                <h4 className="text-lg font-semibold text-white mb-4">Teknoloji</h4>
-                <div className="space-y-2">
-                  <div>Next.js & React</div>
-                  <div>PostgreSQL Database</div>
-                  <div>Cloudinary CDN</div>
-                  <div>Vercel Hosting</div>
+              <div className="space-y-4">
+                <h4 className="text-lg font-semibold text-white mb-4 leading-tight">Teknoloji</h4>
+                <div className="space-y-3">
+                  <div className="leading-relaxed">Next.js & React</div>
+                  <div className="leading-relaxed">PostgreSQL Database</div>
+                  <div className="leading-relaxed">Cloudinary CDN</div>
+                  <div className="leading-relaxed">Vercel Hosting</div>
                 </div>
               </div>
             </div>
 
             <div className="border-t border-white/10 pt-8">
               <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-                <p className="text-white/50 text-sm">
+                <p className="text-white/50 text-sm leading-relaxed text-center md:text-left">
                   © 2024 QART Dijital Kartvizit. Tüm hakları saklıdır. 
                   <span className="mx-2">|</span>
                   Profesyonel dijital çözümler
                 </p>
                 
                 <div className="flex items-center space-x-2 text-xs text-white/50">
-                  <span>Güçlü teknoloji ile tasarımlandı</span>
+                  <span className="leading-relaxed">Güçlü teknoloji ile tasarımlandı</span>
                   <Rocket className="h-3 w-3 animate-pulse" />
                 </div>
               </div>

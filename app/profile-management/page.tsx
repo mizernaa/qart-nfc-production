@@ -342,39 +342,46 @@ export default function ProfileManagementPage() {
         },
         body: JSON.stringify({
           email: user.email,
-          name: profileData.personal.name,
+          slug: user.profile?.slug || user.name?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'user',
+          name: profileData.personal.name || user.name,
           title: profileData.personal.title,
           bio: profileData.personal.bio,
           phone: profileData.contact.phone,
-          whatsapp: profileData.contact.whatsapp,
+          whatsapp: profileData.contact.whatsapp || profileData.contact.phone,
+          email: profileData.contact.email || user.email,
           website: profileData.contact.website,
-          address: `${profileData.location.address}, ${profileData.location.city}`,
+          address: profileData.location.address ? `${profileData.location.address}, ${profileData.location.city || ''}`.trim() : '',
           companyName: profileData.company.name,
           profileImage: profileData.personal.profileImage,
           coverImageUrl: profileData.personal.coverImage,
           logoUrl: profileData.company.logo,
           isPublic: true,
-          theme: "modern"
+          theme: profileData.theme || "default",
+          themeId: profileData.theme || "default"
         })
       })
 
       const result = await response.json()
       
-      if (result.success) {
-        console.log("✅ Profil başarıyla kaydedildi")
+      if (response.ok && result.success) {
+        console.log("✅ Profil başarıyla kaydedildi:", result)
         setSaved(true)
         setTimeout(() => setSaved(false), 3000)
         
         // Local user state'i güncelle
         const updatedUser = {
           ...user,
-          name: profileData.personal.name,
+          name: profileData.personal.name || user.name,
           profile: result.profile
         }
         localStorage.setItem('user', JSON.stringify(updatedUser))
         setUser(updatedUser)
+        
+        // Başarı mesajı
+        alert("✅ Profil bilgileriniz başarıyla kaydedildi!")
       } else {
-        throw new Error(result.message || 'Profil kaydetme başarısız')
+        console.error("❌ API hatası:", result)
+        throw new Error(result.message || result.error || 'Profil kaydetme başarısız')
       }
     } catch (error) {
       console.error("❌ Profil kaydetme hatası:", error)

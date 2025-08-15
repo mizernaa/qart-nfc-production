@@ -486,6 +486,18 @@ export class DatabaseUserStore {
       // Handle profile updates
       if (updates.profile) {
         Object.assign(profileData, updates.profile)
+        
+        // Validate themeId exists in database
+        if (profileData.themeId) {
+          const themeExists = await prisma.theme.findUnique({
+            where: { id: profileData.themeId }
+          })
+          
+          if (!themeExists) {
+            console.warn(`⚠️ Theme ${profileData.themeId} not found, using default`)
+            profileData.themeId = 'default'
+          }
+        }
       }
 
       // Check if user has profile

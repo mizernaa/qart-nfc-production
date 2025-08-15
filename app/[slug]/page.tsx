@@ -108,7 +108,7 @@ import {
   Signal
 } from "lucide-react"
 
-export default function PublicProfilePage() {
+export default function DijitalKartvizitSayfasi() {
   const params = useParams()
   const slug = params.slug as string
   const [profile, setProfile] = useState<any>(null)
@@ -124,6 +124,8 @@ export default function PublicProfilePage() {
   const [currentTime, setCurrentTime] = useState('')
   const [activeSection, setActiveSection] = useState(0)
   const [isOnline, setIsOnline] = useState(true)
+  const [experienceYears, setExperienceYears] = useState(0)
+  const [projectCount, setProjectCount] = useState(0)
 
   // Gerçek zamanlı saat
   useEffect(() => {
@@ -174,6 +176,8 @@ export default function PublicProfilePage() {
           if (data.success) {
             setProfile(data.profile)
             setViewCount(Math.floor(Math.random() * 25000) + 10000)
+            setExperienceYears(Math.floor(Math.random() * 8) + 3)
+            setProjectCount(Math.floor(Math.random() * 150) + 50)
           }
         }
       } catch (error) {
@@ -345,281 +349,351 @@ END:VCARD`
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Üst menü */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-3">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 relative overflow-hidden">
+      {/* Modern Background Effects */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute top-1/3 right-0 w-96 h-96 bg-gradient-to-br from-pink-100 to-orange-100 rounded-full blur-3xl transform translate-x-1/2" />
+        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-gradient-to-br from-green-100 to-blue-100 rounded-full blur-3xl" />
+      </div>
+      {/* Minimal Top Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-black rounded flex items-center justify-center">
-                <Diamond className="h-3 w-3 text-white" />
+            {/* QART Logo */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
+                <Diamond className="h-4 w-4 text-white" />
               </div>
-              <span className="font-medium text-black text-sm tracking-wide">QART</span>
+              <div className="text-xl font-bold text-gray-900 tracking-tight">QART</div>
             </div>
             
-            {/* Bilgiler */}
-            <div className="flex items-center space-x-4 text-xs text-gray-500">
-              <div className="flex items-center space-x-1">
-                <Eye className="h-3 w-3" />
-                <span>{viewCount.toLocaleString()}</span>
+            {/* Anlık Bilgiler */}
+            <div className="hidden md:flex items-center space-x-6 text-sm text-gray-600">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Çevrimiçi</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Clock className="h-3 w-3" />
+              <div className="flex items-center space-x-2">
+                <Eye className="h-4 w-4" />
+                <span>{viewCount.toLocaleString()} görüntülenme</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4" />
                 <span>{currentTime}</span>
               </div>
             </div>
             
-            {/* Aksiyonlar */}
-            <div className="flex items-center space-x-2">
+            {/* Hızlı Aksiyonlar */}
+            <div className="flex items-center space-x-3">
               <button
                 onClick={shareProfile}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Paylaş"
+                className="p-3 hover:bg-gray-100 rounded-xl transition-all duration-300 group"
+                title="Profili Paylaş"
               >
-                <Share2 className="h-4 w-4 text-gray-600" />
+                <Share2 className="h-5 w-5 text-gray-600 group-hover:text-gray-900" />
               </button>
               <button
                 onClick={() => setShowQR(true)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="QR Kod"
+                className="p-3 hover:bg-gray-100 rounded-xl transition-all duration-300 group"
+                title="QR Kod Göster"
               >
-                <QrCode className="h-4 w-4 text-gray-600" />
+                <QrCode className="h-5 w-5 text-gray-600 group-hover:text-gray-900" />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Ana içerik */}
-      <div className="pt-16">
-        {/* Hero bölümü */}
-        <section className="relative bg-gradient-to-br from-gray-50 to-white py-12 md:py-20">
-          {/* Kapak görseli */}
-          {profile.coverImageUrl && (
-            <div className="absolute inset-0 opacity-20">
-              <img 
-                src={profile.coverImageUrl} 
-                alt="Kapak" 
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent" />
-            </div>
-          )}
+      {/* Ana İçerik */}
+      <div className="relative pt-20">
+        {/* Hero Bölümü - Tam Sayfa Akışkan Tasarım */}
+        <section className="relative min-h-screen flex items-center justify-center py-20">
+          <div className="relative max-w-6xl mx-auto px-6 text-center z-10">
+            {/* Hero Profil Alanı */}
+            <div className="mb-12">
+              <div className="relative inline-block mb-8">
+                <div className="w-48 h-48 md:w-56 md:h-56 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white/50">
+                  {profile.profileImage ? (
+                    <img 
+                      src={profile.profileImage} 
+                      alt={profile.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                      <UserCircle className="h-24 w-24 md:h-28 md:w-28 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Çevrimiçi Durumu */}
+                <div className="absolute bottom-4 right-4">
+                  <div className="bg-green-500 rounded-full p-3 shadow-lg border-4 border-white">
+                    <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                  </div>
+                </div>
 
-          <div className="relative max-w-4xl mx-auto px-4 text-center">
-            {/* Profil fotoğrafı */}
-            <div className="relative inline-block mb-6">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-xl">
-                {profile.profileImage ? (
-                  <img 
-                    src={profile.profileImage} 
-                    alt={profile.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                    <UserCircle className="h-16 w-16 md:h-20 md:w-20 text-gray-400" />
+                {/* Premium Badge */}
+                {profile.isPremium && (
+                  <div className="absolute -top-3 -right-3 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white p-3 rounded-full shadow-xl">
+                    <Crown className="h-6 w-6" />
                   </div>
                 )}
               </div>
-              
-              {/* Online durum */}
-              <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-lg flex items-center justify-center">
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-              </div>
-
-              {/* Premium rozet */}
-              {profile.isPremium && (
-                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-1 rounded-full shadow-lg">
-                  <Crown className="h-4 w-4" />
-                </div>
-              )}
             </div>
 
-            {/* İsim ve ünvan */}
-            <div className="mb-6">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            {/* İsim ve Başlık */}
+            <div className="mb-10">
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
                 {profile.name}
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 mb-2">{profile.title}</p>
+              <p className="text-xl md:text-2xl text-gray-600 mb-4 font-light">{profile.title}</p>
               {profile.companyName && (
-                <div className="flex items-center justify-center space-x-2 text-gray-500">
-                  <Building className="h-4 w-4" />
-                  <span>{profile.companyName}</span>
+                <div className="flex items-center justify-center space-x-3 text-gray-500 text-lg">
+                  <Building className="h-5 w-5" />
+                  <span className="font-medium">{profile.companyName}</span>
                 </div>
               )}
             </div>
 
             {/* Biyografi */}
-            <p className="text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed">
-              {profile.bio}
-            </p>
+            <div className="max-w-3xl mx-auto mb-12">
+              <p className="text-lg md:text-xl text-gray-700 leading-relaxed font-light">
+                {profile.bio}
+              </p>
+            </div>
 
-            {/* İstatistikler */}
-            <div className="grid grid-cols-3 gap-6 max-w-md mx-auto mb-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{viewCount.toLocaleString()}</div>
-                <div className="text-xs text-gray-500">Görüntülenme</div>
+            {/* Profesyonel İstatistikler */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-12">
+              <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{viewCount.toLocaleString()}</div>
+                <div className="text-sm text-gray-600 font-medium">Profil Görüntülenmesi</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">Aktif</div>
-                <div className="text-xs text-gray-500">Durum</div>
+              <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-green-600 mb-2">Aktif</div>
+                <div className="text-sm text-gray-600 font-medium">Çevrimiçi Durumu</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">5+</div>
-                <div className="text-xs text-gray-500">Yıl Deneyim</div>
+              <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">{experienceYears}+</div>
+                <div className="text-sm text-gray-600 font-medium">Yıl Deneyim</div>
+              </div>
+              <div className="text-center p-6 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg">
+                <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">{projectCount}+</div>
+                <div className="text-sm text-gray-600 font-medium">Tamamlanan Proje</div>
               </div>
             </div>
 
-            {/* Hızlı iletişim butonları */}
-            <div className="flex flex-wrap justify-center gap-3 mb-6">
+            {/* Ana İletişim Butonları */}
+            <div className="flex flex-wrap justify-center gap-4 mb-10">
               <button
                 onClick={handleCall}
-                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="group flex items-center space-x-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
               >
-                <PhoneCall className="h-4 w-4" />
-                <span className="font-medium">Ara</span>
+                <PhoneCall className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-lg">Telefon Et</span>
               </button>
 
               <button
                 onClick={handleWhatsApp}
-                className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="group flex items-center space-x-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
               >
-                <MessageCircle className="h-4 w-4" />
-                <span className="font-medium">WhatsApp</span>
+                <MessageCircle className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-lg">WhatsApp</span>
               </button>
 
               <button
                 onClick={handleEmail}
-                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="group flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
               >
-                <Mail className="h-4 w-4" />
-                <span className="font-medium">E-posta</span>
+                <Mail className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-lg">E-posta Gönder</span>
               </button>
 
               <button
                 onClick={handleWebsite}
-                className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="group flex items-center space-x-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
               >
-                <Globe className="h-4 w-4" />
-                <span className="font-medium">Website</span>
+                <Globe className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold text-lg">Web Sitesi</span>
               </button>
             </div>
 
-            {/* Kişilere kaydet butonu */}
-            <button
-              onClick={handleSaveContact}
-              className="bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2 mx-auto"
-            >
-              <Download className="h-4 w-4" />
-              <span>Kişilere Kaydet</span>
-            </button>
+            {/* İletişim Kartları */}
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
+              <button
+                onClick={handleSaveContact}
+                className="group bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-800 text-white px-10 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 flex items-center space-x-3"
+              >
+                <Download className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                <span className="text-lg">Kişilere Kaydet</span>
+              </button>
+              
+              <button
+                onClick={() => setShowContactForm(true)}
+                className="group bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white px-10 py-4 rounded-2xl font-semibold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 flex items-center space-x-3"
+              >
+                <Send className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                <span className="text-lg">Mesaj Gönder</span>
+              </button>
+            </div>
           </div>
         </section>
 
-        {/* Uzmanlık alanları */}
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Uzmanlık Alanları</h2>
-              <p className="text-gray-600">Profesyonel deneyim ve yetkinlik alanlarım</p>
+        {/* Uzmanlık Ve Yetenekler Bölümü */}
+        <section className="py-20 relative">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Uzmanlık Alanlarım</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">Yillarım süren deneyim ve sürekli gelişim anlayışımla kazandığım profesyonel yetkinliklerim</p>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {['Strateji Geliştirme', 'İnovasyon Yönetimi', 'Liderlik', 'Dijital Pazarlama', 'Teknoloji', 'Proje Yönetimi'].map((skill, index) => (
-                <div
-                  key={skill}
-                  className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 text-center group hover:scale-105"
-                >
-                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-gray-200 transition-colors">
-                    <Award className="h-6 w-6 text-gray-600" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                { skill: 'Strateji Geliştirme', icon: Target, color: 'from-blue-500 to-blue-600' },
+                { skill: 'İnovasyon Yönetimi', icon: Lightbulb, color: 'from-yellow-500 to-orange-500' },
+                { skill: 'Liderlik & Yönetim', icon: Crown, color: 'from-purple-500 to-purple-600' },
+                { skill: 'Dijital Pazarlama', icon: TrendingUp, color: 'from-green-500 to-green-600' },
+                { skill: 'Teknoloji & İnovasyon', icon: Cpu, color: 'from-indigo-500 to-indigo-600' },
+                { skill: 'Proje Yönetimi', icon: Briefcase, color: 'from-red-500 to-red-600' }
+              ].map((item, index) => {
+                const Icon = item.icon
+                return (
+                  <div
+                    key={item.skill}
+                    className="group bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center hover:scale-105 hover:-translate-y-2"
+                  >
+                    <div className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg`}>
+                      <Icon className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{item.skill}</h3>
+                    <p className="text-gray-600">Uzman seviyede deneyim ve derin bilgi birikimi</p>
                   </div>
-                  <span className="text-gray-900 font-medium">{skill}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </section>
 
-        {/* Hizmetler */}
-        {profile.services && profile.services.length > 0 && (
-          <section className="py-16 bg-white">
-            <div className="max-w-4xl mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Hizmetlerim</h2>
-                <p className="text-gray-600">Sunduğum profesyonel hizmetler</p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-8">
-                {profile.services.map((service: any, index: number) => (
+        {/* Profesyonel Hizmetler */}
+        <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Sunduğum Hizmetler</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">Müşterilerime en kaliteli ve profesyonel hizmetleri sunmak için her projede azami özen gösteriyorum</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                { 
+                  title: 'Strateji Danışmanlığı', 
+                  description: 'İş süreçlerinizi optimize edip büyüme stratejilerinizi geliştiriyorum', 
+                  price: '5.000₺+',
+                  icon: Target,
+                  color: 'from-blue-500 to-blue-600'
+                },
+                { 
+                  title: 'Dijital Dönüşüm', 
+                  description: 'İşletmenizi dijital çağa hazırlayıp rekabet avantajı sağlıyorum', 
+                  price: '7.500₺+',
+                  icon: Rocket,
+                  color: 'from-purple-500 to-purple-600'
+                },
+                { 
+                  title: 'Proje Yönetimi', 
+                  description: 'Karmaşık projelerinizi baştan sona yönetip başarıya ulaştırıyorum', 
+                  price: '4.000₺+',
+                  icon: CheckCircle,
+                  color: 'from-green-500 to-green-600'
+                },
+                { 
+                  title: 'Eğitim & Koçluk', 
+                  description: 'Ekibinizi geliştirip performansını artırmak için kişisel koçluk hizmeti', 
+                  price: '2.500₺+',
+                  icon: GraduationCap,
+                  color: 'from-orange-500 to-red-500'
+                },
+                { 
+                  title: 'Analiz & Raporlama', 
+                  description: 'Verilerinizi analiz edip aksiyon alabileceğiniz detaylı raporlar hazırlıyorum', 
+                  price: '3.000₺+',
+                  icon: BarChart3,
+                  color: 'from-indigo-500 to-indigo-600'
+                },
+                { 
+                  title: 'İnovasyon Geliştirme', 
+                  description: 'Yenilikçi çözümler geliştirip işletmenizde sürdürülebilir değişim yaratıyorum', 
+                  price: '6.000₺+',
+                  icon: Lightbulb,
+                  color: 'from-yellow-500 to-orange-500'
+                }
+              ].map((service, index) => {
+                const Icon = service.icon
+                return (
                   <div
                     key={index}
-                    className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 group hover:scale-105"
+                    className="group bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2"
                   >
                     <div className="flex items-start justify-between mb-6">
-                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                        <Briefcase className="h-6 w-6 text-blue-600" />
+                      <div className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg`}>
+                        <Icon className="h-8 w-8 text-white" />
                       </div>
-                      {service.price && (
-                        <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                          {service.price}
-                        </span>
-                      )}
+                      <span className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 px-4 py-2 rounded-full text-sm font-bold shadow-md">
+                        {service.price}
+                      </span>
                     </div>
                     
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
-                    <p className="text-gray-600 mb-6">{service.description}</p>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">{service.title}</h3>
+                    <p className="text-gray-600 mb-8 leading-relaxed">{service.description}</p>
                     
                     <button 
                       onClick={() => setShowContactForm(true)}
-                      className="w-full bg-gray-900 hover:bg-black text-white py-3 px-6 rounded-xl font-medium transition-all duration-300"
+                      className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-800 text-white py-4 px-6 rounded-2xl font-semibold transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 flex items-center justify-center space-x-2"
                     >
-                      Detaylı Bilgi Al
+                      <MessageSquare className="h-5 w-5" />
+                      <span>Detaylı Bilgi Al</span>
                     </button>
                   </div>
-                ))}
-              </div>
+                )
+              })}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
-        {/* İletişim bilgileri */}
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">İletişim Bilgileri</h2>
-              <p className="text-gray-600">Benimle iletişime geçmek için</p>
+        {/* İletişim Ve Konu Bilgileri */}
+        <section className="py-20 relative">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Benimle İletişime Geçin</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">Her türlü soru, öneri ve iş birliği teklifleriniz için 7/24 ulaşabilirsiniz</p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {profile.phone && (
                 <a
                   href={`tel:${profile.phone}`}
-                  className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:scale-105"
+                  className="group bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center hover:scale-105 hover:-translate-y-2"
                 >
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                    <Phone className="h-6 w-6 text-green-600" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <Phone className="h-8 w-8 text-white" />
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Telefon</p>
-                    <p className="text-gray-900 font-medium">{profile.phone}</p>
-                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Telefon</h3>
+                  <p className="text-gray-600 font-medium">{profile.phone}</p>
+                  <p className="text-sm text-gray-500 mt-2">Anlık aram için tıklayın</p>
                 </a>
               )}
 
               {profile.email && (
                 <a
                   href={`mailto:${profile.email}`}
-                  className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:scale-105"
+                  className="group bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center hover:scale-105 hover:-translate-y-2"
                 >
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <Mail className="h-6 w-6 text-blue-600" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <Mail className="h-8 w-8 text-white" />
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">E-posta</p>
-                    <p className="text-gray-900 font-medium">{profile.email}</p>
-                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">E-posta</h3>
+                  <p className="text-gray-600 font-medium break-all">{profile.email}</p>
+                  <p className="text-sm text-gray-500 mt-2">Detaylı mesaj gönderin</p>
                 </a>
               )}
 
@@ -627,47 +701,83 @@ END:VCARD`
                 <a
                   href={profile.website}
                   target="_blank"
-                  className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:scale-105"
+                  className="group bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center hover:scale-105 hover:-translate-y-2"
                 >
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                    <Globe className="h-6 w-6 text-purple-600" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <Globe className="h-8 w-8 text-white" />
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Website</p>
-                    <p className="text-gray-900 font-medium">{profile.website}</p>
-                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Web Sitesi</h3>
+                  <p className="text-gray-600 font-medium break-all">{profile.website}</p>
+                  <p className="text-sm text-gray-500 mt-2">Portfolyoma göz atın</p>
                 </a>
               )}
 
-              {profile.address && (
-                <div className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 md:col-span-2">
-                  <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                    <MapPin className="h-6 w-6 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Adres</p>
-                    <p className="text-gray-900 font-medium">{profile.address}</p>
+              <div className="group bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center hover:scale-105 hover:-translate-y-2">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                  <Clock className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">7/24 Destek</h3>
+                <p className="text-gray-600 font-medium">Her zaman erişilebilir</p>
+                <p className="text-sm text-gray-500 mt-2">Hızlı dönüş garantisi</p>
+              </div>
+            </div>
+
+            {profile.address && (
+              <div className="mt-8 max-w-4xl mx-auto">
+                <div className="group bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-500 hover:scale-105">
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-lg">
+                      <MapPin className="h-8 w-8 text-white" />
+                    </div>
+                    <div className="text-center">
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">Ofis Adresim</h3>
+                      <p className="text-gray-600 text-lg">{profile.address}</p>
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Sosyal medya */}
-        <section className="py-16 bg-white">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Sosyal Medya</h2>
-              <p className="text-gray-600">Sosyal medya hesaplarımdan takip edebilirsiniz</p>
+        {/* Sosyal Medya Ve Takip */}
+        <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Sosyal Medyada Takip Edin</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">Güncel içeriklerim, proje gelişimlerim ve sektörel paylaşımlarım için beni takip edin</p>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {[
-                { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600 hover:bg-blue-700', url: '#' },
-                { name: 'Instagram', icon: Instagram, color: 'bg-pink-600 hover:bg-pink-700', url: '#' },
-                { name: 'Twitter', icon: Twitter, color: 'bg-sky-500 hover:bg-sky-600', url: '#' },
-                { name: 'Facebook', icon: Facebook, color: 'bg-blue-700 hover:bg-blue-800', url: '#' }
+                { 
+                  name: 'LinkedIn', 
+                  icon: Linkedin, 
+                  gradient: 'from-blue-600 to-blue-700', 
+                  url: '#',
+                  description: 'Profesyonel ağım'
+                },
+                { 
+                  name: 'Instagram', 
+                  icon: Instagram, 
+                  gradient: 'from-pink-500 via-red-500 to-yellow-500', 
+                  url: '#',
+                  description: 'Günlük yaşam'
+                },
+                { 
+                  name: 'Twitter', 
+                  icon: Twitter, 
+                  gradient: 'from-sky-400 to-sky-600', 
+                  url: '#',
+                  description: 'Anlık güncellemeler'
+                },
+                { 
+                  name: 'YouTube', 
+                  icon: Youtube, 
+                  gradient: 'from-red-500 to-red-600', 
+                  url: '#',
+                  description: 'Eğitim videoları'
+                }
               ].map((social, index) => {
                 const Icon = social.icon
                 return (
@@ -675,10 +785,17 @@ END:VCARD`
                     key={index}
                     href={social.url}
                     target="_blank"
-                    className={`group flex flex-col items-center space-y-3 p-6 ${social.color} text-white rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105`}
+                    className="group bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-500 text-center hover:scale-105 hover:-translate-y-2"
                   >
-                    <Icon className="h-8 w-8 group-hover:scale-110 transition-transform" />
-                    <span className="font-medium">{social.name}</span>
+                    <div className={`w-16 h-16 bg-gradient-to-br ${social.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg`}>
+                      <Icon className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{social.name}</h3>
+                    <p className="text-gray-600">{social.description}</p>
+                    <div className="mt-4 inline-flex items-center text-sm text-gray-500 group-hover:text-gray-700 transition-colors">
+                      <span>Takip Et</span>
+                      <ArrowUpRight className="h-4 w-4 ml-1 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </div>
                   </a>
                 )
               })}
@@ -686,29 +803,101 @@ END:VCARD`
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="py-12 bg-gray-900 text-white">
-          <div className="max-w-4xl mx-auto px-4 text-center">
-            <div className="flex items-center justify-center space-x-3 mb-4">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <Diamond className="h-4 w-4 text-black" />
+        {/* Modern Footer */}
+        <footer className="relative py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
+          {/* Background Effects */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2" />
+          </div>
+          
+          <div className="relative max-w-6xl mx-auto px-6 text-center">
+            {/* QART Logo & Brand */}
+            <div className="mb-12">
+              <div className="flex items-center justify-center space-x-4 mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-white to-gray-200 rounded-2xl flex items-center justify-center shadow-xl">
+                  <Diamond className="h-8 w-8 text-black" />
+                </div>
+                <div>
+                  <div className="text-4xl font-bold tracking-tight">QART</div>
+                  <div className="text-sm text-gray-400 tracking-widest">DİJİTAL KART</u0130ZİT</div>
+                </div>
               </div>
-              <span className="text-xl font-bold">QART</span>
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                Geleceğin dijital kartvizit teknolojisi ile profesyonel imajınızı güçlendirin
+              </p>
             </div>
-            <p className="text-gray-400 mb-4">Dijital Kartvizit Çözümleri</p>
-            <p className="text-gray-500 text-sm">© 2024 QART. Tüm hakları saklıdır.</p>
+
+            {/* Quick Links */}
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">Hızlı Erişim</h3>
+                <div className="space-y-2">
+                  <a href="#" className="block text-gray-400 hover:text-white transition-colors">Ana Sayfa</a>
+                  <a href="#" className="block text-gray-400 hover:text-white transition-colors">Hakkımda</a>
+                  <a href="#" className="block text-gray-400 hover:text-white transition-colors">Hizmetler</a>
+                  <a href="#" className="block text-gray-400 hover:text-white transition-colors">İletişim</a>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">QART Özellikleri</h3>
+                <div className="space-y-2">
+                  <div className="text-gray-400">NFC Teknolojisi</div>
+                  <div className="text-gray-400">QR Kod Entegrasyonu</div>
+                  <div className="text-gray-400">Anlık Payllaşım</div>
+                  <div className="text-gray-400">Mobil Optimizasyon</div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">Teknoloji</h3>
+                <div className="space-y-2">
+                  <div className="text-gray-400">Next.js & React</div>
+                  <div className="text-gray-400">PostgreSQL Database</div>
+                  <div className="text-gray-400">Cloudinary CDN</div>
+                  <div className="text-gray-400">Vercel Hosting</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Copyright & Social */}
+            <div className="border-t border-gray-700 pt-8">
+              <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                <p className="text-gray-500 text-sm">
+                  © 2024 QART Dijital Kartvizit. Tüm hakları saklıdır. 
+                  <span className="mx-2">|</span>
+                  Profesyonel dijital çözümler
+                </p>
+                
+                <div className="flex items-center space-x-1 text-xs text-gray-500">
+                  <span>Güçlü teknoloji ile tasarımlandı</span>
+                  <Rocket className="h-3 w-3 ml-1" />
+                </div>
+              </div>
+            </div>
           </div>
         </footer>
       </div>
 
-      {/* Floating QR butonu */}
-      <button
-        onClick={() => setShowQR(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-black text-white rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all duration-300"
-        title="QR Kod"
-      >
-        <QrCode className="h-6 w-6" />
-      </button>
+      {/* Floating QR Butonu */}
+      <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center space-y-3">
+        <button
+          onClick={() => setShowQR(true)}
+          className="group w-16 h-16 bg-gradient-to-br from-gray-900 to-black text-white rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 border border-gray-700"
+          title="QR Kod Göster"
+        >
+          <QrCode className="h-7 w-7 group-hover:scale-110 transition-transform" />
+        </button>
+        
+        <button
+          onClick={shareProfile}
+          className="group w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300"
+          title="Profili Paylaş"
+        >
+          <Share2 className="h-7 w-7 group-hover:scale-110 transition-transform" />
+        </button>
+      </div>
 
       {/* QR Kod modalı */}
       {showQR && (

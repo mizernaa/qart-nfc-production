@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, Palette } from "lucide-react"
+import { Check, Palette, Lock, Crown } from "lucide-react"
 import toast from "react-hot-toast"
 
 interface Theme {
@@ -17,6 +17,8 @@ interface Theme {
   font: string
   layout: string
   isDefault?: boolean
+  subscriptionLevel: string
+  isLocked?: boolean
 }
 
 interface ThemeSelectorProps {
@@ -73,12 +75,14 @@ export default function ThemeSelector({
           {themes.map((theme) => (
             <div
               key={theme.id}
-              className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
-                selectedTheme === theme.id
-                  ? "border-primary shadow-md"
-                  : "border-gray-200"
+              className={`relative border-2 rounded-lg p-4 transition-all ${
+                theme.isLocked 
+                  ? "border-gray-300 opacity-75 cursor-not-allowed" 
+                  : selectedTheme === theme.id
+                    ? "border-primary shadow-md cursor-pointer"
+                    : "border-gray-200 cursor-pointer hover:shadow-md"
               }`}
-              onClick={() => !isLoading && applyTheme(theme.id)}
+              onClick={() => !isLoading && !theme.isLocked && applyTheme(theme.id)}
             >
               {/* Theme Preview */}
               <div
@@ -114,9 +118,16 @@ export default function ThemeSelector({
                 />
 
                 {/* Selected indicator */}
-                {selectedTheme === theme.id && (
+                {selectedTheme === theme.id && !theme.isLocked && (
                   <div className="absolute top-2 right-2 bg-primary text-white rounded-full p-1">
                     <Check className="h-3 w-3" />
+                  </div>
+                )}
+                
+                {/* Locked indicator */}
+                {theme.isLocked && (
+                  <div className="absolute top-2 right-2 bg-gray-500 text-white rounded-full p-1">
+                    <Lock className="h-3 w-3" />
                   </div>
                 )}
               </div>
@@ -125,11 +136,24 @@ export default function ThemeSelector({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium">{theme.name}</h3>
-                  {theme.isDefault && (
-                    <Badge variant="secondary" className="text-xs">
-                      Varsayılan
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-1">
+                    {theme.isDefault && (
+                      <Badge variant="secondary" className="text-xs">
+                        Varsayılan
+                      </Badge>
+                    )}
+                    {theme.subscriptionLevel !== 'Free' && (
+                      <Badge variant={theme.isLocked ? "outline" : "default"} className={`text-xs ${
+                        theme.subscriptionLevel === 'Pro' ? 'bg-blue-600' :
+                        theme.subscriptionLevel === 'Business' ? 'bg-purple-600' :
+                        theme.subscriptionLevel === 'QART Lifetime' ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                        'bg-gray-600'
+                      }`}>
+                        {theme.subscriptionLevel === 'QART Lifetime' && <Crown className="h-3 w-3 mr-1" />}
+                        {theme.subscriptionLevel}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-2 mb-2">
@@ -156,7 +180,7 @@ export default function ThemeSelector({
               </div>
 
               {/* Apply button */}
-              {selectedTheme !== theme.id && (
+              {selectedTheme !== theme.id && !theme.isLocked && (
                 <Button
                   size="sm"
                   className="w-full mt-3"
@@ -167,6 +191,22 @@ export default function ThemeSelector({
                   }}
                 >
                   {isLoading ? "Uygulanıyor..." : "Uygula"}
+                </Button>
+              )}
+              
+              {/* Upgrade button for locked themes */}
+              {theme.isLocked && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full mt-3"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toast.error(`Bu tema ${theme.subscriptionLevel} planı gerektirir!`)
+                  }}
+                >
+                  <Lock className="h-4 w-4 mr-2" />
+                  {theme.subscriptionLevel} Gerekli
                 </Button>
               )}
             </div>

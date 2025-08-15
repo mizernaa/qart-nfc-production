@@ -131,6 +131,7 @@ model Theme {
   layout          String
   customCss       String?
   isDefault       Boolean   @default(false)
+  subscriptionLevel String  @default("Free")
   profiles        Profile[]
 }
 

@@ -101,8 +101,25 @@ export default function ProfilePage({ params }: { params: Promise<{ slug: string
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { slug } = await params
-        const response = await fetch(`/api/profile/${slug}`)
+        const { slug: rawSlug } = await params
+        
+        // URL decode and clean slug for Turkish characters
+        const decodedSlug = decodeURIComponent(rawSlug)
+        const cleanSlug = decodedSlug
+          .toLowerCase()
+          .replace(/ğ/g, 'g')
+          .replace(/ü/g, 'u')
+          .replace(/ş/g, 's')
+          .replace(/ı/g, 'i')
+          .replace(/ö/g, 'o')
+          .replace(/ç/g, 'c')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .trim()
+        
+        console.log('🔧 URL Debug:', { rawSlug, decodedSlug, cleanSlug })
+        
+        const response = await fetch(`/api/profile/${cleanSlug}`)
         if (!response.ok) throw new Error("Profile not found")
         const data = await response.json()
         if (!data.success) throw new Error(data.message)

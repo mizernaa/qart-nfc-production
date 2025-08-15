@@ -94,7 +94,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       isPublic: user.profile?.isPublic !== false, // Default to true
       
       // Settings
-      theme: user.profile?.theme || "modern",
+      theme: user.profile?.themeId || "default",
+      themeId: user.profile?.themeId || "default", 
       slug: user.profile?.slug || createSlug(user.name || ''),
       
       // Meta info

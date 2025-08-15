@@ -87,6 +87,7 @@ const SocialIcon = ({ platform }: { platform: string }) => {
 
 export default function ProfilePage({ params }: { params: { slug: string } }) {
   const [profile, setProfile] = useState<any>(null)
+  const [theme, setTheme] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [scrollY, setScrollY] = useState(0)
@@ -105,6 +106,34 @@ export default function ProfilePage({ params }: { params: { slug: string } }) {
         const data = await response.json()
         if (!data.success) throw new Error(data.message)
         setProfile(data.profile)
+        
+        // Fetch theme data
+        if (data.profile.themeId) {
+          try {
+            const themeResponse = await fetch(`/api/theme/${data.profile.themeId}`)
+            if (themeResponse.ok) {
+              const themeData = await themeResponse.json()
+              if (themeData.success) {
+                setTheme(themeData.theme)
+              }
+            }
+          } catch (themeError) {
+            console.error("Error fetching theme:", themeError)
+            // Use default theme if fetch fails
+            setTheme({
+              id: "default",
+              name: "Default",
+              primaryColor: "#3B82F6",
+              secondaryColor: "#10B981",
+              backgroundColor: "#FFFFFF",
+              textColor: "#1F2937",
+              font: "Inter",
+              layout: "modern",
+              subscriptionLevel: "Free",
+              isDefault: true
+            })
+          }
+        }
         
         // Generate QR Code
         const qr = await QRCode.toDataURL(window.location.href)
@@ -188,24 +217,36 @@ END:VCARD`
   }
 
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-x-hidden">
+    <div 
+      className="relative min-h-screen overflow-x-hidden transition-all duration-300"
+      style={{
+        backgroundColor: theme?.backgroundColor || "#000000",
+        color: theme?.textColor || "#ffffff",
+        fontFamily: theme?.font || "Inter"
+      }}
+    >
       <Toaster position="top-right" />
       <ParticleBackground />
       
       {/* Custom Cursor */}
       <div 
-        className="fixed w-6 h-6 border-2 border-cyan-500 rounded-full pointer-events-none z-50 mix-blend-difference transition-transform duration-100"
+        className="fixed w-6 h-6 border-2 rounded-full pointer-events-none z-50 mix-blend-difference transition-transform duration-100"
         style={{
           left: mousePosition.x - 12,
           top: mousePosition.y - 12,
-          transform: `scale(${scrollY > 100 ? 0.5 : 1})`
+          transform: `scale(${scrollY > 100 ? 0.5 : 1})`,
+          borderColor: theme?.primaryColor || "#06b6d4"
         }}
       />
 
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-40 transition-all duration-300 ${
-        scrollY > 50 ? "bg-black/90 backdrop-blur-lg border-b border-cyan-500/20" : ""
-      }`}>
+      <nav 
+        className="fixed top-0 w-full z-40 transition-all duration-300 backdrop-blur-lg"
+        style={{
+          backgroundColor: scrollY > 50 ? `${theme?.backgroundColor || "#000000"}E6` : "transparent",
+          borderBottom: scrollY > 50 ? `1px solid ${theme?.primaryColor || "#06b6d4"}33` : "none"
+        }}
+      >
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <motion.div
@@ -216,7 +257,12 @@ END:VCARD`
               {profile.logoUrl ? (
                 <img src={profile.logoUrl} alt={profile.companyName} className="h-10 w-auto" />
               ) : (
-                <div className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+                <div 
+                  className="text-2xl font-bold bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`
+                  }}
+                >
                   {profile.companyName || profile.name}
                 </div>
               )}
@@ -231,9 +277,20 @@ END:VCARD`
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
                   onClick={() => setActiveSection(item.toLowerCase())}
-                  className={`hover:text-cyan-400 transition-colors ${
-                    activeSection === item.toLowerCase() ? "text-cyan-400" : ""
-                  }`}
+                  className="transition-colors"
+                  style={{
+                    color: activeSection === item.toLowerCase() ? 
+                      (theme?.primaryColor || "#06b6d4") : 
+                      (theme?.textColor || "#ffffff")
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = theme?.primaryColor || "#06b6d4"
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = activeSection === item.toLowerCase() ? 
+                      (theme?.primaryColor || "#06b6d4") : 
+                      (theme?.textColor || "#ffffff")
+                  }}
                 >
                   {item}
                 </motion.button>
@@ -242,7 +299,17 @@ END:VCARD`
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 onClick={handleShare}
-                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full hover:shadow-lg hover:shadow-cyan-500/25 transition-all"
+                className="px-6 py-2 rounded-full hover:shadow-lg transition-all"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`,
+                  boxShadow: `0 4px 14px 0 ${theme?.primaryColor || "#06b6d4"}40`
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = `0 8px 20px 0 ${theme?.primaryColor || "#06b6d4"}60`
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = `0 4px 14px 0 ${theme?.primaryColor || "#06b6d4"}40`
+                }}
               >
                 Paylaş
               </motion.button>
@@ -298,24 +365,46 @@ END:VCARD`
           >
             <div>
               <h1 className="text-5xl md:text-7xl font-bold mb-4">
-                <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                <span 
+                  className="bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"}, ${theme?.primaryColor || "#06b6d4"})`
+                  }}
+                >
                   {profile.name}
                 </span>
               </h1>
-              <p className="text-2xl text-gray-400">{profile.title}</p>
+              <p 
+                className="text-2xl opacity-80"
+                style={{ color: theme?.textColor || "#ffffff" }}
+              >
+                {profile.title}
+              </p>
               {profile.companyName && (
-                <p className="text-xl text-cyan-400 mt-2">{profile.companyName}</p>
+                <p 
+                  className="text-xl mt-2"
+                  style={{ color: theme?.primaryColor || "#06b6d4" }}
+                >
+                  {profile.companyName}
+                </p>
               )}
             </div>
 
-            <p className="text-lg text-gray-300 leading-relaxed">
+            <p 
+              className="text-lg leading-relaxed opacity-80"
+              style={{ color: theme?.textColor || "#ffffff" }}
+            >
               {profile.bio}
             </p>
 
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={handleVCardDownload}
-                className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full hover:shadow-xl hover:shadow-cyan-500/25 transition-all flex items-center space-x-2"
+                className="px-8 py-3 rounded-full hover:shadow-xl transition-all flex items-center space-x-2"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`,
+                  boxShadow: `0 10px 25px ${theme?.primaryColor || "#06b6d4"}40`
+                }}
               >
                 <Download className="w-5 h-5" />
                 <span>Rehbere Ekle</span>
@@ -323,7 +412,11 @@ END:VCARD`
               
               <button
                 onClick={handleShare}
-                className="px-8 py-3 border border-cyan-500/50 rounded-full hover:bg-cyan-500/10 transition-all flex items-center space-x-2"
+                className="px-8 py-3 rounded-full hover:opacity-80 transition-all flex items-center space-x-2"
+                style={{
+                  border: `1px solid ${theme?.primaryColor || "#06b6d4"}80`,
+                  backgroundColor: `${theme?.primaryColor || "#06b6d4"}20`
+                }}
               >
                 <Share2 className="w-5 h-5" />
                 <span>Paylaş</span>
@@ -333,24 +426,68 @@ END:VCARD`
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-4">
               {profile.companyFoundedYear && (
-                <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-cyan-500/20">
-                  <div className="text-3xl font-bold text-cyan-400">
+                <div 
+                  className="text-center p-4 rounded-xl backdrop-blur-sm"
+                  style={{
+                    backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                    border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
+                  }}
+                >
+                  <div 
+                    className="text-3xl font-bold"
+                    style={{ color: theme?.primaryColor || "#06b6d4" }}
+                  >
                     {new Date().getFullYear() - parseInt(profile.companyFoundedYear)}+
                   </div>
-                  <div className="text-sm text-gray-400">Yıllık Deneyim</div>
+                  <div 
+                    className="text-sm opacity-70"
+                    style={{ color: theme?.textColor || "#ffffff" }}
+                  >
+                    Yıllık Deneyim
+                  </div>
                 </div>
               )}
               {profile.companyEmployeeCount && (
-                <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-cyan-500/20">
-                  <div className="text-3xl font-bold text-cyan-400">
+                <div 
+                  className="text-center p-4 rounded-xl backdrop-blur-sm"
+                  style={{
+                    backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                    border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
+                  }}
+                >
+                  <div 
+                    className="text-3xl font-bold"
+                    style={{ color: theme?.primaryColor || "#06b6d4" }}
+                  >
                     {profile.companyEmployeeCount}
                   </div>
-                  <div className="text-sm text-gray-400">Çalışan</div>
+                  <div 
+                    className="text-sm opacity-70"
+                    style={{ color: theme?.textColor || "#ffffff" }}
+                  >
+                    Çalışan
+                  </div>
                 </div>
               )}
-              <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-cyan-500/20">
-                <div className="text-3xl font-bold text-cyan-400">24/7</div>
-                <div className="text-sm text-gray-400">Erişilebilir</div>
+              <div 
+                className="text-center p-4 rounded-xl backdrop-blur-sm"
+                style={{
+                  backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                  border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
+                }}
+              >
+                <div 
+                  className="text-3xl font-bold"
+                  style={{ color: theme?.primaryColor || "#06b6d4" }}
+                >
+                  24/7
+                </div>
+                <div 
+                  className="text-sm opacity-70"
+                  style={{ color: theme?.textColor || "#ffffff" }}
+                >
+                  Erişilebilir
+                </div>
               </div>
             </div>
           </motion.div>
@@ -363,18 +500,35 @@ END:VCARD`
             className="relative"
           >
             <Card3D>
-              <div className="relative p-8 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-3xl backdrop-blur-sm border border-cyan-500/20">
+              <div 
+                className="relative p-8 rounded-3xl backdrop-blur-sm"
+                style={{
+                  backgroundImage: `linear-gradient(to bottom right, ${theme?.primaryColor || "#06b6d4"}1A, ${theme?.secondaryColor || "#3b82f6"}1A)`,
+                  border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
+                }}
+              >
                 {/* Profile Image */}
                 <div className="relative mx-auto w-64 h-64 mb-6">
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full blur-2xl opacity-50 animate-pulse" />
+                  <div 
+                    className="absolute inset-0 rounded-full blur-2xl opacity-50 animate-pulse"
+                    style={{
+                      backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`
+                    }}
+                  />
                   {profile.profileImage ? (
                     <img
                       src={profile.profileImage}
                       alt={profile.name}
-                      className="relative w-full h-full object-cover rounded-full border-4 border-cyan-500/50"
+                      className="relative w-full h-full object-cover rounded-full border-4"
+                      style={{ borderColor: `${theme?.primaryColor || "#06b6d4"}80` }}
                     />
                   ) : (
-                    <div className="relative w-full h-full bg-gradient-to-br from-cyan-500 to-blue-500 rounded-full flex items-center justify-center">
+                    <div 
+                      className="relative w-full h-full rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundImage: `linear-gradient(to bottom right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`
+                      }}
+                    >
                       <User className="w-32 h-32 text-white/50" />
                     </div>
                   )}
@@ -385,26 +539,58 @@ END:VCARD`
                   {profile.phone && (
                     <a
                       href={`tel:${profile.phone}`}
-                      className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all group"
+                      className="flex items-center justify-between p-4 rounded-xl transition-all group"
+                      style={{
+                        backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                        color: theme?.textColor || "#ffffff"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}1A`
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}0D`
+                      }}
                     >
                       <div className="flex items-center space-x-3">
-                        <Phone className="w-5 h-5 text-cyan-400" />
+                        <Phone 
+                          className="w-5 h-5"
+                          style={{ color: theme?.primaryColor || "#06b6d4" }}
+                        />
                         <span>{profile.phone}</span>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-cyan-400 transition-colors" />
+                      <ChevronRight 
+                        className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
+                        style={{ color: theme?.primaryColor || "#06b6d4" }}
+                      />
                     </a>
                   )}
                   
                   {profile.email && (
                     <a
                       href={`mailto:${profile.email}`}
-                      className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all group"
+                      className="flex items-center justify-between p-4 rounded-xl transition-all group"
+                      style={{
+                        backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                        color: theme?.textColor || "#ffffff"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}1A`
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}0D`
+                      }}
                     >
                       <div className="flex items-center space-x-3">
-                        <Mail className="w-5 h-5 text-cyan-400" />
+                        <Mail 
+                          className="w-5 h-5"
+                          style={{ color: theme?.primaryColor || "#06b6d4" }}
+                        />
                         <span className="truncate">{profile.email}</span>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-cyan-400 transition-colors" />
+                      <ChevronRight 
+                        className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
+                        style={{ color: theme?.primaryColor || "#06b6d4" }}
+                      />
                     </a>
                   )}
                   
@@ -413,13 +599,26 @@ END:VCARD`
                       href={`https://wa.me/${profile.whatsapp.replace(/\D/g, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all group"
+                      className="flex items-center justify-between p-4 rounded-xl transition-all group"
+                      style={{
+                        backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                        color: theme?.textColor || "#ffffff"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}1A`
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = `${theme?.backgroundColor || "#ffffff"}0D`
+                      }}
                     >
                       <div className="flex items-center space-x-3">
                         <MessageCircle className="w-5 h-5 text-green-400" />
                         <span>WhatsApp</span>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-green-400 transition-colors" />
+                      <ChevronRight 
+                        className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
+                        style={{ color: theme?.secondaryColor || "#3b82f6" }}
+                      />
                     </a>
                   )}
                 </div>
@@ -451,42 +650,94 @@ END:VCARD`
               className="text-center mb-12"
             >
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                <span 
+                  className="bg-clip-text text-transparent"
+                  style={{
+                    backgroundImage: `linear-gradient(to right, ${theme?.primaryColor || "#06b6d4"}, ${theme?.secondaryColor || "#3b82f6"})`
+                  }}
+                >
                   Şirket Hakkında
                 </span>
               </h2>
               {profile.companySlogan && (
-                <p className="text-xl text-gray-400 italic">"{profile.companySlogan}"</p>
+                <p 
+                  className="text-xl italic opacity-80"
+                  style={{ color: theme?.textColor || "#ffffff" }}
+                >
+                  "{profile.companySlogan}"
+                </p>
               )}
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-8">
               <Card3D>
-                <div className="p-8 bg-white/5 rounded-2xl backdrop-blur-sm border border-cyan-500/20">
-                  <Building className="w-12 h-12 text-cyan-400 mb-4" />
-                  <h3 className="text-2xl font-bold mb-4">Kurumsal Bilgiler</h3>
-                  <div className="space-y-3 text-gray-300">
+                <div 
+                  className="p-8 rounded-2xl backdrop-blur-sm"
+                  style={{
+                    backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                    border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
+                  }}
+                >
+                  <Building 
+                    className="w-12 h-12 mb-4"
+                    style={{ color: theme?.primaryColor || "#06b6d4" }}
+                  />
+                  <h3 
+                    className="text-2xl font-bold mb-4"
+                    style={{ color: theme?.textColor || "#ffffff" }}
+                  >
+                    Kurumsal Bilgiler
+                  </h3>
+                  <div 
+                    className="space-y-3 opacity-90"
+                    style={{ color: theme?.textColor || "#ffffff" }}
+                  >
                     {profile.companyLegalName && (
-                      <p><span className="text-cyan-400">Resmi Ünvan:</span> {profile.companyLegalName}</p>
+                      <p>
+                        <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Resmi Ünvan:</span> {profile.companyLegalName}
+                      </p>
                     )}
                     {profile.companySector && (
-                      <p><span className="text-cyan-400">Sektör:</span> {profile.companySector}</p>
+                      <p>
+                        <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Sektör:</span> {profile.companySector}
+                      </p>
                     )}
                     {profile.companyFoundedYear && (
-                      <p><span className="text-cyan-400">Kuruluş:</span> {profile.companyFoundedYear}</p>
+                      <p>
+                        <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Kuruluş:</span> {profile.companyFoundedYear}
+                      </p>
                     )}
                     {profile.companyEmployeeCount && (
-                      <p><span className="text-cyan-400">Çalışan Sayısı:</span> {profile.companyEmployeeCount}</p>
+                      <p>
+                        <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Çalışan Sayısı:</span> {profile.companyEmployeeCount}
+                      </p>
                     )}
                   </div>
                 </div>
               </Card3D>
 
               <Card3D>
-                <div className="p-8 bg-white/5 rounded-2xl backdrop-blur-sm border border-cyan-500/20">
-                  <Target className="w-12 h-12 text-cyan-400 mb-4" />
-                  <h3 className="text-2xl font-bold mb-4">Misyonumuz</h3>
-                  <p className="text-gray-300 leading-relaxed">
+                <div 
+                  className="p-8 rounded-2xl backdrop-blur-sm"
+                  style={{
+                    backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                    border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
+                  }}
+                >
+                  <Target 
+                    className="w-12 h-12 mb-4"
+                    style={{ color: theme?.primaryColor || "#06b6d4" }}
+                  />
+                  <h3 
+                    className="text-2xl font-bold mb-4"
+                    style={{ color: theme?.textColor || "#ffffff" }}
+                  >
+                    Misyonumuz
+                  </h3>
+                  <p 
+                    className="leading-relaxed opacity-90"
+                    style={{ color: theme?.textColor || "#ffffff" }}
+                  >
                     {profile.companyDescription || profile.bio}
                   </p>
                 </div>

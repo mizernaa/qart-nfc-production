@@ -248,7 +248,8 @@ export class DatabaseUserStore {
           coverImageUrl: (user.profile as any).coverImageUrl,
           logoUrl: (user.profile as any).logoUrl,
           isPublic: (user.profile as any).isPublic !== false,
-          theme: (user.profile as any).theme || 'modern'
+          theme: (user.profile as any).themeId || 'default',
+          themeId: (user.profile as any).themeId || 'default'
         } : undefined,
         subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
@@ -320,7 +321,8 @@ export class DatabaseUserStore {
           coverImageUrl: (user.profile as any).coverImageUrl,
           logoUrl: (user.profile as any).logoUrl,
           isPublic: (user.profile as any).isPublic !== false,
-          theme: (user.profile as any).theme || 'modern'
+          theme: (user.profile as any).themeId || 'default',
+          themeId: (user.profile as any).themeId || 'default'
         } : undefined,
         subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
@@ -510,6 +512,8 @@ export class DatabaseUserStore {
       if (updates.profile) {
         Object.assign(profileData, updates.profile)
         
+        console.log('🎨 Theme update data:', { themeId: profileData.themeId })
+        
         // Validate themeId exists in database
         if (profileData.themeId) {
           const themeExists = await prisma.theme.findUnique({
@@ -519,6 +523,8 @@ export class DatabaseUserStore {
           if (!themeExists) {
             console.warn(`⚠️ Theme ${profileData.themeId} not found, using default`)
             profileData.themeId = 'default'
+          } else {
+            console.log(`✅ Theme ${profileData.themeId} validated successfully`)
           }
         }
       }

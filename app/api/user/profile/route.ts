@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
         logoUrl: logoUrl || user.profile?.logoUrl,
         // Diğer
         isPublic: isPublic !== undefined ? isPublic : (user.profile?.isPublic !== false),
-        themeId: themeId || theme || user.profile?.themeId || "default"
+        themeId: themeId || user.profile?.themeId || "default"
       }
     }
 
@@ -230,7 +230,8 @@ export async function POST(request: NextRequest) {
       coverImageUrl: updatedUser!.profile?.coverImageUrl,
       logoUrl: updatedUser!.profile?.logoUrl,
       isPublic: updatedUser!.profile?.isPublic,
-      theme: updatedUser!.profile?.theme,
+      theme: updatedUser!.profile?.themeId || "default",
+      themeId: updatedUser!.profile?.themeId || "default",
       isPremium: updatedUser!.subscription === 'QART Lifetime' || updatedUser!.subscription === 'Pro',
       subscriptionPlan: updatedUser!.subscription || (updatedUser!.isAdmin ? "QART Lifetime" : "Free"),
       slug: profileSlug

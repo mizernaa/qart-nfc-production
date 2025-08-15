@@ -620,8 +620,8 @@ END:VCARD`
               </p>
             </div>
             
-            {/* Yetkinlik Kartları - Asimetrik Dizilim */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Yetkinlik Kartları - Düzgün Grid Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr items-stretch">
               {[
                 { 
                   skill: 'Strateji Geliştirme', 
@@ -664,14 +664,12 @@ END:VCARD`
                 return (
                   <div
                     key={item.skill}
-                    className={`group bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 hover:bg-white/10 transition-all duration-500 hover:scale-105 hover:-translate-y-2 h-full flex flex-col ${
-                      index % 2 === 0 ? 'lg:translate-y-8' : 'lg:-translate-y-4'
-                    }`}
+                    className="group bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 hover:bg-white/10 transition-all duration-500 hover:scale-105 hover:-translate-y-2 flex flex-col h-full"
                   >
-                    <div className={`w-16 h-16 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl`}>
+                    <div className={`w-16 h-16 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl flex-shrink-0`}>
                       <Icon className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-4 leading-tight">{item.skill}</h3>
+                    <h3 className="text-2xl font-bold text-white mb-4 leading-tight flex-shrink-0">{item.skill}</h3>
                     <p className="text-white/70 leading-relaxed text-base flex-grow">{item.description}</p>
                   </div>
                 )

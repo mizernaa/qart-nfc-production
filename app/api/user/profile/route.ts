@@ -110,7 +110,8 @@ export async function POST(request: NextRequest) {
       coverImageUrl,
       logoUrl,
       isPublic,
-      theme
+      theme,
+      themeId
     } = body
 
     if (!userId && !email) {
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
         coverImageUrl: coverImageUrl || user.profile?.coverImageUrl || "",
         logoUrl: logoUrl || user.profile?.logoUrl || "",
         isPublic: isPublic !== undefined ? isPublic : (user.profile?.isPublic !== false),
-        themeId: "default"
+        themeId: themeId || theme || user.profile?.themeId || "default"
       }
     }
 

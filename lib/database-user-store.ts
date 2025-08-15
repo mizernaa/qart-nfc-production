@@ -168,7 +168,17 @@ export class DatabaseUserStore {
           title: user.profile.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
           bio: user.profile.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
           phone: user.profile.phone || '+90 555 000 0000',
-          companyName: user.profile.companyName || (user.isAdmin ? 'QART Team' : '')
+          whatsapp: user.profile.whatsapp,
+          email: user.profile.email,
+          website: user.profile.website,
+          address: user.profile.address,
+          companyName: user.profile.companyName || (user.isAdmin ? 'QART Team' : ''),
+          profileImage: user.profile.profileImage,
+          logoUrl: user.profile.logoUrl,
+          coverImageUrl: user.profile.coverImageUrl,
+          themeId: user.profile.themeId,
+          theme: user.profile.themeId || 'default',
+          isPublic: user.profile.isPublic
         } : undefined,
         subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
         _count: {

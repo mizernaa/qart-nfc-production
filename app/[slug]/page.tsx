@@ -476,10 +476,10 @@ END:VCARD`
                 {/* İsim ve Ünvan Container */}
                 <div className="text-center lg:text-left space-y-8">
                   <div className="space-y-6">
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent leading-tight">
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent leading-normal pb-2">
                       {profile.name}
                     </h1>
-                    <h2 className="text-xl md:text-2xl lg:text-3xl font-light text-white/90 leading-relaxed">
+                    <h2 className="text-xl md:text-2xl lg:text-3xl font-light text-white/90 leading-normal pb-2">
                       {profile.title}
                     </h2>
                     {profile.companyName && (
@@ -528,58 +528,11 @@ END:VCARD`
 
               {/* Sağ Taraf - İstatistikler ve Aksiyonlar */}
               <div className="space-y-8">
-                {/* İstatistik Kartları - Sadece Gerçek Veriler */}
-                <div className="grid grid-cols-2 gap-6">
-                  {/* Üyelik */}
-                  <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
-                    <div className="text-2xl font-black text-white mb-3">
-                      {profile.isPremium ? 'Premium' : 'Ücretsiz'}
-                    </div>
-                    <div className="text-white/70 text-sm font-medium mb-3">
-                      Üyelik Durumu
-                    </div>
-                    <BadgeCheck className={`h-5 w-5 mx-auto animate-pulse ${profile.isPremium ? 'text-yellow-400' : 'text-cyan-400'}`} />
-                  </div>
-
-                  {/* Durum */}
-                  <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
-                    <div className="text-2xl font-black text-emerald-400 mb-3">
-                      {profile.isActive ? 'Aktif' : 'Pasif'}
-                    </div>
-                    <div className="text-white/70 text-sm font-medium mb-3">
-                      Profil Durumu
-                    </div>
-                    <Zap className="h-5 w-5 text-emerald-400 mx-auto animate-pulse" />
-                  </div>
-
-                  {/* Doğrulama */}
-                  <div className="bg-gradient-to-br from-yellow-500/20 to-amber-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
-                    <div className="text-2xl font-black text-yellow-400 mb-3">
-                      {profile.emailVerified ? 'Doğrulandı' : 'Beklemede'}
-                    </div>
-                    <div className="text-white/70 text-sm font-medium mb-3">
-                      E-posta Durumu
-                    </div>
-                    <CheckCircle className="h-5 w-5 text-yellow-400 mx-auto animate-pulse" />
-                  </div>
-
-                  {/* Kayıt Tarihi */}
-                  <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
-                    <div className="text-xl font-black text-orange-400 mb-3">
-                      {new Date(profile.createdAt).getFullYear()}
-                    </div>
-                    <div className="text-white/70 text-sm font-medium mb-3">
-                      Üye Olma Yılı
-                    </div>
-                    <Calendar className="h-5 w-5 text-orange-400 mx-auto animate-pulse" />
-                  </div>
-                </div>
-
-                {/* Aksiyon Butonları */}
-                <div className="space-y-4">
+                {/* Aksiyon Butonları - Sadece İş Odaklı */}
+                <div className="grid grid-cols-1 gap-6">
                   <button
                     onClick={handleSaveContact}
-                    className="w-full px-8 py-4 bg-gradient-to-r from-gray-800 to-black hover:from-black hover:to-gray-800 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
+                    className="w-full px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
                   >
                     <Download className="h-5 w-5" />
                     <span>Kişilere Kaydet</span>
@@ -587,12 +540,21 @@ END:VCARD`
                   
                   <button
                     onClick={() => setShowContactForm(true)}
-                    className="w-full px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
+                    className="w-full px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
                   >
                     <Send className="h-5 w-5" />
                     <span>Mesaj Gönder</span>
                   </button>
+                  
+                  <button
+                    onClick={() => setShowQR(true)}
+                    className="w-full px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-xl flex items-center justify-center space-x-3"
+                  >
+                    <QrCode className="h-5 w-5" />
+                    <span>QR Kod Göster</span>
+                  </button>
                 </div>
+
               </div>
             </div>
           </div>
@@ -604,7 +566,7 @@ END:VCARD`
         <section className="relative py-20 px-6">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16 space-y-6">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-pink-400 via-rose-400 to-orange-400 bg-clip-text text-transparent leading-tight">
+              <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-pink-400 via-rose-400 to-orange-400 bg-clip-text text-transparent leading-normal pb-4">
                 Benimle İletişime Geçin
               </h2>
               <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
@@ -612,8 +574,8 @@ END:VCARD`
               </p>
             </div>
             
-            {/* İletişim Kartları - Özel Dizilim */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {/* İletişim Kartları - Ortalı 3 Kutu */}
+            <div className="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
               {profile.phone && (
                 <a
                   href={`tel:${profile.phone}`}
@@ -698,7 +660,7 @@ END:VCARD`
           <section className="relative py-20 px-6">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-16 space-y-6">
-                <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight">
+                <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-normal pb-4">
                   Dijital Varlığım
                 </h2>
                 <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">

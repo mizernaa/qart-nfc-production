@@ -16,6 +16,7 @@ import { profileSchema } from "@/lib/validators"
 import SocialLinksManager from "@/components/dashboard/SocialLinksManager"
 import ThemeSelector from "@/components/dashboard/ThemeSelector"
 import CustomFieldsManager from "@/components/dashboard/CustomFieldsManager"
+import ImageUpload from "@/components/dashboard/ImageUpload"
 import toast from "react-hot-toast"
 import { Save, Eye, ExternalLink } from "lucide-react"
 import Link from "next/link"
@@ -33,6 +34,9 @@ interface Profile {
   email?: string | null
   website?: string | null
   address?: string | null
+  profileImage?: string | null
+  logoUrl?: string | null
+  coverImageUrl?: string | null
   themeId: string
   language: string
   timezone: string
@@ -98,6 +102,9 @@ export default function ProfileForm({ profile, user, themes }: ProfileFormProps)
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedTheme, setSelectedTheme] = useState(profile.themeId)
+  const [profileImage, setProfileImage] = useState(profile.profileImage || '')
+  const [logoUrl, setLogoUrl] = useState(profile.logoUrl || '')
+  const [coverImageUrl, setCoverImageUrl] = useState(profile.coverImageUrl || '')
   
   const {
     register,
@@ -125,13 +132,17 @@ export default function ProfileForm({ profile, user, themes }: ProfileFormProps)
 
     try {
       const response = await fetch("/api/user/profile", {
-        method: "PATCH",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          email: user.email,
           ...data,
-          themeId: selectedTheme
+          themeId: selectedTheme,
+          profileImage,
+          logoUrl,
+          coverImageUrl
         }),
       })
 
@@ -326,6 +337,42 @@ export default function ProfileForm({ profile, user, themes }: ProfileFormProps)
                   {errors.address && (
                     <p className="text-sm text-red-500">{errors.address.message}</p>
                   )}
+                </div>
+
+                {/* Profil Resmi */}
+                <div className="space-y-2">
+                  <Label>Profil Resmi</Label>
+                  <ImageUpload
+                    value={profileImage}
+                    onChange={setProfileImage}
+                    onRemove={() => setProfileImage('')}
+                    disabled={isLoading}
+                    type="logo"
+                  />
+                </div>
+
+                {/* Logo */}
+                <div className="space-y-2">
+                  <Label>Şirket Logosu</Label>
+                  <ImageUpload
+                    value={logoUrl}
+                    onChange={setLogoUrl}
+                    onRemove={() => setLogoUrl('')}
+                    disabled={isLoading}
+                    type="logo"
+                  />
+                </div>
+
+                {/* Kapak Resmi */}
+                <div className="space-y-2">
+                  <Label>Kapak Resmi</Label>
+                  <ImageUpload
+                    value={coverImageUrl}
+                    onChange={setCoverImageUrl}
+                    onRemove={() => setCoverImageUrl('')}
+                    disabled={isLoading}
+                    type="cover"
+                  />
                 </div>
 
                 <div className="flex justify-end">

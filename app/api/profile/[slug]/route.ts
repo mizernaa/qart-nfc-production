@@ -97,63 +97,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       theme: user.profile?.theme || "modern",
       slug: user.profile?.slug || createSlug(user.name || ''),
       
-      // Stats - user specific
-      stats: {
-        customers: user.isAdmin ? "500+" : "50+",
-        experience: user.isAdmin ? "5+ yıl" : "2+ yıl",
-        projects: user.isAdmin ? "1000+" : "100+",
-        employees: user.isAdmin ? "10+" : "1-5"
-      },
+      // Meta info
+      createdAt: user.createdAt,
+      emailVerified: true, // Simplified for now
       
-      // Services - expandable
-      services: [
-        {
-          title: "Dijital Kartvizit",
-          description: "Modern ve profesyonel dijital kartvizit hizmeti",
-          price: "Ücretsiz",
-          icon: "card"
-        },
-        {
-          title: "QR Kod Oluşturma",
-          description: "Özelleştirilebilir QR kod tasarımları", 
-          price: "Dahil",
-          icon: "qr"
-        },
-        ...(user.isPremium || user.isAdmin ? [
-          {
-            title: "Premium Analitik",
-            description: "Detaylı görüntüleme ve etkileşim analizi",
-            price: "Premium",
-            icon: "analytics"
-          }
-        ] : [])
-      ],
-      
-      // Features - expandable
-      features: [
-        {
-          title: "Kolay Paylaşım",
-          description: "QR kod ve link ile anında paylaşım",
-          icon: "share"
-        },
-        {
-          title: "Analitik Takibi", 
-          description: "Görüntüleme istatistikleri ve analiz",
-          icon: "analytics"
-        },
-        {
-          title: "Mobil Uyumlu",
-          description: "Tüm cihazlarda mükemmel görünüm",
-          icon: "mobile"
-        },
-        ...(user.isPremium || user.isAdmin ? [
-          {
-            title: "Premium Özellikler",
-            description: "Gelişmiş customization ve branding",
-            icon: "premium"
-          }
-        ] : [])
-      ]
     }
     
     // Record view analytics (optional - could be implemented later)

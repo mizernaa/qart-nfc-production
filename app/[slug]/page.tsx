@@ -127,10 +127,7 @@ export default function YaraticiProfilSayfasi() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [scrollY, setScrollY] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
-  const [viewCount, setViewCount] = useState(0)
   const [currentTime, setCurrentTime] = useState('')
-  const [experienceYears, setExperienceYears] = useState(0)
-  const [projectCount, setProjectCount] = useState(0)
   const [animationPhase, setAnimationPhase] = useState(0)
 
   // Gerçek zamanlı saat
@@ -189,9 +186,6 @@ export default function YaraticiProfilSayfasi() {
           const data = await response.json()
           if (data.success) {
             setProfile(data.profile)
-            setViewCount(Math.floor(Math.random() * 25000) + 10000)
-            setExperienceYears(Math.floor(Math.random() * 8) + 3)
-            setProjectCount(Math.floor(Math.random() * 150) + 50)
           }
         }
       } catch (error) {
@@ -412,10 +406,6 @@ END:VCARD`
                 <span>Çevrimiçi</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Eye className="h-4 w-4" />
-                <span>{viewCount.toLocaleString()} görüntüleme</span>
-              </div>
-              <div className="flex items-center space-x-2">
                 <Clock className="h-4 w-4" />
                 <span>{currentTime}</span>
               </div>
@@ -538,50 +528,50 @@ END:VCARD`
 
               {/* Sağ Taraf - İstatistikler ve Aksiyonlar */}
               <div className="space-y-8">
-                {/* İstatistik Kartları */}
+                {/* İstatistik Kartları - Sadece Gerçek Veriler */}
                 <div className="grid grid-cols-2 gap-6">
-                  {/* Görüntülenme */}
+                  {/* Üyelik */}
                   <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
-                    <div className="text-3xl font-black text-white mb-3">
-                      {viewCount.toLocaleString()}
+                    <div className="text-2xl font-black text-white mb-3">
+                      {profile.isPremium ? 'Premium' : 'Ücretsiz'}
                     </div>
                     <div className="text-white/70 text-sm font-medium mb-3">
-                      Profil Görüntülenme
+                      Üyelik Durumu
                     </div>
-                    <Eye className="h-5 w-5 text-cyan-400 mx-auto animate-pulse" />
+                    <BadgeCheck className={`h-5 w-5 mx-auto animate-pulse ${profile.isPremium ? 'text-yellow-400' : 'text-cyan-400'}`} />
                   </div>
 
                   {/* Durum */}
                   <div className="bg-gradient-to-br from-emerald-500/20 to-green-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
-                    <div className="text-3xl font-black text-emerald-400 mb-3">
-                      Aktif
+                    <div className="text-2xl font-black text-emerald-400 mb-3">
+                      {profile.isActive ? 'Aktif' : 'Pasif'}
                     </div>
                     <div className="text-white/70 text-sm font-medium mb-3">
-                      Çevrimiçi Durum
+                      Profil Durumu
                     </div>
                     <Zap className="h-5 w-5 text-emerald-400 mx-auto animate-pulse" />
                   </div>
 
-                  {/* Deneyim */}
+                  {/* Doğrulama */}
                   <div className="bg-gradient-to-br from-yellow-500/20 to-amber-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
-                    <div className="text-3xl font-black text-yellow-400 mb-3">
-                      {experienceYears}+
+                    <div className="text-2xl font-black text-yellow-400 mb-3">
+                      {profile.emailVerified ? 'Doğrulandı' : 'Beklemede'}
                     </div>
                     <div className="text-white/70 text-sm font-medium mb-3">
-                      Yıl Deneyim
+                      E-posta Durumu
                     </div>
-                    <Trophy className="h-5 w-5 text-yellow-400 mx-auto animate-pulse" />
+                    <CheckCircle className="h-5 w-5 text-yellow-400 mx-auto animate-pulse" />
                   </div>
 
-                  {/* Proje */}
+                  {/* Kayıt Tarihi */}
                   <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-center hover:scale-105 transition-all duration-300">
-                    <div className="text-3xl font-black text-orange-400 mb-3">
-                      {projectCount}+
+                    <div className="text-xl font-black text-orange-400 mb-3">
+                      {new Date(profile.createdAt).getFullYear()}
                     </div>
                     <div className="text-white/70 text-sm font-medium mb-3">
-                      Tamamlanan Proje
+                      Üye Olma Yılı
                     </div>
-                    <Rocket className="h-5 w-5 text-orange-400 mx-auto animate-pulse" />
+                    <Calendar className="h-5 w-5 text-orange-400 mx-auto animate-pulse" />
                   </div>
                 </div>
 
@@ -862,78 +852,59 @@ END:VCARD`
           </div>
         </section>
 
-        {/* Sosyal Medya - Dinamik Layout */}
-        <section className="relative py-20 px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16 space-y-6">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight">
-                Sosyal Medyada Takip Edin
-              </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-                Güncel içeriklerim, proje gelişimlerim ve sektörel paylaşımlarım için beni takip edin
-              </p>
-            </div>
-            
-            {/* Sosyal Medya Kartları */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {[
-                { 
-                  name: 'LinkedIn', 
-                  icon: Linkedin, 
-                  gradient: 'from-blue-600 to-blue-700', 
-                  url: '#',
-                  description: 'Profesyonel ağım',
-                  followers: '12.5K'
-                },
-                { 
-                  name: 'Instagram', 
-                  icon: Instagram, 
-                  gradient: 'from-pink-500 via-red-500 to-yellow-500', 
-                  url: '#',
-                  description: 'Günlük yaşam',
-                  followers: '8.2K'
-                },
-                { 
-                  name: 'Twitter', 
-                  icon: Twitter, 
-                  gradient: 'from-sky-400 to-sky-600', 
-                  url: '#',
-                  description: 'Anlık güncellemeler',
-                  followers: '15.7K'
-                },
-                { 
-                  name: 'YouTube', 
-                  icon: Youtube, 
-                  gradient: 'from-red-500 to-red-600', 
-                  url: '#',
-                  description: 'Eğitim videoları',
-                  followers: '4.1K'
-                }
-              ].map((social, index) => {
-                const Icon = social.icon
-                return (
+        {/* Sosyal Medya - Sadece Gerçek Linkler Varsa Göster */}
+        {(profile.website || profile.email) && (
+          <section className="relative py-20 px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-16 space-y-6">
+                <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight">
+                  Dijital Varlığım
+                </h2>
+                <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
+                  Benimle iletişim kurmak ve çalışmalarımı takip etmek için
+                </p>
+              </div>
+              
+              {/* Gerçek Linkler */}
+              <div className="flex justify-center items-center gap-8 flex-wrap">
+                {profile.website && (
                   <a
-                    key={index}
-                    href={social.url}
+                    href={profile.website}
                     target="_blank"
-                    className="group bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center hover:scale-105 hover:-translate-y-4 transition-all duration-500"
+                    className="group bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center hover:scale-105 hover:-translate-y-4 transition-all duration-500"
                   >
-                    <div className={`w-16 h-16 bg-gradient-to-br ${social.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl`}>
-                      <Icon className="h-8 w-8 text-white" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl">
+                      <Globe className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-3 leading-tight">{social.name}</h3>
-                    <p className="text-white/60 mb-3 leading-relaxed">{social.description}</p>
-                    <div className="text-lg font-bold text-white mb-4 leading-relaxed">{social.followers} takipçi</div>
+                    <h3 className="text-xl font-bold text-white mb-3 leading-tight">Web Sitesi</h3>
+                    <p className="text-white/60 mb-3 leading-relaxed break-all">{profile.website}</p>
                     <div className="inline-flex items-center text-sm text-white/70 group-hover:text-white transition-colors">
-                      <span>Takip Et</span>
+                      <span>Ziyaret Et</span>
                       <ArrowUpRight className="h-4 w-4 ml-1 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                     </div>
                   </a>
-                )
-              })}
+                )}
+                
+                {profile.email && (
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="group bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center hover:scale-105 hover:-translate-y-4 transition-all duration-500"
+                  >
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl">
+                      <Mail className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3 leading-tight">E-posta</h3>
+                    <p className="text-white/60 mb-3 leading-relaxed break-all">{profile.email}</p>
+                    <div className="inline-flex items-center text-sm text-white/70 group-hover:text-white transition-colors">
+                      <span>Mesaj Gönder</span>
+                      <ArrowUpRight className="h-4 w-4 ml-1 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </div>
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Footer - Yaratıcı Son */}
         <footer className="relative py-20 px-6 border-t border-white/10">

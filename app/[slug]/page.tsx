@@ -598,173 +598,7 @@ END:VCARD`
           </div>
         </section>
 
-        {/* Yetkinlik Alanları - Yayılmış Layout */}
-        <section className="relative py-20 px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16 space-y-6">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-400 bg-clip-text text-transparent leading-tight">
-                Uzmanlık Alanlarım
-              </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-                Yıllara dayanan deneyim ve sürekli öğrenme tutkumla kazandığım profesyonel yetkinliklerim
-              </p>
-            </div>
-            
-            {/* Yetkinlik Kartları - Düzgün Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 auto-rows-fr items-stretch">
-              {[
-                { 
-                  skill: 'Strateji Geliştirme', 
-                  icon: Target, 
-                  gradient: 'from-cyan-500 to-blue-500',
-                  description: 'Vizyoner yaklaşımla geleceği planlama'
-                },
-                { 
-                  skill: 'İnovasyon Yönetimi', 
-                  icon: Lightbulb, 
-                  gradient: 'from-yellow-500 to-amber-500',
-                  description: 'Yaratıcı çözümlerle değişimi yönetme'
-                },
-                { 
-                  skill: 'Liderlik & Mentorluk', 
-                  icon: Crown, 
-                  gradient: 'from-orange-500 to-red-500',
-                  description: 'Ekipleri başarıya ulaştırma sanatı'
-                },
-                { 
-                  skill: 'Dijital Dönüşüm', 
-                  icon: Cpu, 
-                  gradient: 'from-emerald-500 to-green-500',
-                  description: 'Teknoloji ile geleceği şekillendirme'
-                },
-                { 
-                  skill: 'Proje Yönetimi', 
-                  icon: CheckCircle, 
-                  gradient: 'from-blue-500 to-cyan-500',
-                  description: 'Karmaşık projeleri zamanında teslim'
-                },
-                { 
-                  skill: 'Analitik Düşünce', 
-                  icon: BarChart3, 
-                  gradient: 'from-gray-600 to-gray-700',
-                  description: 'Verilerle hikaye anlatma yeteneği'
-                }
-              ].map((item, index) => {
-                const Icon = item.icon
-                return (
-                  <div
-                    key={item.skill}
-                    className="group bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-8 hover:bg-white/10 transition-all duration-500 hover:scale-105 hover:-translate-y-2 flex flex-col h-full"
-                  >
-                    <div className={`w-16 h-16 bg-gradient-to-br ${item.gradient} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl flex-shrink-0`}>
-                      <Icon className="h-8 w-8 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-4 leading-tight flex-shrink-0">{item.skill}</h3>
-                    <p className="text-white/70 leading-relaxed text-base flex-grow">{item.description}</p>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </section>
 
-        {/* Profesyonel Hizmetler - Yaratıcı Layout */}
-        <section className="relative py-20 px-6">
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16 space-y-6">
-              <h2 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent leading-tight">
-                Sunduğum Hizmetler
-              </h2>
-              <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-                Her projede mükemmellik arayışıyla, size özel çözümler geliştiriyorum
-              </p>
-            </div>
-            
-            {/* Hizmet Kartları - Zigzag Layout */}
-            <div className="space-y-12">
-              {[
-                { 
-                  title: 'Strateji Danışmanlığı', 
-                  description: 'İş süreçlerinizi optimize edip büyüme stratejilerinizi geliştiriyorum. Rekabet analizi, pazar araştırması ve uzun vadeli planlama konularında kapsamlı destek sağlıyorum.', 
-                  price: '5.000₺+',
-                  icon: Target,
-                  gradient: 'from-blue-600 to-cyan-600',
-                  features: ['Rekabet Analizi', 'Pazar Araştırması', 'Büyüme Planlaması', 'Risk Yönetimi']
-                },
-                { 
-                  title: 'Dijital Dönüşüm', 
-                  description: 'İşletmenizi dijital çağa hazırlayıp rekabet avantajı sağlıyorum. Teknoloji entegrasyonu, süreç otomasyonu ve dijital kültür oluşturma konularında rehberlik ediyorum.', 
-                  price: '7.500₺+',
-                  icon: Rocket,
-                  gradient: 'from-purple-600 to-pink-600',
-                  features: ['Teknoloji Entegrasyonu', 'Süreç Otomasyonu', 'Dijital Kültür', 'Veri Analitiği']
-                },
-                { 
-                  title: 'Liderlik Koçluğu', 
-                  description: 'Kişisel ve profesyonel gelişiminizi destekleyerek liderlik potansiyelinizi ortaya çıkarıyorum. Ekip yönetimi, iletişim becerileri ve karar verme süreçlerinde mentorluk sağlıyorum.', 
-                  price: '3.000₺+',
-                  icon: Crown,
-                  gradient: 'from-orange-600 to-red-600',
-                  features: ['Kişisel Gelişim', 'Ekip Yönetimi', 'İletişim Becerileri', 'Karar Verme']
-                }
-              ].map((service, index) => {
-                const Icon = service.icon
-                const isEven = index % 2 === 0
-                return (
-                  <div
-                    key={index}
-                    className={`grid lg:grid-cols-2 gap-12 items-center ${!isEven ? 'lg:grid-flow-col-dense' : ''}`}
-                  >
-                    {/* Hizmet Bilgileri */}
-                    <div className={`space-y-6 ${!isEven ? 'lg:col-start-2' : ''}`}>
-                      <div className="flex items-start space-x-4">
-                        <div className={`w-16 h-16 bg-gradient-to-br ${service.gradient} rounded-2xl flex items-center justify-center shadow-xl flex-shrink-0`}>
-                          <Icon className="h-8 w-8 text-white" />
-                        </div>
-                        <div className="space-y-3 min-w-0 flex-1">
-                          <h3 className="text-3xl font-bold text-white leading-tight break-words">{service.title}</h3>
-                          <span className={`inline-block px-4 py-2 bg-gradient-to-r ${service.gradient} text-white rounded-full text-lg font-bold shadow-lg`}>
-                            {service.price}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <p className="text-xl text-white/80 leading-relaxed">{service.description}</p>
-                      
-                      {/* Özellikler */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {service.features.map((feature, featureIndex) => (
-                          <div
-                            key={featureIndex}
-                            className="flex items-center space-x-3 text-white/70 py-2"
-                          >
-                            <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
-                            <span className="text-base leading-relaxed">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <button 
-                        onClick={() => setShowContactForm(true)}
-                        className={`px-8 py-4 bg-gradient-to-r ${service.gradient} hover:scale-105 text-white rounded-2xl font-semibold transition-all duration-300 shadow-xl flex items-center space-x-3`}
-                      >
-                        <MessageSquare className="h-5 w-5" />
-                        <span>Detaylı Bilgi Al</span>
-                      </button>
-                    </div>
-
-                    {/* Görsel/İkon Alanı */}
-                    <div className={`${!isEven ? 'lg:col-start-1' : ''} flex justify-center`}>
-                      <div className={`w-80 h-80 bg-gradient-to-br ${service.gradient} rounded-full flex items-center justify-center shadow-2xl opacity-20 hover:opacity-30 transition-opacity duration-300`}>
-                        <Icon className="h-40 w-40 text-white" />
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </section>
 
         {/* İletişim Bilgileri - Yaratıcı Dizilim */}
         <section className="relative py-20 px-6">
@@ -779,7 +613,7 @@ END:VCARD`
             </div>
             
             {/* İletişim Kartları - Özel Dizilim */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {profile.phone && (
                 <a
                   href={`tel:${profile.phone}`}
@@ -823,14 +657,21 @@ END:VCARD`
                 </a>
               )}
 
-              <div className="group bg-gradient-to-br from-orange-500/20 to-red-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center hover:scale-105 hover:-translate-y-4 transition-all duration-500">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl">
-                  <Clock className="h-8 w-8 text-white animate-pulse" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3 leading-tight">7/24 Destek</h3>
-                <p className="text-white/80 font-medium mb-3 leading-relaxed">Her zaman erişilebilir</p>
-                <p className="text-sm text-white/60 leading-relaxed">Hızlı dönüş garantisi</p>
-              </div>
+              {profile.whatsapp && (
+                <a
+                  href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, '')}`}
+                  target="_blank"
+                  className="group bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center hover:scale-105 hover:-translate-y-4 transition-all duration-500"
+                >
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-xl">
+                    <MessageCircle className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3 leading-tight">WhatsApp</h3>
+                  <p className="text-white/80 font-medium mb-3 break-all leading-relaxed">{profile.whatsapp}</p>
+                  <p className="text-sm text-white/60 leading-relaxed">WhatsApp ile mesaj</p>
+                </a>
+              )}
+
             </div>
 
             {/* Adres Bilgisi */}

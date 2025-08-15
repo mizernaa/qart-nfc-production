@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
         coverImageUrl: coverImageUrl || user.profile?.coverImageUrl || "",
         logoUrl: logoUrl || user.profile?.logoUrl || "",
         isPublic: isPublic !== undefined ? isPublic : (user.profile?.isPublic !== false),
-        theme: theme || user.profile?.theme || "modern"
+        themeId: "default"
       }
     }
 

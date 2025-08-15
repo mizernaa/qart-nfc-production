@@ -44,6 +44,7 @@ model Profile {
   invoiceAddress    String?
   website           String?
   logoUrl           String?
+  profileImage      String?
   coverImageUrl     String?
   themeId           String    @default("default")
   theme             Theme     @relation(fields: [themeId], references: [id])

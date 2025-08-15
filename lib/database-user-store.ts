@@ -496,10 +496,11 @@ export class DatabaseUserStore {
           ...userData,
           updatedAt: new Date(),
           ...(Object.keys(profileData).length > 0 && {
-            profile: existingUser.profile ? {
-              update: profileData
-            } : {
-              create: profileData
+            profile: {
+              upsert: {
+                create: profileData,
+                update: profileData
+              }
             }
           })
         },

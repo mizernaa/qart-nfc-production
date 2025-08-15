@@ -97,7 +97,15 @@ import {
   GraduationCap,
   Crown,
   Diamond,
-  ChevronUp
+  ChevronUp,
+  ArrowDown,
+  Verified,
+  Quote,
+  Smartphone,
+  Monitor,
+  Camera as CameraIcon,
+  Wifi,
+  Signal
 } from "lucide-react"
 
 export default function PublicProfilePage() {
@@ -115,9 +123,9 @@ export default function PublicProfilePage() {
   const [viewCount, setViewCount] = useState(0)
   const [currentTime, setCurrentTime] = useState('')
   const [activeSection, setActiveSection] = useState(0)
-  const cardRef = useRef<HTMLDivElement>(null)
+  const [isOnline, setIsOnline] = useState(true)
 
-  // Real-time clock
+  // Gerçek zamanlı saat
   useEffect(() => {
     const updateTime = () => {
       const now = new Date()
@@ -127,11 +135,11 @@ export default function PublicProfilePage() {
       }))
     }
     updateTime()
-    const interval = setInterval(updateTime, 60000) // Update every minute
+    const interval = setInterval(updateTime, 60000)
     return () => clearInterval(interval)
   }, [])
 
-  // Mouse tracking for subtle effects
+  // Mouse takibi için subtle efektler
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
@@ -140,26 +148,18 @@ export default function PublicProfilePage() {
     return () => window.removeEventListener('mousemove', handleMouseMove)
   }, [])
 
-  // Scroll tracking
+  // Scroll takibi
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY)
-      // Update active section based on scroll
-      const sections = document.querySelectorAll('[data-section]')
-      sections.forEach((section, index) => {
-        const rect = section.getBoundingClientRect()
-        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
-          setActiveSection(index)
-        }
-      })
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Visibility animation
+  // Görünürlük animasyonu
   useEffect(() => {
-    setTimeout(() => setIsVisible(true), 100)
+    setTimeout(() => setIsVisible(true), 200)
   }, [])
 
   // Profil verilerini API'den çek
@@ -173,11 +173,11 @@ export default function PublicProfilePage() {
           const data = await response.json()
           if (data.success) {
             setProfile(data.profile)
-            setViewCount(Math.floor(Math.random() * 15000) + 5000)
+            setViewCount(Math.floor(Math.random() * 25000) + 10000)
           }
         }
       } catch (error) {
-        console.error('Error fetching profile:', error)
+        console.error('Profil yükleme hatası:', error)
       } finally {
         setLoading(false)
       }
@@ -213,7 +213,7 @@ export default function PublicProfilePage() {
     }
   }, [profile])
 
-  // Contact handlers
+  // İletişim işlevleri
   const handleCall = () => {
     if (profile.phone) {
       window.open(`tel:${profile.phone}`, '_self')
@@ -230,7 +230,7 @@ export default function PublicProfilePage() {
   const handleEmail = () => {
     if (profile.email) {
       const subject = encodeURIComponent(`${profile.name} - İletişim`)
-      const body = encodeURIComponent(`Sayın ${profile.name},\n\nQART dijital kartvizitiniz aracılığıyla size ulaşıyorum.\n\nProfil: https://qart-nfc-production.vercel.app/${profile.slug}\n\nSaygılarımla,`)
+      const body = encodeURIComponent(`Sayın ${profile.name},\n\nQART dijital kartvizitiniz aracılığıyla size ulaşıyorum.\n\nSaygılarımla,`)
       window.open(`mailto:${profile.email}?subject=${subject}&body=${body}`, '_self')
     }
   }
@@ -284,66 +284,60 @@ END:VCARD`
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `${profile.name.replace(/\s+/g, '_')}_Contact.vcf`
+    link.download = `${profile.name.replace(/\s+/g, '_')}_Kişi.vcf`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
   }
 
-  // Stunning loading animation
+  // Yükleme ekranı
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center relative overflow-hidden">
-        {/* Subtle Background Effects */}
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black flex items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gray-600/10 rounded-full blur-3xl animate-pulse delay-1000" />
         </div>
         
-        {/* Professional Loader */}
         <div className="relative z-10 text-center">
           <div className="relative mb-8">
-            <div className="w-24 h-24 mx-auto relative">
-              {/* Elegant spinning ring */}
+            <div className="w-20 h-20 mx-auto relative">
               <div className="absolute inset-0 border-2 border-gray-700 rounded-full animate-spin">
                 <div className="w-2 h-2 bg-white rounded-full absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1"></div>
               </div>
-              {/* Center logo */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
-                  <ContactRound className="h-6 w-6 text-black" />
+                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                  <ContactRound className="h-5 w-5 text-black" />
                 </div>
               </div>
             </div>
           </div>
           
           <div className="space-y-3">
-            <h2 className="text-2xl font-light text-white tracking-wider">
-              QART
-            </h2>
-            <p className="text-gray-400 font-light">Loading digital business card...</p>
+            <h2 className="text-xl font-light text-white tracking-wider">QART</h2>
+            <p className="text-gray-400 text-sm">Dijital kartvizit yükleniyor...</p>
           </div>
         </div>
       </div>
     )
   }
 
-  // Profile not found
+  // Profil bulunamadı
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
         <div className="text-center max-w-md px-6">
-          <div className="w-24 h-24 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-8">
-            <X className="h-12 w-12 text-gray-400" />
+          <div className="w-20 h-20 mx-auto bg-gray-800 rounded-full flex items-center justify-center mb-6">
+            <X className="h-10 w-10 text-gray-400" />
           </div>
-          <h1 className="text-3xl font-light text-white mb-4">Profile Not Found</h1>
-          <p className="text-gray-400 mb-8">The digital business card you're looking for doesn't exist or is private.</p>
+          <h1 className="text-2xl font-light text-white mb-3">Profil Bulunamadı</h1>
+          <p className="text-gray-400 mb-6 text-sm">Aradığınız dijital kartvizit mevcut değil veya gizli.</p>
           <button 
             onClick={() => window.location.href = '/'}
-            className="px-8 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors"
+            className="px-6 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
           >
-            Return Home
+            Ana Sayfaya Dön
           </button>
         </div>
       </div>
@@ -351,481 +345,407 @@ END:VCARD`
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
-      {/* Sophisticated Background */}
-      <div className="fixed inset-0 z-0">
-        {/* Subtle gradient overlay */}
-        <div 
-          className="absolute inset-0 opacity-30"
-          style={{
-            background: `radial-gradient(circle at ${mousePosition.x / window.innerWidth * 100}% ${mousePosition.y / window.innerHeight * 100}%, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 30%, transparent 70%)`
-          }}
-        />
-        
-        {/* Geometric patterns */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-0 w-full h-full">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <div
-                key={i}
-                className="absolute border border-white/20"
-                style={{
-                  left: `${(i % 4) * 25}%`,
-                  top: `${Math.floor(i / 4) * 20}%`,
-                  width: '25%',
-                  height: '20%',
-                  transform: `translateY(${scrollY * 0.1}px)`
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Cover image with sophisticated overlay */}
-        {profile.coverImageUrl && (
-          <div 
-            className="absolute inset-0 opacity-15"
-            style={{ transform: `translateY(${scrollY * 0.3}px)` }}
-          >
-            <img 
-              src={profile.coverImageUrl} 
-              alt="Cover" 
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40" />
-          </div>
-        )}
-      </div>
-
-      {/* Premium Top Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-6 py-4">
+    <div className="min-h-screen bg-white">
+      {/* Üst menü */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            {/* Brand */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <Diamond className="h-4 w-4 text-black" />
+            {/* Logo */}
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-black rounded flex items-center justify-center">
+                <Diamond className="h-3 w-3 text-white" />
               </div>
-              <span className="font-light text-sm tracking-widest">QART</span>
+              <span className="font-medium text-black text-sm tracking-wide">QART</span>
             </div>
             
-            {/* Time & Status */}
-            <div className="flex items-center space-x-6 text-sm text-gray-400">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4" />
-                <span>{currentTime}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Eye className="h-4 w-4" />
+            {/* Bilgiler */}
+            <div className="flex items-center space-x-4 text-xs text-gray-500">
+              <div className="flex items-center space-x-1">
+                <Eye className="h-3 w-3" />
                 <span>{viewCount.toLocaleString()}</span>
               </div>
+              <div className="flex items-center space-x-1">
+                <Clock className="h-3 w-3" />
+                <span>{currentTime}</span>
+              </div>
             </div>
             
-            {/* Actions */}
-            <div className="flex items-center space-x-3">
+            {/* Aksiyonlar */}
+            <div className="flex items-center space-x-2">
               <button
                 onClick={shareProfile}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                title="Share Profile"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="Paylaş"
               >
-                <Share2 className="h-4 w-4" />
+                <Share2 className="h-4 w-4 text-gray-600" />
               </button>
               <button
                 onClick={() => setShowQR(true)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                title="QR Code"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                title="QR Kod"
               >
-                <QrCode className="h-4 w-4" />
+                <QrCode className="h-4 w-4 text-gray-600" />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 pt-20">
-        {/* Hero Business Card */}
-        <section 
-          data-section
-          className="min-h-screen flex items-center justify-center p-6 relative"
-        >
-          <div 
-            ref={cardRef}
-            className={`transform transition-all duration-1000 ${
-              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-            }`}
-            style={{
-              transform: `
-                translateY(${scrollY * 0.05}px) 
-                perspective(1000px) 
-                rotateX(${(mousePosition.y - window.innerHeight / 2) / 50}deg) 
-                rotateY(${(mousePosition.x - window.innerWidth / 2) / 50}deg)
-              `
-            }}
-          >
-            {/* Premium Business Card */}
-            <div className="relative w-full max-w-lg mx-auto">
-              {/* Glow effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 via-white to-gray-600 rounded-2xl blur-sm opacity-50"></div>
-              
-              {/* Card */}
-              <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl overflow-hidden border border-gray-700 shadow-2xl">
-                {/* Card Header */}
-                <div className="relative p-8 pb-6">
-                  {/* Premium indicator */}
-                  {profile.isPremium && (
-                    <div className="absolute top-4 right-4">
-                      <div className="bg-gradient-to-r from-gray-400 to-gray-200 text-black px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
-                        <Crown className="h-3 w-3" />
-                        <span>PREMIUM</span>
-                      </div>
-                    </div>
-                  )}
+      {/* Ana içerik */}
+      <div className="pt-16">
+        {/* Hero bölümü */}
+        <section className="relative bg-gradient-to-br from-gray-50 to-white py-12 md:py-20">
+          {/* Kapak görseli */}
+          {profile.coverImageUrl && (
+            <div className="absolute inset-0 opacity-20">
+              <img 
+                src={profile.coverImageUrl} 
+                alt="Kapak" 
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent" />
+            </div>
+          )}
 
-                  {/* Profile Image */}
-                  <div className="text-center mb-6">
-                    <div className="relative inline-block">
-                      <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-gray-600 shadow-xl">
-                        {profile.profileImage ? (
-                          <img 
-                            src={profile.profileImage} 
-                            alt={profile.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                            <UserCircle className="h-14 w-14 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      {/* Status indicator */}
-                      <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Profile Info */}
-                  <div className="text-center space-y-3">
-                    <h1 className="text-3xl font-light text-white tracking-wide">
-                      {profile.name}
-                    </h1>
-                    <p className="text-gray-300 font-light text-lg">{profile.title}</p>
-                    {profile.companyName && (
-                      <div className="flex items-center justify-center space-x-2 text-gray-400">
-                        <Building className="h-4 w-4" />
-                        <span className="text-sm font-light">{profile.companyName}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Bio */}
-                  <p className="text-center text-gray-400 text-sm leading-relaxed mt-4 px-4">
-                    {profile.bio}
-                  </p>
-                </div>
-
-                {/* Stats Bar */}
-                <div className="border-t border-gray-700 px-8 py-4">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-white font-light text-lg">{viewCount.toLocaleString()}</div>
-                      <div className="text-gray-500 text-xs font-light">VIEWS</div>
-                    </div>
-                    <div>
-                      <div className="text-emerald-400 font-light text-lg">ONLINE</div>
-                      <div className="text-gray-500 text-xs font-light">STATUS</div>
-                    </div>
-                    <div>
-                      <div className="text-white font-light text-lg">5+</div>
-                      <div className="text-gray-500 text-xs font-light">YEARS</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="border-t border-gray-700 p-6">
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <button
-                      onClick={handleCall}
-                      className="group bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
-                    >
-                      <PhoneCall className="h-4 w-4" />
-                      <span className="font-light">Call</span>
-                    </button>
-
-                    <button
-                      onClick={handleWhatsApp}
-                      className="group bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      <span className="font-light">WhatsApp</span>
-                    </button>
-
-                    <button
-                      onClick={handleEmail}
-                      className="group bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
-                    >
-                      <Mail className="h-4 w-4" />
-                      <span className="font-light">Email</span>
-                    </button>
-
-                    <button
-                      onClick={handleWebsite}
-                      className="group bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
-                    >
-                      <Globe className="h-4 w-4" />
-                      <span className="font-light">Website</span>
-                    </button>
-                  </div>
-
-                  {/* Save Contact */}
-                  <button
-                    onClick={handleSaveContact}
-                    className="w-full bg-white text-black py-3 px-6 rounded-lg font-medium hover:bg-gray-100 transition-all duration-300 flex items-center justify-center space-x-2"
-                  >
-                    <Download className="h-4 w-4" />
-                    <span>Save to Contacts</span>
-                  </button>
-                </div>
-
-                {/* Company Logo */}
-                {profile.logoUrl && (
-                  <div className="absolute bottom-4 left-4 w-10 h-10 bg-white/10 rounded-lg p-2 backdrop-blur-sm">
-                    <img 
-                      src={profile.logoUrl} 
-                      alt="Logo" 
-                      className="w-full h-full object-contain opacity-80"
-                    />
+          <div className="relative max-w-4xl mx-auto px-4 text-center">
+            {/* Profil fotoğrafı */}
+            <div className="relative inline-block mb-6">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-xl">
+                {profile.profileImage ? (
+                  <img 
+                    src={profile.profileImage} 
+                    alt={profile.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                    <UserCircle className="h-16 w-16 md:h-20 md:w-20 text-gray-400" />
                   </div>
                 )}
               </div>
-            </div>
-          </div>
+              
+              {/* Online durum */}
+              <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-lg flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-gray-500 animate-bounce">
-            <ChevronDown className="h-5 w-5" />
+              {/* Premium rozet */}
+              {profile.isPremium && (
+                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-1 rounded-full shadow-lg">
+                  <Crown className="h-4 w-4" />
+                </div>
+              )}
+            </div>
+
+            {/* İsim ve ünvan */}
+            <div className="mb-6">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                {profile.name}
+              </h1>
+              <p className="text-lg md:text-xl text-gray-600 mb-2">{profile.title}</p>
+              {profile.companyName && (
+                <div className="flex items-center justify-center space-x-2 text-gray-500">
+                  <Building className="h-4 w-4" />
+                  <span>{profile.companyName}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Biyografi */}
+            <p className="text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed">
+              {profile.bio}
+            </p>
+
+            {/* İstatistikler */}
+            <div className="grid grid-cols-3 gap-6 max-w-md mx-auto mb-8">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">{viewCount.toLocaleString()}</div>
+                <div className="text-xs text-gray-500">Görüntülenme</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">Aktif</div>
+                <div className="text-xs text-gray-500">Durum</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">5+</div>
+                <div className="text-xs text-gray-500">Yıl Deneyim</div>
+              </div>
+            </div>
+
+            {/* Hızlı iletişim butonları */}
+            <div className="flex flex-wrap justify-center gap-3 mb-6">
+              <button
+                onClick={handleCall}
+                className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <PhoneCall className="h-4 w-4" />
+                <span className="font-medium">Ara</span>
+              </button>
+
+              <button
+                onClick={handleWhatsApp}
+                className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span className="font-medium">WhatsApp</span>
+              </button>
+
+              <button
+                onClick={handleEmail}
+                className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="font-medium">E-posta</span>
+              </button>
+
+              <button
+                onClick={handleWebsite}
+                className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Globe className="h-4 w-4" />
+                <span className="font-medium">Website</span>
+              </button>
+            </div>
+
+            {/* Kişilere kaydet butonu */}
+            <button
+              onClick={handleSaveContact}
+              className="bg-black hover:bg-gray-800 text-white px-8 py-3 rounded-full font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2 mx-auto"
+            >
+              <Download className="h-4 w-4" />
+              <span>Kişilere Kaydet</span>
+            </button>
           </div>
         </section>
 
-        {/* Professional Information */}
-        <section data-section className="py-20 px-6">
-          <div className="max-w-5xl mx-auto space-y-16">
+        {/* Uzmanlık alanları */}
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Uzmanlık Alanları</h2>
+              <p className="text-gray-600">Profesyonel deneyim ve yetkinlik alanlarım</p>
+            </div>
             
-            {/* Expertise */}
-            <div className="bg-gradient-to-br from-gray-900/90 to-black/90 rounded-2xl p-10 border border-gray-800 backdrop-blur-sm">
-              <div className="flex items-center space-x-4 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
-                  <GraduationCap className="h-6 w-6 text-white" />
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {['Strateji Geliştirme', 'İnovasyon Yönetimi', 'Liderlik', 'Dijital Pazarlama', 'Teknoloji', 'Proje Yönetimi'].map((skill, index) => (
+                <div
+                  key={skill}
+                  className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 text-center group hover:scale-105"
+                >
+                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:bg-gray-200 transition-colors">
+                    <Award className="h-6 w-6 text-gray-600" />
+                  </div>
+                  <span className="text-gray-900 font-medium">{skill}</span>
                 </div>
-                <h3 className="text-3xl font-light text-white">Expertise</h3>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Hizmetler */}
+        {profile.services && profile.services.length > 0 && (
+          <section className="py-16 bg-white">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Hizmetlerim</h2>
+                <p className="text-gray-600">Sunduğum profesyonel hizmetler</p>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {['Strategy', 'Innovation', 'Leadership', 'Marketing', 'Technology', 'Management'].map((skill, index) => (
+              <div className="grid md:grid-cols-2 gap-8">
+                {profile.services.map((service: any, index: number) => (
                   <div
-                    key={skill}
-                    className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 text-center hover:bg-gray-700/50 transition-all duration-300"
+                    key={index}
+                    className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 group hover:scale-105"
                   >
-                    <span className="text-white font-light">{skill}</span>
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        <Briefcase className="h-6 w-6 text-blue-600" />
+                      </div>
+                      {service.price && (
+                        <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                          {service.price}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
+                    <p className="text-gray-600 mb-6">{service.description}</p>
+                    
+                    <button 
+                      onClick={() => setShowContactForm(true)}
+                      className="w-full bg-gray-900 hover:bg-black text-white py-3 px-6 rounded-xl font-medium transition-all duration-300"
+                    >
+                      Detaylı Bilgi Al
+                    </button>
                   </div>
                 ))}
               </div>
             </div>
+          </section>
+        )}
 
-            {/* Services */}
-            {profile.services && profile.services.length > 0 && (
-              <div className="bg-gradient-to-br from-gray-900/90 to-black/90 rounded-2xl p-10 border border-gray-800 backdrop-blur-sm">
-                <div className="flex items-center space-x-4 mb-8">
-                  <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
-                    <Briefcase className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="text-3xl font-light text-white">Services</h3>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  {profile.services.map((service: any, index: number) => (
-                    <div
-                      key={index}
-                      className="bg-gray-800/50 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-300"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                          <Target className="h-5 w-5 text-white" />
-                        </div>
-                        {service.price && (
-                          <span className="bg-gray-700 text-white px-3 py-1 rounded-full text-sm font-light">
-                            {service.price}
-                          </span>
-                        )}
-                      </div>
-                      
-                      <h4 className="text-lg font-light text-white mb-2">{service.title}</h4>
-                      <p className="text-gray-400 text-sm mb-4 font-light">{service.description}</p>
-                      
-                      <button 
-                        onClick={() => setShowContactForm(true)}
-                        className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-all duration-300 font-light"
-                      >
-                        Learn More
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Contact Information */}
-            <div className="bg-gradient-to-br from-gray-900/90 to-black/90 rounded-2xl p-10 border border-gray-800 backdrop-blur-sm">
-              <div className="flex items-center space-x-4 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
-                  <ContactRound className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-3xl font-light text-white">Contact</h3>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                {profile.phone && (
-                  <a
-                    href={`tel:${profile.phone}`}
-                    className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
-                  >
-                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                      <Phone className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm font-light">Phone</p>
-                      <p className="text-white font-light">{profile.phone}</p>
-                    </div>
-                  </a>
-                )}
-
-                {profile.email && (
-                  <a
-                    href={`mailto:${profile.email}`}
-                    className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
-                  >
-                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                      <Mail className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm font-light">Email</p>
-                      <p className="text-white font-light">{profile.email}</p>
-                    </div>
-                  </a>
-                )}
-
-                {profile.website && (
-                  <a
-                    href={profile.website}
-                    target="_blank"
-                    className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
-                  >
-                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                      <Globe className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm font-light">Website</p>
-                      <p className="text-white font-light">{profile.website}</p>
-                    </div>
-                  </a>
-                )}
-
-                {profile.address && (
-                  <div className="flex items-center space-x-4 p-4 bg-gray-800/50 border border-gray-700 rounded-xl md:col-span-2">
-                    <div className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center">
-                      <MapPin className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm font-light">Address</p>
-                      <p className="text-white font-light">{profile.address}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+        {/* İletişim bilgileri */}
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">İletişim Bilgileri</h2>
+              <p className="text-gray-600">Benimle iletişime geçmek için</p>
             </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {profile.phone && (
+                <a
+                  href={`tel:${profile.phone}`}
+                  className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:scale-105"
+                >
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                    <Phone className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Telefon</p>
+                    <p className="text-gray-900 font-medium">{profile.phone}</p>
+                  </div>
+                </a>
+              )}
 
-            {/* Social Media */}
-            <div className="bg-gradient-to-br from-gray-900/90 to-black/90 rounded-2xl p-10 border border-gray-800 backdrop-blur-sm">
-              <div className="flex items-center space-x-4 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
-                  <Share2 className="h-6 w-6 text-white" />
+              {profile.email && (
+                <a
+                  href={`mailto:${profile.email}`}
+                  className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:scale-105"
+                >
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <Mail className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">E-posta</p>
+                    <p className="text-gray-900 font-medium">{profile.email}</p>
+                  </div>
+                </a>
+              )}
+
+              {profile.website && (
+                <a
+                  href={profile.website}
+                  target="_blank"
+                  className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 group hover:scale-105"
+                >
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                    <Globe className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Website</p>
+                    <p className="text-gray-900 font-medium">{profile.website}</p>
+                  </div>
+                </a>
+              )}
+
+              {profile.address && (
+                <div className="flex items-center space-x-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 md:col-span-2">
+                  <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                    <MapPin className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Adres</p>
+                    <p className="text-gray-900 font-medium">{profile.address}</p>
+                  </div>
                 </div>
-                <h3 className="text-3xl font-light text-white">Connect</h3>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { name: 'LinkedIn', icon: Linkedin, url: '#' },
-                  { name: 'Instagram', icon: Instagram, url: '#' },
-                  { name: 'Twitter', icon: Twitter, url: '#' },
-                  { name: 'Facebook', icon: Facebook, url: '#' }
-                ].map((social, index) => {
-                  const Icon = social.icon
-                  return (
-                    <a
-                      key={index}
-                      href={social.url}
-                      target="_blank"
-                      className="group flex flex-col items-center space-y-3 p-6 bg-gray-800/50 border border-gray-700 rounded-xl hover:bg-gray-700/50 transition-all duration-300"
-                    >
-                      <Icon className="h-8 w-8 text-white group-hover:scale-110 transition-transform" />
-                      <span className="text-white font-light text-sm">{social.name}</span>
-                    </a>
-                  )
-                })}
-              </div>
+              )}
             </div>
           </div>
         </section>
+
+        {/* Sosyal medya */}
+        <section className="py-16 bg-white">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Sosyal Medya</h2>
+              <p className="text-gray-600">Sosyal medya hesaplarımdan takip edebilirsiniz</p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-600 hover:bg-blue-700', url: '#' },
+                { name: 'Instagram', icon: Instagram, color: 'bg-pink-600 hover:bg-pink-700', url: '#' },
+                { name: 'Twitter', icon: Twitter, color: 'bg-sky-500 hover:bg-sky-600', url: '#' },
+                { name: 'Facebook', icon: Facebook, color: 'bg-blue-700 hover:bg-blue-800', url: '#' }
+              ].map((social, index) => {
+                const Icon = social.icon
+                return (
+                  <a
+                    key={index}
+                    href={social.url}
+                    target="_blank"
+                    className={`group flex flex-col items-center space-y-3 p-6 ${social.color} text-white rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105`}
+                  >
+                    <Icon className="h-8 w-8 group-hover:scale-110 transition-transform" />
+                    <span className="font-medium">{social.name}</span>
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-12 bg-gray-900 text-white">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <div className="flex items-center justify-center space-x-3 mb-4">
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                <Diamond className="h-4 w-4 text-black" />
+              </div>
+              <span className="text-xl font-bold">QART</span>
+            </div>
+            <p className="text-gray-400 mb-4">Dijital Kartvizit Çözümleri</p>
+            <p className="text-gray-500 text-sm">© 2024 QART. Tüm hakları saklıdır.</p>
+          </div>
+        </footer>
       </div>
 
-      {/* Floating QR Button */}
+      {/* Floating QR butonu */}
       <button
         onClick={() => setShowQR(true)}
-        className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-white text-black rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all duration-300"
-        title="QR Code"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-black text-white rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-all duration-300"
+        title="QR Kod"
       >
-        <QrCode className="h-5 w-5" />
+        <QrCode className="h-6 w-6" />
       </button>
 
-      {/* QR Code Modal */}
+      {/* QR Kod modalı */}
       {showQR && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-          <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 max-w-sm w-full border border-gray-700 shadow-2xl">
+          <div className="relative bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
             <button
               onClick={() => setShowQR(false)}
-              className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <X className="h-5 w-5 text-white" />
+              <X className="h-5 w-5 text-gray-600" />
             </button>
             
             <div className="text-center space-y-6">
               <div className="flex items-center justify-center space-x-3">
-                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                  <QrCode className="h-5 w-5 text-black" />
+                <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                  <QrCode className="h-5 w-5 text-white" />
                 </div>
-                <h3 className="text-2xl font-light text-white">QR Code</h3>
+                <h3 className="text-2xl font-bold text-gray-900">QR Kod</h3>
               </div>
               
-              <div className="bg-white rounded-xl p-6">
+              <div className="bg-gray-50 rounded-2xl p-6">
                 {qrCodeUrl && (
-                  <img src={qrCodeUrl} alt="QR Code" className="w-full max-w-48 mx-auto" />
+                  <img src={qrCodeUrl} alt="QR Kod" className="w-full max-w-48 mx-auto" />
                 )}
               </div>
               
-              <p className="text-gray-400 font-light">
-                Scan this QR code to instantly access the digital business card
+              <p className="text-gray-600">
+                Bu QR kodu taratarak dijital kartvizite anında erişim sağlayabilirsiniz
               </p>
               
               <div className="flex space-x-3">
                 <button
                   onClick={shareProfile}
-                  className="flex-1 bg-white text-black py-3 px-4 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2"
+                  className="flex-1 bg-black text-white py-3 px-4 rounded-xl font-medium hover:bg-gray-800 transition-colors flex items-center justify-center space-x-2"
                 >
                   {copySuccess ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  <span>{copySuccess ? 'Copied!' : 'Share'}</span>
+                  <span>{copySuccess ? 'Kopyalandı!' : 'Paylaş'}</span>
                 </button>
                 
                 <button
@@ -835,10 +755,10 @@ END:VCARD`
                     link.href = qrCodeUrl
                     link.click()
                   }}
-                  className="px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center space-x-2"
+                  className="px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-colors flex items-center space-x-2"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Download</span>
+                  <span>İndir</span>
                 </button>
               </div>
             </div>
@@ -846,45 +766,45 @@ END:VCARD`
         </div>
       )}
 
-      {/* Contact Form Modal */}
+      {/* İletişim formu modalı */}
       {showContactForm && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-          <div className="relative bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 max-w-lg w-full border border-gray-700 shadow-2xl">
+          <div className="relative bg-white rounded-3xl p-8 max-w-lg w-full shadow-2xl">
             <button
               onClick={() => setShowContactForm(false)}
-              className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <X className="h-5 w-5 text-white" />
+              <X className="h-5 w-5 text-gray-600" />
             </button>
             
             <div className="space-y-6">
-              <h3 className="text-2xl font-light text-white">Get in Touch</h3>
+              <h3 className="text-2xl font-bold text-gray-900">İletişime Geç</h3>
               
               <form className="space-y-4">
                 <div>
-                  <label className="block text-sm font-light text-gray-400 mb-2">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Adınız</label>
                   <input
                     type="text"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
-                    placeholder="Your name"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    placeholder="Adınızı girin"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-light text-gray-400 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">E-posta</label>
                   <input
                     type="email"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
-                    placeholder="your@email.com"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    placeholder="ornek@email.com"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-light text-gray-400 mb-2">Message</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Mesajınız</label>
                   <textarea
                     rows={4}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
-                    placeholder="Your message..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    placeholder="Mesajınızı yazın..."
                   />
                 </div>
                 
@@ -892,15 +812,15 @@ END:VCARD`
                   <button
                     type="button"
                     onClick={() => setShowContactForm(false)}
-                    className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors font-light"
+                    className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-xl transition-colors font-medium"
                   >
-                    Cancel
+                    İptal
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-6 py-3 bg-white text-black rounded-lg hover:bg-gray-100 transition-colors font-medium"
+                    className="flex-1 px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors font-medium"
                   >
-                    Send Message
+                    Mesaj Gönder
                   </button>
                 </div>
               </form>

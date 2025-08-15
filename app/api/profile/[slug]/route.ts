@@ -78,7 +78,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       email: user.email,
       website: user.profile?.website || "",
       address: user.profile?.address || "",
-      city: "İstanbul",
+      city: user.profile?.address?.split(',')[1]?.trim() || "İstanbul",
       country: "Türkiye",
       
       // Company info

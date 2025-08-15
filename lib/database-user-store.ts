@@ -28,7 +28,15 @@ interface UserWithProfile {
     title: string
     bio: string
     phone: string
+    whatsapp?: string
+    website?: string
+    address?: string
     companyName?: string
+    profileImage?: string
+    coverImageUrl?: string
+    logoUrl?: string
+    isPublic?: boolean
+    theme?: string
   }
   subscription: string
   _count: {
@@ -207,7 +215,15 @@ export class DatabaseUserStore {
           title: user.profile.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
           bio: user.profile.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
           phone: user.profile.phone || '+90 555 000 0000',
-          companyName: user.profile.companyName || (user.isAdmin ? 'QART Team' : '')
+          whatsapp: (user.profile as any).whatsapp,
+          website: (user.profile as any).website,
+          address: (user.profile as any).address,
+          companyName: user.profile.companyName || (user.isAdmin ? 'QART Team' : ''),
+          profileImage: (user.profile as any).profileImage,
+          coverImageUrl: (user.profile as any).coverImageUrl,
+          logoUrl: (user.profile as any).logoUrl,
+          isPublic: (user.profile as any).isPublic !== false,
+          theme: (user.profile as any).theme || 'modern'
         } : undefined,
         subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
         _count: {
@@ -271,7 +287,15 @@ export class DatabaseUserStore {
           title: user.profile.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
           bio: user.profile.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
           phone: user.profile.phone || '+90 555 000 0000',
-          companyName: user.profile.companyName || (user.isAdmin ? 'QART Team' : '')
+          whatsapp: (user.profile as any).whatsapp,
+          website: (user.profile as any).website,
+          address: (user.profile as any).address,
+          companyName: user.profile.companyName || (user.isAdmin ? 'QART Team' : ''),
+          profileImage: (user.profile as any).profileImage,
+          coverImageUrl: (user.profile as any).coverImageUrl,
+          logoUrl: (user.profile as any).logoUrl,
+          isPublic: (user.profile as any).isPublic !== false,
+          theme: (user.profile as any).theme || 'modern'
         } : undefined,
         subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
         _count: {
@@ -454,15 +478,28 @@ export class DatabaseUserStore {
         Object.assign(profileData, updates.profile)
       }
 
-      // Update user
+      // Check if user has profile
+      const existingUser = await prisma.user.findUnique({
+        where: { id },
+        include: { profile: true }
+      })
+
+      if (!existingUser) {
+        console.error('❌ User not found:', id)
+        return null
+      }
+
+      // Update user with upsert for profile
       const updatedUser = await prisma.user.update({
         where: { id },
         data: {
           ...userData,
           updatedAt: new Date(),
           ...(Object.keys(profileData).length > 0 && {
-            profile: {
+            profile: existingUser.profile ? {
               update: profileData
+            } : {
+              create: profileData
             }
           })
         },

@@ -346,15 +346,34 @@ export default function ProfileManagementPage() {
           name: profileData.personal.name || user.name,
           title: profileData.personal.title,
           bio: profileData.personal.bio,
+          // İletişim bilgileri
           phone: profileData.contact.phone,
+          alternativePhone: profileData.contact.alternativePhone,
           whatsapp: profileData.contact.whatsapp || profileData.contact.phone,
           email: profileData.contact.email || user.email,
+          alternativeEmail: profileData.contact.alternativeEmail,
           website: profileData.contact.website,
-          address: profileData.location.address ? `${profileData.location.address}, ${profileData.location.city || ''}`.trim() : '',
+          // Lokasyon bilgileri
+          address: profileData.location.address,
+          city: profileData.location.city,
+          district: profileData.location.district,
+          country: profileData.location.country,
+          postalCode: profileData.location.postalCode,
+          googleMapsUrl: profileData.location.googleMapsUrl,
+          workingHours: profileData.location.workingHours,
+          // Şirket bilgileri
           companyName: profileData.company.name,
+          companyLegalName: profileData.company.legalName,
+          companySlogan: profileData.company.slogan,
+          companyDescription: profileData.company.description,
+          companySector: profileData.company.sector,
+          companyFoundedYear: profileData.company.foundedYear,
+          companyEmployeeCount: profileData.company.employeeCount,
+          // Görseller
           profileImage: profileData.personal.profileImage,
           coverImageUrl: profileData.personal.coverImage,
           logoUrl: profileData.company.logo,
+          // Diğer
           isPublic: true,
           theme: profileData.theme || "default",
           themeId: profileData.theme || "default"

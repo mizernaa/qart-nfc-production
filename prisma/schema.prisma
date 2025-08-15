@@ -32,12 +32,26 @@ model Profile {
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   slug              String    @unique
   companyName       String?
+  companyLegalName  String?
+  companySlogan     String?
+  companyDescription String?
+  companySector     String?
+  companyFoundedYear String?
+  companyEmployeeCount String?
   title             String?
   bio               String?
   phone             String?
+  alternativePhone  String?
   whatsapp          String?
   email             String?
+  alternativeEmail  String?
   address           String?
+  city              String?
+  district          String?
+  country           String?
+  postalCode        String?
+  googleMapsUrl     String?
+  workingHours      Json?
   latitude          Float?
   longitude         Float?
   taxNumber         String?

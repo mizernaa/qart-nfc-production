@@ -141,6 +141,7 @@ export class DatabaseUserStore {
       const users = await prisma.user.findMany({
         include: {
           profile: true,
+          subscription: true,
           _count: {
             select: {
               cards: true
@@ -168,11 +169,25 @@ export class DatabaseUserStore {
           title: user.profile.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
           bio: user.profile.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
           phone: user.profile.phone || '+90 555 000 0000',
+          alternativePhone: user.profile.alternativePhone,
           whatsapp: user.profile.whatsapp,
           email: user.profile.email,
+          alternativeEmail: user.profile.alternativeEmail,
           website: user.profile.website,
           address: user.profile.address,
+          city: user.profile.city,
+          district: user.profile.district,
+          country: user.profile.country,
+          postalCode: user.profile.postalCode,
+          googleMapsUrl: user.profile.googleMapsUrl,
+          workingHours: user.profile.workingHours,
           companyName: user.profile.companyName || (user.isAdmin ? 'QART Team' : ''),
+          companyLegalName: user.profile.companyLegalName,
+          companySlogan: user.profile.companySlogan,
+          companyDescription: user.profile.companyDescription,
+          companySector: user.profile.companySector,
+          companyFoundedYear: user.profile.companyFoundedYear,
+          companyEmployeeCount: user.profile.companyEmployeeCount,
           profileImage: user.profile.profileImage,
           logoUrl: user.profile.logoUrl,
           coverImageUrl: user.profile.coverImageUrl,
@@ -180,7 +195,7 @@ export class DatabaseUserStore {
           theme: user.profile.themeId || 'default',
           isPublic: user.profile.isPublic
         } : undefined,
-        subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
+        subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
           cards: user._count?.cards || 0,
           profile: user.profile ? 1 : 0
@@ -235,7 +250,7 @@ export class DatabaseUserStore {
           isPublic: (user.profile as any).isPublic !== false,
           theme: (user.profile as any).theme || 'modern'
         } : undefined,
-        subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
+        subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
           cards: user._count?.cards || 0,
           profile: user.profile ? 1 : 0
@@ -307,7 +322,7 @@ export class DatabaseUserStore {
           isPublic: (user.profile as any).isPublic !== false,
           theme: (user.profile as any).theme || 'modern'
         } : undefined,
-        subscription: user.isAdmin ? 'QART Lifetime' : 'Free',
+        subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
           cards: user._count?.cards || 0,
           profile: user.profile ? 1 : 0
@@ -483,6 +498,14 @@ export class DatabaseUserStore {
       if (updates.isAdmin !== undefined) userData.isAdmin = updates.isAdmin
       if (updates.isActive !== undefined) userData.isActive = updates.isActive
       
+      // Handle subscription update
+      const subscriptionData: any = {}
+      if (updates.subscription) {
+        subscriptionData.plan = updates.subscription
+        subscriptionData.status = 'active'
+        subscriptionData.currentPeriodEnd = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year from now
+      }
+      
       // Handle profile updates
       if (updates.profile) {
         Object.assign(profileData, updates.profile)
@@ -511,7 +534,7 @@ export class DatabaseUserStore {
         return null
       }
 
-      // Update user with upsert for profile
+      // Update user with upsert for profile and subscription
       const updatedUser = await prisma.user.update({
         where: { id },
         data: {
@@ -524,10 +547,19 @@ export class DatabaseUserStore {
                 update: profileData
               }
             }
+          }),
+          ...(Object.keys(subscriptionData).length > 0 && {
+            subscription: {
+              upsert: {
+                create: subscriptionData,
+                update: subscriptionData
+              }
+            }
           })
         },
         include: {
           profile: true,
+          subscription: true,
           _count: {
             select: {
               cards: true
@@ -555,7 +587,7 @@ export class DatabaseUserStore {
           phone: updatedUser.profile.phone || '+90 555 000 0000',
           companyName: updatedUser.profile.companyName || ''
         } : undefined,
-        subscription: updatedUser.isAdmin ? 'QART Lifetime' : 'Free',
+        subscription: updatedUser.subscription?.plan || (updatedUser.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
           cards: updatedUser._count?.cards || 0,
           profile: updatedUser.profile ? 1 : 0
@@ -636,7 +668,7 @@ export class DatabaseUserStore {
           phone: updatedUser.profile.phone || '+90 555 000 0000',
           companyName: updatedUser.profile.companyName || ''
         } : undefined,
-        subscription: updatedUser.isAdmin ? 'QART Lifetime' : 'Free',
+        subscription: updatedUser.subscription?.plan || (updatedUser.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
           cards: updatedUser._count?.cards || 0,
           profile: updatedUser.profile ? 1 : 0

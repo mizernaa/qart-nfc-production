@@ -122,6 +122,9 @@ export default function EditUserModal({ user, onClose, onSave }: EditUserModalPr
               className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
             >
               <option value="Free">Free</option>
+              <option value="Pro">Pro</option>
+              <option value="Business">Business</option>
+              <option value="Enterprise">Enterprise</option>
               <option value="QART Lifetime">QART Lifetime</option>
             </select>
           </div>

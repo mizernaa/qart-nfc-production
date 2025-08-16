@@ -118,6 +118,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       createdAt: user.createdAt,
       emailVerified: true, // Simplified for now
       
+      // Sosyal medya ve banka verileri
+      socialLinks: user.profile?.socialLinks || [],
+      bankAccounts: user.profile?.bankAccounts || []
     }
     
     // Record view analytics (optional - could be implemented later)

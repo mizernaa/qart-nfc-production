@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseUserStore } from '@/lib/database-user-store'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
@@ -125,7 +128,9 @@ export async function POST(request: NextRequest) {
       logoUrl,
       isPublic,
       theme,
-      themeId
+      themeId,
+      socialLinks,
+      bankAccounts
     } = body
 
     if (!userId && !email) {
@@ -207,6 +212,69 @@ export async function POST(request: NextRequest) {
 
     // Update user profile using DatabaseUserStore
     await DatabaseUserStore.updateUser(user.id, updateData)
+    
+    // Handle social links if provided
+    if (socialLinks && Array.isArray(socialLinks)) {
+      try {
+        console.log('🔗 Sosyal medya bağlantıları güncelleniyor:', socialLinks.length)
+        // Delete existing social links
+        await prisma.socialLink.deleteMany({
+          where: { profileId: user.profile.id }
+        })
+        
+        // Create new social links
+        const validLinks = socialLinks.filter((link: any) => 
+          link.platform && link.url && link.enabled
+        )
+        
+        if (validLinks.length > 0) {
+          await prisma.socialLink.createMany({
+            data: validLinks.map((link: any, index: number) => ({
+              profileId: user.profile.id,
+              platform: link.platform,
+              url: link.url,
+              isVisible: link.enabled,
+              order: index
+            }))
+          })
+          console.log('✅ Sosyal medya bağlantıları kaydedildi:', validLinks.length)
+        }
+      } catch (error) {
+        console.error('❌ Sosyal medya bağlantıları kaydetme hatası:', error)
+      }
+    }
+
+    // Handle bank accounts if provided
+    if (bankAccounts && Array.isArray(bankAccounts)) {
+      try {
+        console.log('🏦 Banka hesapları güncelleniyor:', bankAccounts.length)
+        // Delete existing bank accounts
+        await prisma.bankAccount.deleteMany({
+          where: { profileId: user.profile.id }
+        })
+        
+        // Create new bank accounts
+        const validAccounts = bankAccounts.filter((account: any) => 
+          account.bankName && account.iban && account.accountName && account.enabled
+        )
+        
+        if (validAccounts.length > 0) {
+          await prisma.bankAccount.createMany({
+            data: validAccounts.map((account: any, index: number) => ({
+              profileId: user.profile.id,
+              bankName: account.bankName,
+              iban: account.iban,
+              accountName: account.accountName,
+              isEnabled: account.enabled,
+              order: index
+            }))
+          })
+          console.log('✅ Banka hesapları kaydedildi:', validAccounts.length)
+        }
+      } catch (error) {
+        console.error('❌ Banka hesapları kaydetme hatası:', error)
+      }
+    }
     
     console.log('✅ Profil başarıyla güncellendi')
 

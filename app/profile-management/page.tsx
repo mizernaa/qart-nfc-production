@@ -409,12 +409,10 @@ export default function ProfileManagementPage() {
     try {
       console.log("💾 Profil kaydediliyor:", profileData)
       
-      // Gerçek API çağrısı - profil güncelleme
-      const response = await fetch('/api/user/profile', {
+      // Save profile data
+      const profileResponse = await fetch('/api/user/profile', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: user.email,
           slug: user.profile?.slug || user.name?.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'user',
@@ -455,28 +453,56 @@ export default function ProfileManagementPage() {
         })
       })
 
-      const result = await response.json()
+      const profileResult = await profileResponse.json()
       
-      if (response.ok && result.success) {
-        console.log("✅ Profil başarıyla kaydedildi:", result)
-        setSaved(true)
-        setTimeout(() => setSaved(false), 3000)
-        
-        // Local user state'i güncelle
-        const updatedUser = {
-          ...user,
-          name: profileData.personal.name || user.name,
-          profile: result.profile
-        }
-        localStorage.setItem('user', JSON.stringify(updatedUser))
-        setUser(updatedUser)
-        
-        // Başarı mesajı
-        alert("✅ Profil bilgileriniz başarıyla kaydedildi!")
-      } else {
-        console.error("❌ API hatası:", result)
-        throw new Error(result.message || result.error || 'Profil kaydetme başarısız')
+      if (!profileResponse.ok || !profileResult.success) {
+        throw new Error(profileResult.message || 'Profil kaydetme başarısız')
       }
+
+      // Save social media links
+      const socialResponse = await fetch('/api/user/social-links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.email,
+          socialLinks: profileData.socialMedia
+        })
+      })
+
+      if (!socialResponse.ok) {
+        console.warn("❌ Sosyal medya kaydetme hatası")
+      }
+
+      // Save bank accounts
+      const bankResponse = await fetch('/api/user/bank-accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.email,
+          bankAccounts: profileData.banking
+        })
+      })
+
+      if (!bankResponse.ok) {
+        console.warn("❌ Banka hesapları kaydetme hatası")
+      }
+
+      console.log("✅ Tüm profil verileri başarıyla kaydedildi")
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+      
+      // Local user state'i güncelle
+      const updatedUser = {
+        ...user,
+        name: profileData.personal.name || user.name,
+        profile: profileResult.profile
+      }
+      localStorage.setItem('user', JSON.stringify(updatedUser))
+      setUser(updatedUser)
+      
+      // Başarı mesajı
+      alert("✅ Tüm profil bilgileriniz başarıyla kaydedildi!")
+      
     } catch (error) {
       console.error("❌ Profil kaydetme hatası:", error)
       alert("Profil kaydedilirken bir hata oluştu: " + error.message)
@@ -493,7 +519,6 @@ export default function ProfileManagementPage() {
     { id: "social", label: "Sosyal Medya", icon: Link2 },
     { id: "theme", label: "Tema", icon: Palette },
     { id: "documents", label: "Belgeler", icon: FileText },
-    { id: "google", label: "Google İşletme", icon: Star },
     { id: "ecommerce", label: "E-Ticaret", icon: ShoppingBag },
     { id: "billing", label: "Fatura", icon: Receipt },
     { id: "banking", label: "Banka", icon: Landmark },
@@ -1370,92 +1395,6 @@ export default function ProfileManagementPage() {
                 </div>
               )}
 
-              {/* Google Business Tab */}
-              {activeTab === "google" && (
-                <div className="space-y-6">
-                  <h2 className="text-lg font-semibold text-white flex items-center">
-                    <Star className="h-5 w-5 mr-2 text-yellow-400" />
-                    Google İşletme
-                  </h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-400 mb-2">Google İşletme URL'si</label>
-                      <input
-                        type="url"
-                        value={profileData.googleBusiness.reviewsUrl}
-                        onChange={(e) => setProfileData({
-                          ...profileData,
-                          googleBusiness: { ...profileData.googleBusiness, reviewsUrl: e.target.value }
-                        })}
-                        className="w-full px-4 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-blue-500"
-                        placeholder="https://g.page/işletme-adı"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Google İşletme profilinizin linkini girin. Puanlar otomatik çekilecek.</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2">Ortalama Puan (Otomatik)</label>
-                      <div className="px-4 py-2 bg-gray-700 text-gray-400 rounded-lg border border-gray-600">
-                        {profileData.googleBusiness.rating || '0.0'} ⭐
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">Google'dan otomatik çekilir</p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-2">Yorum Sayısı (Otomatik)</label>
-                      <div className="px-4 py-2 bg-gray-700 text-gray-400 rounded-lg border border-gray-600">
-                        {profileData.googleBusiness.reviewCount || '0'} yorum
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">Google'dan otomatik çekilir</p>
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <label className="flex items-center space-x-2 text-sm text-gray-400">
-                        <input
-                          type="checkbox"
-                          checked={profileData.googleBusiness.showReviews}
-                          onChange={(e) => setProfileData({
-                            ...profileData,
-                            googleBusiness: { ...profileData.googleBusiness, showReviews: e.target.checked }
-                          })}
-                          className="rounded bg-gray-800 border-gray-700 text-blue-600"
-                        />
-                        <span>Yorumları profilde göster</span>
-                      </label>
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <label className="flex items-center space-x-2 text-sm text-gray-400">
-                        <input
-                          type="checkbox"
-                          checked={profileData.googleBusiness.embedded}
-                          onChange={(e) => setProfileData({
-                            ...profileData,
-                            googleBusiness: { ...profileData.googleBusiness, embedded: e.target.checked }
-                          })}
-                          className="rounded bg-gray-800 border-gray-700 text-blue-600"
-                        />
-                        <span>Google yorumları widget olarak göster</span>
-                      </label>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-gray-800 rounded-lg p-4">
-                    <h3 className="text-sm font-medium text-gray-300 mb-2">Önizleme</h3>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-1">
-                        {[1,2,3,4,5].map((star) => (
-                          <Star key={star} className={`h-5 w-5 ${star <= Math.floor(profileData.googleBusiness.rating) ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} />
-                        ))}
-                      </div>
-                      <span className="text-white font-medium">{profileData.googleBusiness.rating}</span>
-                      <span className="text-gray-400">({profileData.googleBusiness.reviewCount} yorum)</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* E-commerce Tab */}
               {activeTab === "ecommerce" && (
                 <div className="space-y-6">
@@ -1863,6 +1802,158 @@ export default function ProfileManagementPage() {
                       <Plus className="h-6 w-6" />
                       <span className="text-sm">Yeni Özellik Ekle</span>
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Theme Tab */}
+              {activeTab === "theme" && (
+                <div className="space-y-6">
+                  <h2 className="text-lg font-semibold text-white flex items-center">
+                    <Palette className="h-5 w-5 mr-2 text-purple-400" />
+                    Tema Seçimi
+                  </h2>
+                  
+                  <p className="text-gray-400 text-sm">
+                    Kartvizitinizin görünümünü özelleştirin. Mevcut abonelik durumunuz: {' '}
+                    <span className="text-blue-400 font-medium">{profileData.subscription.plan}</span>
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {themes.map((theme) => (
+                      <div
+                        key={theme.id}
+                        className={`relative border-2 rounded-lg p-4 transition-all cursor-pointer ${
+                          theme.isLocked 
+                            ? "border-gray-700 opacity-75 cursor-not-allowed" 
+                            : selectedTheme === theme.id
+                              ? "border-blue-500 shadow-lg shadow-blue-500/20"
+                              : "border-gray-700 hover:border-gray-600"
+                        }`}
+                        onClick={() => !theme.isLocked && handleThemeChange(theme.id)}
+                      >
+                        {/* Theme Preview */}
+                        <div
+                          className="w-full h-24 rounded-lg mb-3 p-3 relative overflow-hidden"
+                          style={{
+                            backgroundColor: theme.backgroundColor || '#000',
+                            color: theme.textColor || '#fff'
+                          }}
+                        >
+                          {/* Header bar */}
+                          <div
+                            className="w-full h-2 rounded mb-2"
+                            style={{ backgroundColor: theme.primaryColor || '#3b82f6' }}
+                          />
+                          
+                          {/* Content lines */}
+                          <div className="space-y-1">
+                            <div
+                              className="w-3/4 h-1 rounded"
+                              style={{ backgroundColor: theme.textColor || '#fff', opacity: 0.7 }}
+                            />
+                            <div
+                              className="w-1/2 h-1 rounded"
+                              style={{ backgroundColor: theme.textColor || '#fff', opacity: 0.5 }}
+                            />
+                          </div>
+
+                          {/* Button */}
+                          <div
+                            className="absolute bottom-2 right-2 w-4 h-2 rounded text-xs"
+                            style={{ backgroundColor: theme.secondaryColor || '#8b5cf6' }}
+                          />
+
+                          {/* Selected indicator */}
+                          {selectedTheme === theme.id && !theme.isLocked && (
+                            <div className="absolute top-2 right-2 bg-blue-500 text-white rounded-full p-1">
+                              <CheckCircle className="h-3 w-3" />
+                            </div>
+                          )}
+                          
+                          {/* Locked indicator */}
+                          {theme.isLocked && (
+                            <div className="absolute top-2 right-2 bg-gray-600 text-white rounded-full p-1">
+                              <Shield className="h-3 w-3" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Theme Info */}
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-medium text-white">{theme.name}</h3>
+                            {theme.subscriptionLevel && theme.subscriptionLevel !== 'Free' && (
+                              <span className={`text-xs px-2 py-1 rounded ${
+                                theme.isLocked ? 'bg-gray-700 text-gray-400' : 'bg-blue-600 text-white'
+                              }`}>
+                                {theme.subscriptionLevel}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <div className="flex items-center gap-2 mb-2">
+                            <div
+                              className="w-4 h-4 rounded-full border border-gray-600"
+                              style={{ backgroundColor: theme.primaryColor || '#3b82f6' }}
+                              title="Ana renk"
+                            />
+                            <div
+                              className="w-4 h-4 rounded-full border border-gray-600"
+                              style={{ backgroundColor: theme.secondaryColor || '#8b5cf6' }}
+                              title="İkincil renk"
+                            />
+                            <div
+                              className="w-4 h-4 rounded-full border border-gray-600"
+                              style={{ backgroundColor: theme.backgroundColor || '#000' }}
+                              title="Arkaplan rengi"
+                            />
+                          </div>
+
+                          <p className="text-xs text-gray-500 capitalize">
+                            {theme.layout || 'modern'} • {theme.font || 'inter'}
+                          </p>
+                        </div>
+
+                        {/* Apply button */}
+                        {selectedTheme !== theme.id && !theme.isLocked && (
+                          <button
+                            className="w-full mt-3 px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm transition"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleThemeChange(theme.id)
+                            }}
+                          >
+                            Uygula
+                          </button>
+                        )}
+                        
+                        {/* Locked button */}
+                        {theme.isLocked && (
+                          <button
+                            className="w-full mt-3 px-3 py-1.5 bg-gray-700 text-gray-400 rounded text-sm cursor-not-allowed"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {theme.subscriptionLevel} Gerekli
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Custom Theme Info */}
+                  <div className="mt-6 p-4 bg-blue-900/20 rounded-lg border border-blue-800">
+                    <h4 className="font-medium text-blue-400 mb-2">
+                      Özel Tema Oluştur
+                    </h4>
+                    <p className="text-sm text-gray-300 mb-3">
+                      Pro ve üzeri planlarda kendi renklerinizi ve fontlarınızı kullanarak özel temalar oluşturabilirsiniz.
+                    </p>
+                    {profileData.subscription.plan === 'Free' && (
+                      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                        Pro Plana Yükselt
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

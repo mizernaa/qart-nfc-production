@@ -350,7 +350,7 @@ END:VCARD`
               className="flex items-center space-x-4"
             >
               {profile.logoUrl ? (
-                <img src={profile.logoUrl} alt={profile.companyName} className="h-10 w-auto" />
+                <img src={profile.logoUrl} alt={profile.companyName} className="h-16 w-auto max-w-[200px] object-contain" />
               ) : (
                 <div 
                   className="text-2xl font-bold bg-clip-text text-transparent"
@@ -485,35 +485,37 @@ END:VCARD`
             transition={{ type: "spring", stiffness: 100, damping: 20 }}
             className="space-y-10"
           >
-            {/* Status Badge */}
-            <motion.div 
-              className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border backdrop-blur-xl"
-              style={{
-                borderColor: `${theme?.primaryColor || '#f59e0b'}40`,
-                background: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}10, ${theme?.secondaryColor || '#d97706'}10)`,
-                boxShadow: `0 8px 32px ${theme?.primaryColor || '#f59e0b'}20`
-              }}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.5, type: "spring" }}
-            >
-              <div 
-                className="w-2 h-2 rounded-full animate-pulse"
-                style={{ backgroundColor: theme?.primaryColor || '#f59e0b' }}
-              />
-              <span 
-                className="text-sm font-medium"
-                style={{ color: theme?.primaryColor || '#f59e0b' }}
+            {/* Professional Status Badge - Only show if title exists */}
+            {profile.title && (
+              <motion.div 
+                className="inline-flex items-center space-x-2 px-4 py-2 rounded-full border backdrop-blur-xl"
+                style={{
+                  borderColor: `${theme?.primaryColor || '#f59e0b'}40`,
+                  background: `linear-gradient(135deg, ${theme?.primaryColor || '#f59e0b'}10, ${theme?.secondaryColor || '#d97706'}10)`,
+                  boxShadow: `0 8px 32px ${theme?.primaryColor || '#f59e0b'}20`
+                }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.5, type: "spring" }}
               >
-                {profile.subscriptionPlan || 'Pro Kullanıcı'} • Aktif
-              </span>
-              <Eye className="w-4 h-4" style={{ color: theme?.primaryColor || '#f59e0b' }} />
-            </motion.div>
+                <div 
+                  className="w-2 h-2 rounded-full animate-pulse"
+                  style={{ backgroundColor: theme?.primaryColor || '#f59e0b' }}
+                />
+                <span 
+                  className="text-sm font-medium"
+                  style={{ color: theme?.primaryColor || '#f59e0b' }}
+                >
+                  Profesyonel • Aktif
+                </span>
+                <Eye className="w-4 h-4" style={{ color: theme?.primaryColor || '#f59e0b' }} />
+              </motion.div>
+            )}
 
             {/* Epic Name Display */}
             <div className="space-y-4">
               <motion.h1 
-                className="text-6xl md:text-8xl font-black leading-none tracking-tight"
+                className="text-6xl md:text-8xl font-black leading-normal tracking-tight pb-4"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
@@ -542,7 +544,7 @@ END:VCARD`
               
               {/* Title with animation */}
               <motion.p 
-                className="text-3xl md:text-4xl font-bold opacity-90"
+                className="text-3xl md:text-4xl font-bold opacity-90 pb-2"
                 style={{ color: theme?.textColor || '#ffffff' }}
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}

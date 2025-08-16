@@ -66,6 +66,7 @@ model Profile {
   language          String    @default("tr")
   timezone          String    @default("Europe/Istanbul")
   socialLinks       SocialLink[]
+  bankAccounts      BankAccount[]
   analytics         Analytics[]
   leadForms         LeadForm[]
   customFields      CustomField[]
@@ -90,6 +91,18 @@ model SocialLink {
   isVisible   Boolean   @default(true)
   order       Int
   clickCount  Int       @default(0)
+}
+
+model BankAccount {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  bankName    String
+  iban        String
+  accountName String
+  isEnabled   Boolean   @default(true)
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
 }
 
 model Card {

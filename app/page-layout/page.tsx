@@ -131,19 +131,22 @@ export default function PageLayoutPage() {
         }
       } else {
         // Fallback to default themes if API fails
-        setThemes(getDefaultThemes())
+        const currentSub = userSubscription || "Free"
+        const defaultThemes = getDefaultThemes(currentSub)
+        setThemes(defaultThemes)
       }
     } catch (error) {
       console.error("Error fetching themes:", error)
       // Use fallback themes
-      setThemes(getDefaultThemes())
+      const currentSub = userSubscription || "Free"
+      setThemes(getDefaultThemes(currentSub))
     } finally {
       setLoadingThemes(false)
     }
   }
 
   // Default themes fallback
-  const getDefaultThemes = () => [
+  const getDefaultThemes = (subscription: string) => [
     {
       id: "default",
       name: "Default",
@@ -185,7 +188,7 @@ export default function PageLayoutPage() {
       backgroundColor: "#0F172A",
       textColor: "#F1F5F9",
       subscriptionLevel: "Pro",
-      isLocked: userSubscription === "Free",
+      isLocked: subscription === "Free",
       description: "Premium karanlık tema"
     },
     {
@@ -196,7 +199,7 @@ export default function PageLayoutPage() {
       backgroundColor: "#1E293B",
       textColor: "#E2E8F0",
       subscriptionLevel: "Pro",
-      isLocked: userSubscription === "Free",
+      isLocked: subscription === "Free",
       description: "Gradient efektli premium tema"
     },
     {
@@ -207,7 +210,7 @@ export default function PageLayoutPage() {
       backgroundColor: "#F8FAFC",
       textColor: "#1E293B",
       subscriptionLevel: "Pro",
-      isLocked: userSubscription === "Free",
+      isLocked: subscription === "Free",
       description: "Şık ve zarif tasarım"
     },
     {
@@ -218,7 +221,7 @@ export default function PageLayoutPage() {
       backgroundColor: "#FFFFFF",
       textColor: "#111827",
       subscriptionLevel: "Business",
-      isLocked: !["Business", "Enterprise", "QART Lifetime"].includes(userSubscription),
+      isLocked: !["Business", "Enterprise", "QART Lifetime"].includes(subscription),
       description: "Kurumsal görünüm"
     },
     {
@@ -229,7 +232,7 @@ export default function PageLayoutPage() {
       backgroundColor: "#FAF5FF",
       textColor: "#581C87",
       subscriptionLevel: "Business",
-      isLocked: !["Business", "Enterprise", "QART Lifetime"].includes(userSubscription),
+      isLocked: !["Business", "Enterprise", "QART Lifetime"].includes(subscription),
       description: "Premium business tema"
     },
     {
@@ -240,7 +243,7 @@ export default function PageLayoutPage() {
       backgroundColor: "#1C1917",
       textColor: "#FBBF24",
       subscriptionLevel: "QART Lifetime",
-      isLocked: userSubscription !== "QART Lifetime",
+      isLocked: subscription !== "QART Lifetime",
       description: "Özel altın tema"
     },
     {
@@ -251,7 +254,7 @@ export default function PageLayoutPage() {
       backgroundColor: "#111827",
       textColor: "#F9FAFB",
       subscriptionLevel: "QART Lifetime",
-      isLocked: userSubscription !== "QART Lifetime",
+      isLocked: subscription !== "QART Lifetime",
       description: "Özel platin tema"
     }
   ]

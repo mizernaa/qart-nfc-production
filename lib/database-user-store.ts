@@ -140,7 +140,16 @@ export class DatabaseUserStore {
     try {
       const users = await prisma.user.findMany({
         include: {
-          profile: true,
+          profile: {
+            include: {
+              socialLinks: {
+                orderBy: { order: 'asc' }
+              },
+              bankAccounts: {
+                orderBy: { order: 'asc' }
+              }
+            }
+          },
           subscription: true,
           _count: {
             select: {
@@ -193,7 +202,9 @@ export class DatabaseUserStore {
           coverImageUrl: user.profile.coverImageUrl,
           themeId: user.profile.themeId,
           theme: user.profile.themeId || 'default',
-          isPublic: user.profile.isPublic
+          isPublic: user.profile.isPublic,
+          socialLinks: user.profile.socialLinks || [],
+          bankAccounts: user.profile.bankAccounts || []
         } : undefined,
         subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
@@ -214,7 +225,17 @@ export class DatabaseUserStore {
       const user = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
         include: {
-          profile: true,
+          profile: {
+            include: {
+              socialLinks: {
+                orderBy: { order: 'asc' }
+              },
+              bankAccounts: {
+                orderBy: { order: 'asc' }
+              }
+            }
+          },
+          subscription: true,
           _count: {
             select: {
               cards: true
@@ -249,7 +270,9 @@ export class DatabaseUserStore {
           logoUrl: (user.profile as any).logoUrl,
           isPublic: (user.profile as any).isPublic !== false,
           theme: (user.profile as any).themeId || 'default',
-          themeId: (user.profile as any).themeId || 'default'
+          themeId: (user.profile as any).themeId || 'default',
+          socialLinks: (user.profile as any).socialLinks || [],
+          bankAccounts: (user.profile as any).bankAccounts || []
         } : undefined,
         subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {
@@ -282,7 +305,17 @@ export class DatabaseUserStore {
       const user = await prisma.user.findUnique({
         where: { id },
         include: {
-          profile: true,
+          profile: {
+            include: {
+              socialLinks: {
+                orderBy: { order: 'asc' }
+              },
+              bankAccounts: {
+                orderBy: { order: 'asc' }
+              }
+            }
+          },
+          subscription: true,
           _count: {
             select: {
               cards: true
@@ -322,7 +355,9 @@ export class DatabaseUserStore {
           logoUrl: (user.profile as any).logoUrl,
           isPublic: (user.profile as any).isPublic !== false,
           theme: (user.profile as any).themeId || 'default',
-          themeId: (user.profile as any).themeId || 'default'
+          themeId: (user.profile as any).themeId || 'default',
+          socialLinks: (user.profile as any).socialLinks || [],
+          bankAccounts: (user.profile as any).bankAccounts || []
         } : undefined,
         subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
         _count: {

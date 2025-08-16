@@ -65,27 +65,43 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     
     console.log('✅ Public profile found:', user.name)
     
-    // Build public profile data (excluding sensitive information)
+    // Build public profile data (only user-entered data, no fallbacks)
     const profile = {
       // Basic info
       name: user.name,
-      title: user.profile?.title || (user.isAdmin ? "Sistem Yöneticisi" : "QART Kullanıcısı"),
-      bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
+      title: user.profile?.title,
+      bio: user.profile?.bio,
       
       // Contact info
-      phone: user.profile?.phone || "+90 555 000 0000",
-      whatsapp: user.profile?.whatsapp || user.profile?.phone || "+90 555 000 0000",
-      email: user.email,
-      website: user.profile?.website || "",
-      address: user.profile?.address || "",
-      city: user.profile?.address?.split(',')[1]?.trim() || "İstanbul",
-      country: "Türkiye",
+      phone: user.profile?.phone,
+      alternativePhone: user.profile?.alternativePhone,
+      whatsapp: user.profile?.whatsapp,
+      email: user.profile?.email || user.email,
+      alternativeEmail: user.profile?.alternativeEmail,
+      website: user.profile?.website,
+      
+      // Location info
+      address: user.profile?.address,
+      city: user.profile?.city,
+      district: user.profile?.district,
+      country: user.profile?.country,
+      postalCode: user.profile?.postalCode,
+      googleMapsUrl: user.profile?.googleMapsUrl,
+      workingHours: user.profile?.workingHours,
       
       // Company info
-      companyName: user.profile?.companyName || (user.isAdmin ? "QART Team" : ""),
-      profileImage: user.profile?.profileImage || "/api/placeholder/150/150",
-      logoUrl: user.profile?.logoUrl || "",
-      coverImageUrl: user.profile?.coverImageUrl || "",
+      companyName: user.profile?.companyName,
+      companyLegalName: user.profile?.companyLegalName,
+      companySlogan: user.profile?.companySlogan,
+      companyDescription: user.profile?.companyDescription,
+      companySector: user.profile?.companySector,
+      companyFoundedYear: user.profile?.companyFoundedYear,
+      companyEmployeeCount: user.profile?.companyEmployeeCount,
+      
+      // Media
+      profileImage: user.profile?.profileImage,
+      logoUrl: user.profile?.logoUrl,
+      coverImageUrl: user.profile?.coverImageUrl,
       
       // Status
       isPremium: user.subscription === 'QART Lifetime' || user.subscription === 'Pro' || user.isAdmin,

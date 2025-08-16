@@ -140,6 +140,74 @@ const SocialIcon = ({ platform }: { platform: string }) => {
   return icons[platform] || <Globe className="w-5 h-5" />
 }
 
+// Server-side function to fetch profile data
+async function getProfileData(slug: string) {
+  try {
+    // Clean slug for Turkish characters
+    const cleanSlug = slug
+      .toLowerCase()
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .trim()
+    
+    console.log('🔧 Server-side profile fetch:', { slug, cleanSlug })
+    
+    // Use absolute URL for server-side fetch
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3013'
+    const response = await fetch(`${baseUrl}/api/profile/${cleanSlug}`, {
+      cache: 'no-store' // Always fetch fresh data
+    })
+    
+    if (!response.ok) {
+      console.error('Profile API error:', response.status, response.statusText)
+      return null
+    }
+    
+    const data = await response.json()
+    if (!data.success) {
+      console.error('Profile data error:', data.message)
+      return null
+    }
+    
+    console.log('✅ Server-side profile loaded:', data.profile.name)
+    return data.profile
+  } catch (error) {
+    console.error('Server-side profile fetch error:', error)
+    return null
+  }
+}
+
+// Server-side function to fetch theme data  
+async function getThemeData(themeId: string) {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3013'
+    const response = await fetch(`${baseUrl}/api/theme/${themeId}`, {
+      cache: 'no-store'
+    })
+    
+    if (!response.ok) return null
+    
+    const data = await response.json()
+    return data.success ? data.theme : null
+  } catch (error) {
+    console.error('Theme fetch error:', error)
+    return {
+      id: "default",
+      name: "Default",
+      primaryColor: "#3B82F6",
+      secondaryColor: "#10B981",
+      backgroundColor: "#FFFFFF", 
+      textColor: "#1F2937"
+    }
+  }
+}
+
 export default function ProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const [profile, setProfile] = useState<any>(null)
   const [theme, setTheme] = useState<any>(null)
@@ -365,7 +433,12 @@ END:VCARD`
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
-              {["Hakkımda", "Hizmetler", "Deneyim", "İletişim"].map((item, i) => (
+              {[
+                "Hakkımda",
+                ...(profile.companyName || profile.companySector ? ["Hizmetler"] : []),
+                ...(profile.companyFoundedYear || profile.companyEmployeeCount ? ["Deneyim"] : []),
+                "İletişim"
+              ].map((item, i) => (
                 <motion.button
                   key={item}
                   initial={{ opacity: 0, y: -20 }}
@@ -430,7 +503,12 @@ END:VCARD`
               className="md:hidden bg-black/95 backdrop-blur-lg border-t border-cyan-500/20"
             >
               <div className="container mx-auto px-6 py-4 space-y-4">
-                {["Hakkımda", "Hizmetler", "Deneyim", "İletişim"].map((item) => (
+                {[
+                  "Hakkımda",
+                  ...(profile.companyName || profile.companySector ? ["Hizmetler"] : []),
+                  ...(profile.companyFoundedYear || profile.companyEmployeeCount ? ["Deneyim"] : []),
+                  "İletişim"
+                ].map((item) => (
                   <button
                     key={item}
                     onClick={() => {
@@ -506,7 +584,7 @@ END:VCARD`
                   className="text-sm font-medium"
                   style={{ color: theme?.primaryColor || '#f59e0b' }}
                 >
-                  Profesyonel • Aktif
+                  {profile.title || profile.companyName ? 'Profesyonel' : 'Aktif'} • Online
                 </span>
                 <Eye className="w-4 h-4" style={{ color: theme?.primaryColor || '#f59e0b' }} />
               </motion.div>
@@ -684,24 +762,45 @@ END:VCARD`
                 </EpicCard>
               )}
               
-              <EpicCard theme={theme} className="group cursor-pointer">
-                <div className="text-center p-6 space-y-2">
-                  <motion.div 
-                    className="text-4xl font-black"
-                    style={{ color: theme?.primaryColor || '#f59e0b' }}
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    24/7
-                  </motion.div>
-                  <div 
-                    className="text-sm font-medium"
-                    style={{ color: theme?.textColor || '#ffffff' }}
-                  >
-                    ⚡ Erişilebilir
+              {profile.workingHours ? (
+                <EpicCard theme={theme} className="group cursor-pointer">
+                  <div className="text-center p-6 space-y-2">
+                    <motion.div 
+                      className="text-2xl font-black"
+                      style={{ color: theme?.primaryColor || '#f59e0b' }}
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      {profile.workingHours.weekdays || 'Vardiya'}
+                    </motion.div>
+                    <div 
+                      className="text-sm font-medium"
+                      style={{ color: theme?.textColor || '#ffffff' }}
+                    >
+                      📅 Çalışma Saatleri
+                    </div>
                   </div>
-                </div>
-              </EpicCard>
+                </EpicCard>
+              ) : (
+                <EpicCard theme={theme} className="group cursor-pointer">
+                  <div className="text-center p-6 space-y-2">
+                    <motion.div 
+                      className="text-4xl font-black"
+                      style={{ color: theme?.primaryColor || '#f59e0b' }}
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      Online
+                    </motion.div>
+                    <div 
+                      className="text-sm font-medium"
+                      style={{ color: theme?.textColor || '#ffffff' }}
+                    >
+                      ⚡ Aktif
+                    </div>
+                  </div>
+                </EpicCard>
+              )}
             </motion.div>
           </motion.div>
 
@@ -742,7 +841,7 @@ END:VCARD`
                     className="text-2xl font-bold mb-2"
                     style={{ color: theme?.textColor || '#ffffff' }}
                   >
-                    📱 Dijital Kartvizit
+                    📱 {profile.companyName ? `${profile.companyName} Kartı` : 'Dijital Kartvizit'}
                   </h3>
                   <div 
                     className="h-1 w-20 mx-auto rounded-full"
@@ -1027,7 +1126,7 @@ END:VCARD`
       </section>
 
       {/* Company Section */}
-      {(profile.companyDescription || profile.companySlogan) && (
+      {(profile.companyDescription || profile.companySlogan || profile.companyLegalName || profile.companySector || profile.companyFoundedYear || profile.companyEmployeeCount) && (
         <section className="py-20 relative">
           <div className="container mx-auto px-6">
             <motion.div
@@ -1056,129 +1155,168 @@ END:VCARD`
               )}
             </motion.div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              <EpicCard theme={theme}>
-                <div 
-                  className="p-8 rounded-2xl backdrop-blur-sm"
-                  style={{
-                    backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
-                    border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
-                  }}
-                >
-                  <Building 
-                    className="w-12 h-12 mb-4"
-                    style={{ color: theme?.primaryColor || "#06b6d4" }}
-                  />
-                  <h3 
-                    className="text-2xl font-bold mb-4"
-                    style={{ color: theme?.textColor || "#ffffff" }}
-                  >
-                    Kurumsal Bilgiler
-                  </h3>
+            <div className={`grid gap-8 ${
+              (profile.companyLegalName || profile.companySector || profile.companyFoundedYear || profile.companyEmployeeCount) && 
+              (profile.companyDescription || profile.bio) 
+                ? 'md:grid-cols-2' 
+                : 'md:grid-cols-1 max-w-2xl mx-auto'
+            }`}>
+              {/* Company info card - only show if there's company data */}
+              {(profile.companyLegalName || profile.companySector || profile.companyFoundedYear || profile.companyEmployeeCount) && (
+                <EpicCard theme={theme}>
                   <div 
-                    className="space-y-3 opacity-90"
-                    style={{ color: theme?.textColor || "#ffffff" }}
+                    className="p-8 rounded-2xl backdrop-blur-sm"
+                    style={{
+                      backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                      border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
+                    }}
                   >
-                    {profile.companyLegalName && (
-                      <p>
-                        <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Resmi Ünvan:</span> {profile.companyLegalName}
-                      </p>
-                    )}
-                    {profile.companySector && (
-                      <p>
-                        <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Sektör:</span> {profile.companySector}
-                      </p>
-                    )}
-                    {profile.companyFoundedYear && (
-                      <p>
-                        <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Kuruluş:</span> {profile.companyFoundedYear}
-                      </p>
-                    )}
-                    {profile.companyEmployeeCount && (
-                      <p>
-                        <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Çalışan Sayısı:</span> {profile.companyEmployeeCount}
-                      </p>
-                    )}
+                    <Building 
+                      className="w-12 h-12 mb-4"
+                      style={{ color: theme?.primaryColor || "#06b6d4" }}
+                    />
+                    <h3 
+                      className="text-2xl font-bold mb-4"
+                      style={{ color: theme?.textColor || "#ffffff" }}
+                    >
+                      Kurumsal Bilgiler
+                    </h3>
+                    <div 
+                      className="space-y-3 opacity-90"
+                      style={{ color: theme?.textColor || "#ffffff" }}
+                    >
+                      {profile.companyLegalName && (
+                        <p>
+                          <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Resmi Ünvan:</span> {profile.companyLegalName}
+                        </p>
+                      )}
+                      {profile.companySector && (
+                        <p>
+                          <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Sektör:</span> {profile.companySector}
+                        </p>
+                      )}
+                      {profile.companyFoundedYear && (
+                        <p>
+                          <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Kuruluş:</span> {profile.companyFoundedYear}
+                        </p>
+                      )}
+                      {profile.companyEmployeeCount && (
+                        <p>
+                          <span style={{ color: theme?.primaryColor || "#06b6d4" }}>Çalışan Sayısı:</span> {profile.companyEmployeeCount}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </EpicCard>
+                </EpicCard>
+              )}
 
-              <EpicCard theme={theme}>
-                <div 
-                  className="p-8 rounded-2xl backdrop-blur-sm"
-                  style={{
-                    backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
-                    border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
-                  }}
-                >
-                  <Target 
-                    className="w-12 h-12 mb-4"
-                    style={{ color: theme?.primaryColor || "#06b6d4" }}
-                  />
-                  <h3 
-                    className="text-2xl font-bold mb-4"
-                    style={{ color: theme?.textColor || "#ffffff" }}
+              {/* Mission card - only show if there's description or bio */}
+              {(profile.companyDescription || profile.bio) && (
+                <EpicCard theme={theme}>
+                  <div 
+                    className="p-8 rounded-2xl backdrop-blur-sm"
+                    style={{
+                      backgroundColor: `${theme?.backgroundColor || "#ffffff"}0D`,
+                      border: `1px solid ${theme?.primaryColor || "#06b6d4"}33`
+                    }}
                   >
-                    Misyonumuz
-                  </h3>
-                  <p 
-                    className="leading-relaxed opacity-90"
-                    style={{ color: theme?.textColor || "#ffffff" }}
-                  >
-                    {profile.companyDescription || profile.bio}
-                  </p>
-                </div>
-              </EpicCard>
+                    <Target 
+                      className="w-12 h-12 mb-4"
+                      style={{ color: theme?.primaryColor || "#06b6d4" }}
+                    />
+                    <h3 
+                      className="text-2xl font-bold mb-4"
+                      style={{ color: theme?.textColor || "#ffffff" }}
+                    >
+                      {profile.companyDescription ? 'Hakkımızda' : 'Profil'}
+                    </h3>
+                    <p 
+                      className="leading-relaxed opacity-90"
+                      style={{ color: theme?.textColor || "#ffffff" }}
+                    >
+                      {profile.companyDescription || profile.bio}
+                    </p>
+                  </div>
+                </EpicCard>
+              )}
             </div>
           </div>
         </section>
       )}
 
-      {/* Services Section */}
-      <section className="py-20 relative">
-        <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Hizmetlerimiz
-              </span>
-            </h2>
-            <p className="text-xl text-gray-400">Sizin için neler yapabiliriz?</p>
-          </motion.div>
+      {/* Services Section - Only show if company data exists */}
+      {(profile.companyName || profile.companySector || profile.companyDescription) && (
+        <section className="py-20 relative">
+          <div className="container mx-auto px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  {profile.companySector ? 'Faaliyet Alanımız' : 'Hakkımızda'}
+                </span>
+              </h2>
+              {profile.companyDescription && (
+                <p className="text-xl text-gray-400">{profile.companyDescription}</p>
+              )}
+            </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { icon: Code, title: "Web Geliştirme", desc: "Modern ve responsive web siteleri" },
-              { icon: Palette, title: "UI/UX Tasarım", desc: "Kullanıcı odaklı arayüz tasarımları" },
-              { icon: Rocket, title: "Dijital Pazarlama", desc: "Online varlığınızı güçlendirin" },
-              { icon: Shield, title: "Güvenlik", desc: "Verilerinizi koruyun" },
-              { icon: Zap, title: "Performans", desc: "Hızlı ve optimize çözümler" },
-              { icon: Heart, title: "Destek", desc: "7/24 teknik destek" }
-            ].map((service, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <EpicCard theme={theme}>
-                  <div className="p-6 bg-white/5 rounded-xl backdrop-blur-sm border border-cyan-500/20 hover:border-cyan-500/50 transition-all group">
-                    <service.icon className="w-12 h-12 text-cyan-400 mb-4 group-hover:scale-110 transition-transform" />
-                    <h3 className="text-xl font-bold mb-2">{service.title}</h3>
-                    <p className="text-gray-400">{service.desc}</p>
-                  </div>
-                </EpicCard>
-              </motion.div>
-            ))}
+          {/* Only show services section if user has entered company data */}
+          {(profile.companyName || profile.companySector || profile.companyDescription) && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {profile.companySector && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                >
+                  <EpicCard theme={theme}>
+                    <div className="p-6 bg-white/5 rounded-xl backdrop-blur-sm border border-cyan-500/20 hover:border-cyan-500/50 transition-all group">
+                      <Building className="w-12 h-12 text-cyan-400 mb-4 group-hover:scale-110 transition-transform" />
+                      <h3 className="text-xl font-bold mb-2">Sektör</h3>
+                      <p className="text-gray-400">{profile.companySector}</p>
+                    </div>
+                  </EpicCard>
+                </motion.div>
+              )}
+              {profile.companyDescription && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                >
+                  <EpicCard theme={theme}>
+                    <div className="p-6 bg-white/5 rounded-xl backdrop-blur-sm border border-cyan-500/20 hover:border-cyan-500/50 transition-all group">
+                      <Target className="w-12 h-12 text-cyan-400 mb-4 group-hover:scale-110 transition-transform" />
+                      <h3 className="text-xl font-bold mb-2">Hizmetlerimiz</h3>
+                      <p className="text-gray-400">{profile.companyDescription}</p>
+                    </div>
+                  </EpicCard>
+                </motion.div>
+              )}
+              {profile.companyEmployeeCount && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                >
+                  <EpicCard theme={theme}>
+                    <div className="p-6 bg-white/5 rounded-xl backdrop-blur-sm border border-cyan-500/20 hover:border-cyan-500/50 transition-all group">
+                      <Users className="w-12 h-12 text-cyan-400 mb-4 group-hover:scale-110 transition-transform" />
+                      <h3 className="text-xl font-bold mb-2">Ekibimiz</h3>
+                      <p className="text-gray-400">{profile.companyEmployeeCount} kişilik profesyonel ekip</p>
+                    </div>
+                  </EpicCard>
+                </motion.div>
+              )}
+            </div>
+          )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Location Section */}
       {(profile.address || profile.googleMapsUrl) && (
@@ -1271,11 +1409,15 @@ END:VCARD`
                 İletişime Geçin
               </span>
             </h2>
-            <p className="text-xl text-gray-400">7/24 ulaşabilirsiniz</p>
+            {profile.workingHours ? (
+              <p className="text-xl text-gray-400">Çalışma saatlerimiz içinde ulaşabilirsiniz</p>
+            ) : (
+              <p className="text-xl text-gray-400">İletişime geçmek için aşağıdaki bilgileri kullanabilirsiniz</p>
+            )}
           </motion.div>
 
           <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className={`grid gap-8 ${qrCodeUrl ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
               {/* Contact Info */}
               <div className="space-y-6">
                 {profile.phone && (
@@ -1349,10 +1491,10 @@ END:VCARD`
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-center md:text-left">
-              <p className="text-gray-400">© 2024 {profile.name}. Tüm hakları saklıdır.</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Powered by <span className="text-cyan-400">QART Digital</span>
-              </p>
+              <p className="text-gray-400">© {new Date().getFullYear()} {profile.companyName || profile.name}. Tüm hakları saklıdır.</p>
+              {profile.companyLegalName && (
+                <p className="text-sm text-gray-500 mt-1">{profile.companyLegalName}</p>
+              )}
             </div>
 
             <div className="flex items-center space-x-4">

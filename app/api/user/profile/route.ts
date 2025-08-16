@@ -76,7 +76,11 @@ export async function GET(request: NextRequest) {
       // Diğer
       profileImage: user.profile?.profileImage || "/api/placeholder/150/150",
       theme: user.profile?.theme || "modern",
-      isPublic: user.profile?.isPublic !== false // Default true
+      isPublic: user.profile?.isPublic !== false, // Default true
+      
+      // Sosyal medya ve banka verileri
+      socialLinks: user.profile?.socialLinks || [],
+      bankAccounts: user.profile?.bankAccounts || []
     }
     
     return NextResponse.json({

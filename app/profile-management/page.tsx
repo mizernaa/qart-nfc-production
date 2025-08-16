@@ -187,25 +187,42 @@ export default function ProfileManagementPage() {
               name: data.profile.name || "",
               title: data.profile.title || "",
               bio: data.profile.bio || "",
-              profileImage: data.profile.profileImage || ""
+              profileImage: data.profile.profileImage || "",
+              coverImage: data.profile.coverImageUrl || ""
             },
             company: {
               ...prevData.company,
               name: data.profile.companyName || "",
-              logo: data.profile.logoUrl || ""
+              legalName: data.profile.companyLegalName || "",
+              logo: data.profile.logoUrl || "",
+              slogan: data.profile.companySlogan || "",
+              description: data.profile.companyDescription || "",
+              foundedYear: data.profile.companyFoundedYear || "",
+              employeeCount: data.profile.companyEmployeeCount || "",
+              sector: data.profile.companySector || ""
             },
             contact: {
               ...prevData.contact,
               email: data.profile.email || "",
               phone: data.profile.phone || "",
+              alternativePhone: data.profile.alternativePhone || "",
               whatsapp: data.profile.whatsapp || "",
+              alternativeEmail: data.profile.alternativeEmail || "",
               website: data.profile.website || ""
             },
             location: {
               ...prevData.location,
               address: data.profile.address || "",
               city: data.profile.city || "",
-              country: data.profile.country || "Türkiye"
+              district: data.profile.district || "",
+              country: data.profile.country || "Türkiye",
+              postalCode: data.profile.postalCode || "",
+              googleMapsUrl: data.profile.googleMapsUrl || "",
+              workingHours: data.profile.workingHours || {
+                weekdays: "",
+                saturday: "",
+                sunday: ""
+              }
             },
             subscription: {
               ...prevData.subscription,

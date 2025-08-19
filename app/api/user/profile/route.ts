@@ -56,15 +56,30 @@ export async function GET(request: NextRequest) {
       emailVerified: user.emailVerified || true,
       createdAt: user.createdAt,
       
-      // Profile bilgileri (PostgreSQL'den)
+      // Profile bilgileri (PostgreSQL'den) - TÜM ALANLAR
       slug: profileSlug,
-      title: user.profile?.title || (user.isAdmin ? "Sistem Yöneticisi" : "Kullanıcı"),
-      bio: user.profile?.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,
-      phone: user.profile?.phone || "+90 555 000 0000",
-      whatsapp: user.profile?.whatsapp || user.profile?.phone || "+90 555 000 0000",
+      title: user.profile?.title || "",
+      bio: user.profile?.bio || "",
+      phone: user.profile?.phone || "",
+      alternativePhone: user.profile?.alternativePhone || "",
+      whatsapp: user.profile?.whatsapp || "",
+      email: user.profile?.email || user.email,
+      alternativeEmail: user.profile?.alternativeEmail || "",
       website: user.profile?.website || "",
       address: user.profile?.address || "",
-      companyName: user.profile?.companyName || (user.isAdmin ? "QART Team" : ""),
+      city: user.profile?.city || "",
+      district: user.profile?.district || "",
+      country: user.profile?.country || "",
+      postalCode: user.profile?.postalCode || "",
+      googleMapsUrl: user.profile?.googleMapsUrl || "",
+      workingHours: user.profile?.workingHours || null,
+      companyName: user.profile?.companyName || "",
+      companyLegalName: user.profile?.companyLegalName || "",
+      companySlogan: user.profile?.companySlogan || "",
+      companyDescription: user.profile?.companyDescription || "",
+      companySector: user.profile?.companySector || "",
+      companyFoundedYear: user.profile?.companyFoundedYear || "",
+      companyEmployeeCount: user.profile?.companyEmployeeCount || "",
       logoUrl: user.profile?.logoUrl || "",
       coverImageUrl: user.profile?.coverImageUrl || "",
       
@@ -74,8 +89,9 @@ export async function GET(request: NextRequest) {
       subscriptionDate: user.createdAt,
       
       // Diğer
-      profileImage: user.profile?.profileImage || "/api/placeholder/150/150",
+      profileImage: user.profile?.profileImage || "",
       theme: user.profile?.theme || "modern",
+      themeId: user.profile?.themeId || "default",
       isPublic: user.profile?.isPublic !== false, // Default true
       
       // Sosyal medya ve banka verileri

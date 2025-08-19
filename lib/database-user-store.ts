@@ -514,15 +514,30 @@ export class DatabaseUserStore {
       title: string
       bio: string
       phone: string
+      alternativePhone: string
       whatsapp: string
+      email: string
+      alternativeEmail: string
       website: string
       address: string
+      city: string
+      district: string
+      country: string
+      postalCode: string
+      googleMapsUrl: string
+      workingHours: any
       companyName: string
+      companyLegalName: string
+      companySlogan: string
+      companyDescription: string
+      companySector: string
+      companyFoundedYear: string
+      companyEmployeeCount: string
       profileImage: string
       coverImageUrl: string
       logoUrl: string
       isPublic: boolean
-      theme: string
+      themeId: string
     }
   }>): Promise<UserWithProfile | null> {
     try {

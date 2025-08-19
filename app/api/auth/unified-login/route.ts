@@ -30,11 +30,7 @@ export async function POST(request: NextRequest) {
     console.log("🌐 Environment:", process.env.NODE_ENV)
     console.log("🔗 Database URL exists:", !!process.env.DATABASE_URL)
     
-    // Use PostgreSQL DatabaseUserStore for PERSISTENT storage
-    console.log("🔄 Initializing DatabaseUserStore...")
-    await DatabaseUserStore.initialize()
-    console.log("✅ DatabaseUserStore initialized")
-    
+    // DatabaseUserStore directly uses Prisma, no need to initialize every time
     console.log("🔐 Authenticating user...")
     const user = await DatabaseUserStore.authenticateUser(email, password)
     console.log("🔐 Authentication result:", user ? "SUCCESS" : "FAILED")

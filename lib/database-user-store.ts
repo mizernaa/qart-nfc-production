@@ -58,10 +58,16 @@ export class DatabaseUserStore {
   // Initialize the database connection
   static async initialize(): Promise<void> {
     try {
+      console.log('🔄 Attempting to connect to database...')
+      console.log('🔗 Database URL:', process.env.DATABASE_URL?.substring(0, 50) + '...')
+      
       await prisma.$connect()
       console.log('✅ PostgreSQL database connection established')
-    } catch (error) {
-      console.error('❌ Failed to connect to PostgreSQL database:', error)
+    } catch (error: any) {
+      console.error('❌ Failed to connect to PostgreSQL database')
+      console.error('Error message:', error?.message)
+      console.error('Error code:', error?.code)
+      console.error('Full error:', error)
       throw error
     }
   }

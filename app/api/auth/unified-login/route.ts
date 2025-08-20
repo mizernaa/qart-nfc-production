@@ -84,10 +84,20 @@ export async function POST(request: NextRequest) {
 
     return response
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Login error:", error)
+    console.error("Error message:", error?.message)
+    console.error("Error stack:", error?.stack)
+    
+    // Production'da detaylı hata gösterme
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    
     return NextResponse.json(
-      { success: false, message: "Sunucu hatası" },
+      { 
+        success: false, 
+        message: isDevelopment ? `Sunucu hatası: ${error?.message}` : "Sunucu hatası",
+        error: isDevelopment ? error?.message : undefined
+      },
       { status: 500 }
     )
   }

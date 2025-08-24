@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
-
-const prisma = new PrismaClient()
+import prisma from './prisma'
 
 export interface UserWithProfile {
   id: string
@@ -295,6 +293,22 @@ export class DatabaseUserStore {
       console.error('❌ Error creating user:', error)
       return null
     }
+  }
+
+  // Register user (alias for createUser for API compatibility)
+  static async registerUser(email: string, password: string, name: string, isAdmin: boolean = false): Promise<UserWithProfile | null> {
+    // Check if user already exists
+    const existingUser = await this.findUserByEmail(email)
+    if (existingUser) {
+      throw new Error('Bu email adresi zaten kullanılıyor')
+    }
+    
+    return this.createUser({
+      name,
+      email,
+      password,
+      isAdmin
+    })
   }
 
   // Update user

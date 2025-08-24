@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test</title>
+</head>
+<body>
+    <h1>Login Test</h1>
+    
+    <div id="status"></div>
+    <div id="response"></div>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        const responseDiv = document.getElementById('response');
+        
+        async function testLogin() {
+            statusDiv.innerHTML = 'Testing login...';
+            
+            try {
+                const response = await fetch('http://localhost:3005/api/auth/unified-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'omeraytac@gmail.com',
+                        password: 'omer123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                statusDiv.innerHTML = `Status: ${response.status} ${response.ok ? '✅' : '❌'}`;
+                responseDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+                if (data.success) {
+                    statusDiv.innerHTML += '<br>Login successful! ✅';
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                } else {
+                    statusDiv.innerHTML += '<br>Login failed! ❌';
+                }
+                
+            } catch (error) {
+                statusDiv.innerHTML = 'Error: ' + error.message;
+            }
+        }
+        
+        testLogin();
+    </script>
+</body>
+</html>

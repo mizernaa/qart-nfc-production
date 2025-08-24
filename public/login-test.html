@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; font-size: 16px; }
+        button { width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; cursor: pointer; font-size: 16px; }
+        button:hover { background: #45a049; }
+        .error { color: red; margin: 10px 0; }
+        .success { color: green; margin: 10px 0; }
+        pre { background: #f4f4f4; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>Login Test Sayfası</h1>
+    
+    <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" value="omeraytac@gmail.com" required>
+        <input type="password" id="password" placeholder="Şifre" value="omer123" required>
+        <button type="submit">Login Test</button>
+    </form>
+    
+    <div id="message"></div>
+    <pre id="response"></pre>
+    
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            const responseDiv = document.getElementById('response');
+            
+            messageDiv.innerHTML = '<div class="success">Login test yapılıyor...</div>';
+            responseDiv.textContent = '';
+            
+            try {
+                const response = await fetch('/api/auth/unified-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    messageDiv.innerHTML = '<div class="success">✅ Login başarılı!</div>';
+                    
+                    // LocalStorage'a kaydet
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    
+                    // Response'u göster
+                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                    
+                    // 2 saniye sonra yönlendir
+                    setTimeout(() => {
+                        messageDiv.innerHTML += '<div class="success">Main dashboard\'a yönlendiriliyorsunuz...</div>';
+                        window.location.href = '/main-dashboard';
+                    }, 2000);
+                    
+                } else {
+                    messageDiv.innerHTML = `<div class="error">❌ Login başarısız: ${data.message || 'Bilinmeyen hata'}</div>`;
+                    responseDiv.textContent = JSON.stringify(data, null, 2);
+                }
+                
+            } catch (error) {
+                messageDiv.innerHTML = `<div class="error">❌ Hata: ${error.message}</div>`;
+                console.error('Login error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

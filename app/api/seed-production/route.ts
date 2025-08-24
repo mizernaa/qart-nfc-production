@@ -8,9 +8,42 @@ export async function GET(request: NextRequest) {
     
     // Create default themes
     const themes = [
-      { id: 'default', name: 'Default Theme', colors: { primary: '#3B82F6', secondary: '#1F2937' }, isPremium: false },
-      { id: 'modern', name: 'Modern Theme', colors: { primary: '#8B5CF6', secondary: '#4C1D95' }, isPremium: false },
-      { id: 'dark', name: 'Dark Theme', colors: { primary: '#EF4444', secondary: '#991B1B' }, isPremium: false }
+      { 
+        id: 'default', 
+        name: 'Default Theme',
+        primaryColor: '#3B82F6',
+        secondaryColor: '#1F2937',
+        backgroundColor: '#FFFFFF',
+        textColor: '#000000',
+        font: 'Inter',
+        layout: 'modern',
+        isDefault: true,
+        subscriptionLevel: 'Free'
+      },
+      { 
+        id: 'modern', 
+        name: 'Modern Theme',
+        primaryColor: '#8B5CF6',
+        secondaryColor: '#4C1D95',
+        backgroundColor: '#F8FAFC',
+        textColor: '#1E293B',
+        font: 'Inter',
+        layout: 'modern',
+        isDefault: false,
+        subscriptionLevel: 'Free'
+      },
+      { 
+        id: 'dark', 
+        name: 'Dark Theme',
+        primaryColor: '#EF4444',
+        secondaryColor: '#991B1B',
+        backgroundColor: '#111827',
+        textColor: '#F9FAFB',
+        font: 'Inter',
+        layout: 'modern',
+        isDefault: false,
+        subscriptionLevel: 'Pro'
+      }
     ]
     
     for (const theme of themes) {

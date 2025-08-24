@@ -1,5 +1,9 @@
 import bcrypt from 'bcryptjs'
 import prisma from './prisma'
+import prismaProduction from './prisma-production'
+
+// Use different Prisma client based on environment
+const dbClient = process.env.NODE_ENV === 'production' ? prismaProduction : prisma
 
 export interface UserWithProfile {
   id: string
@@ -59,7 +63,7 @@ export class DatabaseUserStore {
       console.log('🔄 Attempting to connect to database...')
       console.log('🔗 Database URL:', process.env.DATABASE_URL?.substring(0, 50) + '...')
       
-      await prisma.$connect()
+      await dbClient.$connect()
       console.log('✅ PostgreSQL database connection established')
     } catch (error: any) {
       console.error('❌ Failed to connect to PostgreSQL database')
@@ -148,7 +152,7 @@ export class DatabaseUserStore {
   // Get all users
   static async getAllUsers(): Promise<UserWithProfile[]> {
     try {
-      const users = await prisma.user.findMany({
+      const users = await dbClient.user.findMany({
         include: this.getIncludeOptions(),
         orderBy: [
           { isAdmin: 'desc' },
@@ -167,7 +171,7 @@ export class DatabaseUserStore {
   // Find user by email
   static async findUserByEmail(email: string): Promise<UserWithProfile | null> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await dbClient.user.findUnique({
         where: { email: email.toLowerCase() },
         include: this.getIncludeOptions()
       })
@@ -196,7 +200,7 @@ export class DatabaseUserStore {
   static async getUserById(id: string): Promise<UserWithProfile | null> {
     try {
       console.log('👤 Getting user by ID:', id)
-      const user = await prisma.user.findUnique({
+      const user = await dbClient.user.findUnique({
         where: { id },
         include: this.getIncludeOptions()
       })
@@ -252,7 +256,7 @@ export class DatabaseUserStore {
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 12)
       
-      const user = await prisma.user.create({
+      const user = await dbClient.user.create({
         data: {
           name: userData.name,
           email: userData.email.toLowerCase(),
@@ -375,7 +379,7 @@ export class DatabaseUserStore {
         
         // Validate themeId exists in database
         if (profileData.themeId) {
-          const themeExists = await prisma.theme.findUnique({
+          const themeExists = await dbClient.theme.findUnique({
             where: { id: profileData.themeId }
           })
           
@@ -389,7 +393,7 @@ export class DatabaseUserStore {
       }
 
       // Update user in database
-      const updatedUser = await prisma.user.update({
+      const updatedUser = await dbClient.user.update({
         where: { id },
         data: {
           ...userData,
@@ -421,7 +425,7 @@ export class DatabaseUserStore {
   // Delete user
   static async deleteUser(id: string): Promise<boolean> {
     try {
-      await prisma.user.delete({
+      await dbClient.user.delete({
         where: { id }
       })
       
@@ -437,9 +441,9 @@ export class DatabaseUserStore {
   // Get user stats
   static async getUserStats(): Promise<any> {
     try {
-      const totalUsers = await prisma.user.count()
-      const activeUsers = await prisma.user.count({ where: { isActive: true } })
-      const adminUsers = await prisma.user.count({ where: { isAdmin: true } })
+      const totalUsers = await dbClient.user.count()
+      const activeUsers = await dbClient.user.count({ where: { isActive: true } })
+      const adminUsers = await dbClient.user.count({ where: { isAdmin: true } })
       
       return {
         totalUsers,

@@ -14,20 +14,26 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 
-export default function PublicProfilePage({ params }: { params: { slug: string } }) {
+export default function PublicProfilePage({ params }: { params: Promise<{ slug: string }> }) {
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [theme, setTheme] = useState<any>(null)
   const [activeSection, setActiveSection] = useState("overview")
+  const [slug, setSlug] = useState<string>("")
 
   useEffect(() => {
-    fetchProfile()
-  }, [params.slug])
+    const getSlugAndFetch = async () => {
+      const resolvedParams = await params
+      setSlug(resolvedParams.slug)
+      fetchProfile(resolvedParams.slug)
+    }
+    getSlugAndFetch()
+  }, [params])
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (profileSlug: string) => {
     try {
-      const response = await fetch(`/api/profile/${params.slug}`)
+      const response = await fetch(`/api/profile/${profileSlug}`)
       if (response.ok) {
         const data = await response.json()
         setProfile(data)

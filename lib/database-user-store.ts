@@ -115,6 +115,26 @@ export class DatabaseUserStore {
         isPublic: user.profile.isPublic !== false,
         theme: user.profile.themeId || 'default',
         themeId: user.profile.themeId || 'default',
+        // E-Ticaret alanları
+        shopUrl: user.profile.shopUrl,
+        catalogUrl: user.profile.catalogUrl,
+        whatsappCatalog: user.profile.whatsappCatalog,
+        // Fatura bilgileri
+        companyTitle: user.profile.companyTitle,
+        taxOffice: user.profile.taxOffice,
+        taxNumber: user.profile.taxNumber,
+        tradeRegisterNo: user.profile.tradeRegisterNo,
+        mersisNo: user.profile.mersisNo,
+        billingAddress: user.profile.billingAddress,
+        // Google Business
+        googleReviewsUrl: user.profile.googleReviewsUrl,
+        googleRating: user.profile.googleRating,
+        googleReviewCount: user.profile.googleReviewCount,
+        showGoogleReviews: user.profile.showGoogleReviews,
+        // Belgeler
+        cvUrl: user.profile.cvUrl,
+        portfolioUrl: user.profile.portfolioUrl,
+        brochureUrl: user.profile.brochureUrl,
         socialLinks: user.profile.socialLinks || [],
         bankAccounts: user.profile.bankAccounts || []
       } : undefined,

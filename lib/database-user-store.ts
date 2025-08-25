@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs'
 import prisma from './prisma'
-import prismaProduction from './prisma-production'
 
-// Use different Prisma client based on environment
-const dbClient = process.env.NODE_ENV === 'production' ? prismaProduction : prisma
+// Single optimized Prisma client for all environments
+const dbClient = prisma
 
 export interface UserWithProfile {
   id: string

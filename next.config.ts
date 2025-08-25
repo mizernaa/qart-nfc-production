@@ -77,7 +77,7 @@ const nextConfig: NextConfig = {
   
   // Image optimization security
   images: {
-    domains: ['localhost', 'res.cloudinary.com'], // Add your allowed domains
+    domains: ['localhost', 'res.cloudinary.com', 'api.qrserver.com'], // Add your allowed domains
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },

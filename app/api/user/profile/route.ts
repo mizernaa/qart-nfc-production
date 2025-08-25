@@ -293,13 +293,16 @@ export async function POST(request: NextRequest) {
     // Update user profile using DatabaseUserStore
     await DatabaseUserStore.updateUser(user.id, updateData)
     
+    // Get updated user with profile ID
+    const updatedUser = await DatabaseUserStore.getUserById(user.id)
+    
     // Handle social links if provided
     if (socialLinks && Array.isArray(socialLinks)) {
       try {
         console.log('🔗 Sosyal medya bağlantıları güncelleniyor:', socialLinks.length)
         // Delete existing social links
         await prisma.socialLink.deleteMany({
-          where: { profileId: user.profile.id }
+          where: { profileId: updatedUser.profile.id }
         })
         
         // Create new social links
@@ -310,7 +313,7 @@ export async function POST(request: NextRequest) {
         if (validLinks.length > 0) {
           await prisma.socialLink.createMany({
             data: validLinks.map((link: any, index: number) => ({
-              profileId: user.profile.id,
+              profileId: updatedUser.profile.id,
               platform: link.platform,
               url: link.url,
               isVisible: link.enabled,
@@ -330,7 +333,7 @@ export async function POST(request: NextRequest) {
         console.log('🏦 Banka hesapları güncelleniyor:', bankAccounts.length)
         // Delete existing bank accounts
         await prisma.bankAccount.deleteMany({
-          where: { profileId: user.profile.id }
+          where: { profileId: updatedUser.profile.id }
         })
         
         // Create new bank accounts
@@ -341,7 +344,7 @@ export async function POST(request: NextRequest) {
         if (validAccounts.length > 0) {
           await prisma.bankAccount.createMany({
             data: validAccounts.map((account: any, index: number) => ({
-              profileId: user.profile.id,
+              profileId: updatedUser.profile.id,
               bankName: account.bankName,
               iban: account.iban,
               accountName: account.accountName,
@@ -359,29 +362,29 @@ export async function POST(request: NextRequest) {
     console.log('✅ Profil başarıyla güncellendi')
 
     // Güncellenmiş kullanıcıyı al
-    const updatedUser = await DatabaseUserStore.getUserByEmail(user.email)
+    const finalUser = await DatabaseUserStore.getUserByEmail(user.email)
 
     // Güncellenmiş profili döndür
     const profile = {
-      id: updatedUser!.id,
-      name: updatedUser!.name,
-      email: updatedUser!.email,
-      isAdmin: updatedUser!.isAdmin,
-      title: updatedUser!.profile?.title,
-      bio: updatedUser!.profile?.bio,
-      phone: updatedUser!.profile?.phone,
-      whatsapp: updatedUser!.profile?.whatsapp,
-      website: updatedUser!.profile?.website,
-      address: updatedUser!.profile?.address,
-      companyName: updatedUser!.profile?.companyName,
-      profileImage: updatedUser!.profile?.profileImage,
-      coverImageUrl: updatedUser!.profile?.coverImageUrl,
-      logoUrl: updatedUser!.profile?.logoUrl,
-      isPublic: updatedUser!.profile?.isPublic,
-      theme: updatedUser!.profile?.themeId || "default",
-      themeId: updatedUser!.profile?.themeId || "default",
-      isPremium: updatedUser!.subscription === 'QART Lifetime' || updatedUser!.subscription === 'Pro',
-      subscriptionPlan: updatedUser!.subscription || (updatedUser!.isAdmin ? "QART Lifetime" : "Free"),
+      id: finalUser!.id,
+      name: finalUser!.name,
+      email: finalUser!.email,
+      isAdmin: finalUser!.isAdmin,
+      title: finalUser!.profile?.title,
+      bio: finalUser!.profile?.bio,
+      phone: finalUser!.profile?.phone,
+      whatsapp: finalUser!.profile?.whatsapp,
+      website: finalUser!.profile?.website,
+      address: finalUser!.profile?.address,
+      companyName: finalUser!.profile?.companyName,
+      profileImage: finalUser!.profile?.profileImage,
+      coverImageUrl: finalUser!.profile?.coverImageUrl,
+      logoUrl: finalUser!.profile?.logoUrl,
+      isPublic: finalUser!.profile?.isPublic,
+      theme: finalUser!.profile?.themeId || "default",
+      themeId: finalUser!.profile?.themeId || "default",
+      isPremium: finalUser!.subscription === 'QART Lifetime' || finalUser!.subscription === 'Pro',
+      subscriptionPlan: finalUser!.subscription || (finalUser!.isAdmin ? "QART Lifetime" : "Free"),
       slug: profileSlug
     }
 

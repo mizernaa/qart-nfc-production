@@ -276,7 +276,20 @@ export default function PublicProfilePage({ params }: { params: { slug: string }
             {[
               "overview", "contact", "social", "services", 
               "ecommerce", "documents", "billing", "location"
-            ].map(section => (
+            ].filter(section => {
+              // Only show sections that have data
+              switch(section) {
+                case "overview": return true // Always show overview
+                case "contact": return profile.phone || profile.email || profile.website || profile.alternativePhone
+                case "social": return profile.socialLinks && profile.socialLinks.length > 0
+                case "services": return false // Will implement when we have services data
+                case "ecommerce": return profile.shopUrl || profile.catalogUrl
+                case "documents": return profile.cvUrl || profile.portfolioUrl || profile.brochureUrl
+                case "billing": return profile.companyTitle || profile.taxNumber || (profile.bankAccounts && profile.bankAccounts.length > 0)
+                case "location": return profile.address || profile.googleMapsUrl || profile.workingHours
+                default: return false
+              }
+            }).map(section => (
               <button
                 key={section}
                 onClick={() => setActiveSection(section)}
@@ -354,24 +367,40 @@ export default function PublicProfilePage({ params }: { params: { slug: string }
                   </div>
                 )}
 
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
-                    <TrendingUp className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
-                    <p className="text-2xl font-bold">100+</p>
-                    <p className="text-sm opacity-60">Müşteri</p>
+                {/* Dynamic Stats - Only show if user has relevant data */}
+                {(profile.companyFoundedYear || profile.companyEmployeeCount || profile.googleRating) && (
+                  <div className="grid grid-cols-3 gap-4">
+                    {profile.companyFoundedYear && (
+                      <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
+                        <Award className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
+                        <p className="text-2xl font-bold">{new Date().getFullYear() - parseInt(profile.companyFoundedYear)}+</p>
+                        <p className="text-sm opacity-60">Yıllık Tecrübe</p>
+                      </div>
+                    )}
+                    {profile.companyEmployeeCount && (
+                      <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
+                        <Users className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
+                        <p className="text-2xl font-bold">{profile.companyEmployeeCount}</p>
+                        <p className="text-sm opacity-60">Çalışan</p>
+                      </div>
+                    )}
+                    {profile.googleRating && (
+                      <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
+                        <Star className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
+                        <p className="text-2xl font-bold">{profile.googleRating}</p>
+                        <p className="text-sm opacity-60">Google Rating</p>
+                      </div>
+                    )}
+                    {/* Show a default stat card if no specific data is available */}
+                    {!profile.companyFoundedYear && !profile.companyEmployeeCount && !profile.googleRating && (
+                      <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
+                        <TrendingUp className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
+                        <p className="text-2xl font-bold">Aktif</p>
+                        <p className="text-sm opacity-60">Durum</p>
+                      </div>
+                    )}
                   </div>
-                  <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
-                    <Award className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
-                    <p className="text-2xl font-bold">5+</p>
-                    <p className="text-sm opacity-60">Yıllık Tecrübe</p>
-                  </div>
-                  <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
-                    <Star className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
-                    <p className="text-2xl font-bold">4.8</p>
-                    <p className="text-sm opacity-60">Değerlendirme</p>
-                  </div>
-                </div>
+                )}
               </motion.div>
             )}
 
@@ -810,10 +839,13 @@ export default function PublicProfilePage({ params }: { params: { slug: string }
                     {profile.isPremium ? "Premium" : "Standart"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="opacity-60">Profil Görüntüleme</span>
-                  <span>1,234</span>
-                </div>
+                {/* Only show view count if we have analytics data */}
+                {profile.viewCount && (
+                  <div className="flex items-center justify-between">
+                    <span className="opacity-60">Profil Görüntüleme</span>
+                    <span>{profile.viewCount.toLocaleString()}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

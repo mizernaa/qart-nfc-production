@@ -229,6 +229,47 @@ export default function ProfileManagementPage() {
               isPremium: data.profile.isPremium || false,
               plan: data.profile.subscriptionPlan || "Free"
             },
+            // E-Ticaret bilgileri
+            ecommerce: {
+              ...prevData.ecommerce,
+              shopUrl: data.profile.shopUrl || "",
+              catalogUrl: data.profile.catalogUrl || "",
+              whatsappCatalog: data.profile.whatsappCatalog || false
+            },
+            // Fatura bilgileri
+            billing: {
+              ...prevData.billing,
+              companyTitle: data.profile.companyTitle || "",
+              taxOffice: data.profile.taxOffice || "",
+              taxNumber: data.profile.taxNumber || "",
+              tradeRegisterNo: data.profile.tradeRegisterNo || "",
+              mersisNo: data.profile.mersisNo || "",
+              address: data.profile.billingAddress || ""
+            },
+            // Belgeler
+            documents: {
+              ...prevData.documents,
+              cvUrl: data.profile.cvUrl || "",
+              portfolio: data.profile.portfolioUrl || "",
+              brochure: data.profile.brochureUrl || ""
+            },
+            // Sosyal medya - API'den gelen veriyi set et
+            socialMedia: data.profile.socialLinks && data.profile.socialLinks.length > 0 
+              ? data.profile.socialLinks.map((link: any) => ({
+                  platform: link.platform,
+                  url: link.url,
+                  enabled: link.isVisible !== false
+                }))
+              : prevData.socialMedia,
+            // Banka hesapları - API'den gelen veriyi set et
+            banking: data.profile.bankAccounts && data.profile.bankAccounts.length > 0 
+              ? data.profile.bankAccounts.map((account: any) => ({
+                  bankName: account.bankName,
+                  iban: account.iban,
+                  accountName: account.accountName,
+                  enabled: account.isEnabled !== false
+                }))
+              : prevData.banking,
             // Theme ve diğer ayarlar
             theme: data.profile.theme || "modern",
             isPublic: data.profile.isPublic !== undefined ? data.profile.isPublic : true

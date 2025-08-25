@@ -120,7 +120,31 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       
       // Sosyal medya ve banka verileri
       socialLinks: user.profile?.socialLinks || [],
-      bankAccounts: user.profile?.bankAccounts || []
+      bankAccounts: user.profile?.bankAccounts || [],
+      
+      // E-Ticaret
+      shopUrl: user.profile?.shopUrl,
+      catalogUrl: user.profile?.catalogUrl,
+      whatsappCatalog: user.profile?.whatsappCatalog,
+      
+      // Fatura Bilgileri
+      companyTitle: user.profile?.companyTitle,
+      taxOffice: user.profile?.taxOffice,
+      taxNumber: user.profile?.taxNumber,
+      tradeRegisterNo: user.profile?.tradeRegisterNo,
+      mersisNo: user.profile?.mersisNo,
+      billingAddress: user.profile?.billingAddress,
+      
+      // Google Business
+      googleReviewsUrl: user.profile?.googleReviewsUrl,
+      googleRating: user.profile?.googleRating,
+      googleReviewCount: user.profile?.googleReviewCount,
+      showGoogleReviews: user.profile?.showGoogleReviews,
+      
+      // Belgeler
+      cvUrl: user.profile?.cvUrl,
+      portfolioUrl: user.profile?.portfolioUrl,
+      brochureUrl: user.profile?.brochureUrl
     }
     
     // Record view analytics (optional - could be implemented later)

@@ -36,9 +36,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
       const response = await fetch(`/api/profile/${profileSlug}`)
       if (response.ok) {
         const data = await response.json()
-        setProfile(data)
-        if (data.theme) {
-          fetchTheme(data.themeId || data.theme)
+        if (data.success && data.profile) {
+          setProfile(data.profile)
+          if (data.profile.theme) {
+            fetchTheme(data.profile.themeId || data.profile.theme)
+          }
         }
       } else {
         notFound()

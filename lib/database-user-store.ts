@@ -86,6 +86,7 @@ export class DatabaseUserStore {
       createdAt: user.createdAt,
       lastLoginAt: user.updatedAt,
       profile: user.profile ? {
+        id: user.profile.id,
         slug: user.profile.slug,
         title: user.profile.title || (user.isAdmin ? 'Sistem Yöneticisi' : 'Kullanıcı'),
         bio: user.profile.bio || `${user.name} - QART dijital kartvizit kullanıcısı`,

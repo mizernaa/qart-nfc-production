@@ -295,11 +295,13 @@ export async function POST(request: NextRequest) {
     
     // Get updated user with profile ID
     const updatedUser = await DatabaseUserStore.getUserById(user.id)
+    console.log('🆔 Updated user profile ID:', updatedUser?.profile?.id)
     
     // Handle social links if provided
     if (socialLinks && Array.isArray(socialLinks)) {
       try {
         console.log('🔗 Sosyal medya bağlantıları güncelleniyor:', socialLinks.length)
+        console.log('📊 Profile ID for social links:', updatedUser?.profile?.id)
         // Delete existing social links
         await prisma.socialLink.deleteMany({
           where: { profileId: updatedUser.profile.id }

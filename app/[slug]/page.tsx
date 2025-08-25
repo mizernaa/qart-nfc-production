@@ -2,141 +2,96 @@
 
 import { useEffect, useState } from "react"
 import { notFound } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { 
-  Phone, Mail, MapPin, Globe, Calendar, Clock, Download, Share2, 
-  Copy, CheckCircle, ExternalLink, ChevronRight, Star, Award,
-  Briefcase, Users, Building, Facebook, Instagram, Linkedin, 
-  Twitter, Youtube, Github, MessageCircle, Shield, Zap, Target,
-  TrendingUp, Heart, Coffee, Rocket, Code, Palette, Camera,
-  DollarSign, ShoppingBag, FileText, Play, Pause, Volume2, VolumeX,
-  ArrowUp, Menu, X, Send, User, GraduationCap, Package, Sparkles,
-  Eye, HeartHandshake, Flame, Crown, Diamond, Gem, QrCode
+  Phone, Mail, Globe, MapPin, Clock, Star, MessageSquare,
+  Instagram, Linkedin, Twitter, Facebook, Youtube, Github,
+  ChevronRight, Download, Share2, Calendar, Users, Award,
+  ShoppingBag, FileText, CreditCard, Building2, Briefcase,
+  QrCode, ExternalLink, Copy, CheckCircle, Navigation,
+  DollarSign, TrendingUp, Package, Shield, Heart, Zap
 } from "lucide-react"
-import toast, { Toaster } from "react-hot-toast"
-import QRCode from "qrcode"
+import Image from "next/image"
+import Link from "next/link"
 
-export default function PublicProfilePage({ params }: { params: Promise<{ slug: string }> }) {
-  const [loading, setLoading] = useState(true)
+export default function PublicProfilePage({ params }: { params: { slug: string } }) {
   const [profile, setProfile] = useState<any>(null)
-  const [qrCodeUrl, setQrCodeUrl] = useState("")
+  const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
-  const [scrollY, setScrollY] = useState(0)
-  const [activeSection, setActiveSection] = useState("about")
+  const [theme, setTheme] = useState<any>(null)
+  const [activeSection, setActiveSection] = useState("overview")
 
-  // Fetch profile data
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { slug: rawSlug } = await params
-        const decodedSlug = decodeURIComponent(rawSlug)
-        const cleanSlug = decodedSlug
-          .toLowerCase()
-          .replace(/ğ/g, 'g')
-          .replace(/ü/g, 'u')
-          .replace(/ş/g, 's')
-          .replace(/ı/g, 'i')
-          .replace(/ö/g, 'o')
-          .replace(/ç/g, 'c')
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-')
-
-        console.log('📱 Fetching profile for slug:', cleanSlug)
-        
-        const response = await fetch(`/api/profile/${cleanSlug}`)
-        const data = await response.json()
-
-        if (data.success) {
-          console.log('✅ Profile data loaded:', data.profile)
-          setProfile(data.profile)
-          
-          // Generate QR Code
-          const currentUrl = window.location.href
-          const qr = await QRCode.toDataURL(currentUrl, {
-            width: 256,
-            margin: 2,
-            color: {
-              dark: '#000000',
-              light: '#FFFFFF'
-            }
-          })
-          setQrCodeUrl(qr)
-        } else {
-          console.error('❌ Profile not found')
-          notFound()
-        }
-      } catch (error) {
-        console.error('Error fetching profile:', error)
-        notFound()
-      } finally {
-        setLoading(false)
-      }
-    }
     fetchProfile()
-  }, [params])
+  }, [params.slug])
 
-  // Scroll handler
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY)
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch(`/api/profile/${params.slug}`)
+      if (response.ok) {
+        const data = await response.json()
+        setProfile(data)
+        if (data.theme) {
+          fetchTheme(data.themeId || data.theme)
+        }
+      } else {
+        notFound()
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error)
+      notFound()
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  // Copy profile link
-  const copyProfileLink = () => {
-    navigator.clipboard.writeText(window.location.href)
+  const fetchTheme = async (themeId: string) => {
+    try {
+      const response = await fetch(`/api/theme/${themeId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setTheme(data)
+      }
+    } catch (error) {
+      console.error("Error fetching theme:", error)
+    }
+  }
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text)
     setCopied(true)
-    toast.success('Link kopyalandı!')
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // Share profile
-  const shareProfile = async () => {
+  const handleShare = () => {
     if (navigator.share) {
-      try {
-        await navigator.share({
-          title: profile?.name || 'Dijital Kartvizit',
-          text: `${profile?.name} - ${profile?.title || 'Dijital Kartvizit'}`,
-          url: window.location.href
-        })
-      } catch (error) {
-        console.log('Share failed:', error)
-      }
-    } else {
-      copyProfileLink()
+      navigator.share({
+        title: profile?.name || profile?.companyName,
+        text: profile?.bio || profile?.companySlogan,
+        url: window.location.href
+      })
     }
   }
 
-  // Add to contacts
-  const addToContacts = () => {
-    const vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${profile?.name || ''}
-ORG:${profile?.companyName || ''}
-TITLE:${profile?.title || ''}
-TEL:${profile?.phone || ''}
-EMAIL:${profile?.email || ''}
-URL:${profile?.website || ''}
-ADR:;;${profile?.address || ''};${profile?.city || ''};${profile?.district || ''};${profile?.postalCode || ''};${profile?.country || ''}
-END:VCARD`
-
-    const blob = new Blob([vcard], { type: 'text/vcard' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${profile?.name || 'contact'}.vcf`
-    link.click()
-    URL.revokeObjectURL(url)
-    toast.success('Kişi kaydedildi!')
+  const getSectionIcon = (section: string) => {
+    switch(section) {
+      case "overview": return <Building2 className="w-4 h-4" />
+      case "contact": return <Phone className="w-4 h-4" />
+      case "social": return <Share2 className="w-4 h-4" />
+      case "services": return <Briefcase className="w-4 h-4" />
+      case "ecommerce": return <ShoppingBag className="w-4 h-4" />
+      case "documents": return <FileText className="w-4 h-4" />
+      case "billing": return <CreditCard className="w-4 h-4" />
+      case "location": return <MapPin className="w-4 h-4" />
+      default: return <ChevronRight className="w-4 h-4" />
+    }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
         <div className="animate-pulse">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     )
@@ -146,337 +101,737 @@ END:VCARD`
     return notFound()
   }
 
-  const socialIcons: any = {
-    LinkedIn: Linkedin,
-    Instagram: Instagram,
-    Facebook: Facebook,
-    Twitter: Twitter,
-    YouTube: Youtube,
-    GitHub: Github
+  const themeColors = theme ? {
+    primary: theme.primaryColor || "#3B82F6",
+    secondary: theme.secondaryColor || "#8B5CF6",
+    background: theme.backgroundColor || "#030712",
+    text: theme.textColor || "#F9FAFB",
+    accent: theme.accentColor || "#10B981"
+  } : {
+    primary: "#3B82F6",
+    secondary: "#8B5CF6",
+    background: "#030712",
+    text: "#F9FAFB",
+    accent: "#10B981"
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
-      <Toaster position="top-center" />
-      
-      {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={shareProfile}
-          className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg"
-        >
-          <Share2 className="w-6 h-6" />
-        </motion.button>
-        {profile?.phone && (
-          <motion.a
-            href={`https://wa.me/${profile.whatsapp || profile.phone}`}
-            target="_blank"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg"
-          >
-            <MessageCircle className="w-6 h-6" />
-          </motion.a>
-        )}
-      </div>
+    <div 
+      className="min-h-screen transition-all duration-500"
+      style={{ 
+        backgroundColor: themeColors.background,
+        color: themeColors.text 
+      }}
+    >
+      {/* Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/20 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              {profile.logoUrl && (
+                <Image
+                  src={profile.logoUrl}
+                  alt="Logo"
+                  width={40}
+                  height={40}
+                  className="rounded-lg"
+                />
+              )}
+              <h1 className="text-xl font-bold" style={{ color: themeColors.primary }}>
+                {profile.companyName || profile.name}
+              </h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handleShare}
+                className="p-2 rounded-lg hover:bg-white/10 transition"
+              >
+                <Share2 className="w-5 h-5" />
+              </button>
+              <button
+                className="px-4 py-2 rounded-lg font-medium transition"
+                style={{
+                  background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary})`,
+                  color: themeColors.background
+                }}
+              >
+                İletişime Geç
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-                             radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)`
-          }}></div>
-        </div>
-
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          {/* Profile Image */}
-          {profile.profileImage && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="mb-8"
-            >
-              <div className="relative inline-block">
-                <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
-                  <Image
-                    src={profile.profileImage}
-                    alt={profile.name}
-                    width={160}
-                    height={160}
-                    className="object-cover"
-                  />
-                </div>
-                {profile.isPremium && (
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full p-2">
-                    <Crown className="w-6 h-6 text-white" />
-                  </div>
-                )}
+      <section className="relative pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden">
+            {/* Cover Image */}
+            {profile.coverImageUrl && (
+              <div className="absolute inset-0 z-0">
+                <Image
+                  src={profile.coverImageUrl}
+                  alt="Cover"
+                  fill
+                  className="object-cover opacity-30"
+                />
               </div>
-            </motion.div>
-          )}
-
-          {/* Name & Title */}
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-5xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent"
-          >
-            {profile.name}
-          </motion.h1>
-
-          {profile.title && (
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-xl md:text-2xl text-gray-300 mb-6"
-            >
-              {profile.title}
-            </motion.p>
-          )}
-
-          {profile.companyName && (
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="flex items-center justify-center gap-2 text-gray-400 mb-8"
-            >
-              <Building className="w-5 h-5" />
-              <span className="text-lg">{profile.companyName}</span>
-            </motion.div>
-          )}
-
-          {/* Bio */}
-          {profile.bio && (
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="text-gray-300 text-lg max-w-2xl mx-auto mb-8 leading-relaxed"
-            >
-              {profile.bio}
-            </motion.p>
-          )}
-
-          {/* Action Buttons */}
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="flex flex-wrap gap-4 justify-center"
-          >
-            <button
-              onClick={addToContacts}
-              className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-semibold hover:shadow-xl transition-all flex items-center gap-2"
-            >
-              <Download className="w-5 h-5" />
-              Kişilere Ekle
-            </button>
-            {profile.phone && (
-              <a
-                href={`tel:${profile.phone}`}
-                className="px-8 py-3 bg-white/10 backdrop-blur rounded-full font-semibold hover:bg-white/20 transition-all flex items-center gap-2"
-              >
-                <Phone className="w-5 h-5" />
-                Ara
-              </a>
             )}
-            {profile.email && (
-              <a
-                href={`mailto:${profile.email}`}
-                className="px-8 py-3 bg-white/10 backdrop-blur rounded-full font-semibold hover:bg-white/20 transition-all flex items-center gap-2"
-              >
-                <Mail className="w-5 h-5" />
-                E-posta
-              </a>
-            )}
-          </motion.div>
+            
+            {/* Content */}
+            <div className="relative z-10 p-8 lg:p-12">
+              <div className="flex flex-col lg:flex-row gap-8 items-center">
+                {/* Profile Image */}
+                <div className="relative">
+                  <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-2xl overflow-hidden ring-4 ring-white/20">
+                    {profile.profileImage ? (
+                      <Image
+                        src={profile.profileImage}
+                        alt={profile.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div 
+                        className="w-full h-full flex items-center justify-center text-4xl font-bold"
+                        style={{ backgroundColor: themeColors.primary }}
+                      >
+                        {profile.name?.charAt(0) || "?"}
+                      </div>
+                    )}
+                  </div>
+                  {profile.isPremium && (
+                    <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-black text-xs font-bold px-2 py-1 rounded-full">
+                      PRO
+                    </div>
+                  )}
+                </div>
+
+                {/* Profile Info */}
+                <div className="flex-1 text-center lg:text-left">
+                  <h1 className="text-3xl lg:text-5xl font-bold mb-2">
+                    {profile.name}
+                  </h1>
+                  {profile.title && (
+                    <p className="text-xl mb-4 opacity-80">{profile.title}</p>
+                  )}
+                  {profile.companyName && (
+                    <p className="text-lg mb-2 flex items-center justify-center lg:justify-start gap-2">
+                      <Building2 className="w-5 h-5" style={{ color: themeColors.accent }} />
+                      {profile.companyName}
+                    </p>
+                  )}
+                  {profile.companySlogan && (
+                    <p className="text-lg italic opacity-70">{profile.companySlogan}</p>
+                  )}
+                  {profile.bio && (
+                    <p className="mt-4 text-base opacity-80 max-w-2xl">{profile.bio}</p>
+                  )}
+                </div>
+
+                {/* Quick Actions */}
+                <div className="flex flex-col gap-3">
+                  {profile.phone && (
+                    <a
+                      href={`tel:${profile.phone}`}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl hover:scale-105 transition"
+                      style={{ backgroundColor: themeColors.primary + "20" }}
+                    >
+                      <Phone className="w-5 h-5" style={{ color: themeColors.primary }} />
+                      <span>Ara</span>
+                    </a>
+                  )}
+                  {profile.whatsapp && (
+                    <a
+                      href={`https://wa.me/${profile.whatsapp.replace(/\D/g, '')}`}
+                      target="_blank"
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl hover:scale-105 transition"
+                      style={{ backgroundColor: "#25D366" + "20" }}
+                    >
+                      <MessageSquare className="w-5 h-5" style={{ color: "#25D366" }} />
+                      <span>WhatsApp</span>
+                    </a>
+                  )}
+                  {profile.email && (
+                    <a
+                      href={`mailto:${profile.email}`}
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl hover:scale-105 transition"
+                      style={{ backgroundColor: themeColors.secondary + "20" }}
+                    >
+                      <Mail className="w-5 h-5" style={{ color: themeColors.secondary }} />
+                      <span>E-posta</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
+      {/* Section Navigation */}
+      <div className="sticky top-16 z-40 backdrop-blur-xl bg-black/20 border-y border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-2 overflow-x-auto py-4 scrollbar-hide">
+            {[
+              "overview", "contact", "social", "services", 
+              "ecommerce", "documents", "billing", "location"
+            ].map(section => (
+              <button
+                key={section}
+                onClick={() => setActiveSection(section)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition ${
+                  activeSection === section 
+                    ? "bg-white/20" 
+                    : "hover:bg-white/10"
+                }`}
+              >
+                {getSectionIcon(section)}
+                <span className="capitalize">
+                  {section === "overview" ? "Genel Bakış" :
+                   section === "contact" ? "İletişim" :
+                   section === "social" ? "Sosyal Medya" :
+                   section === "services" ? "Hizmetler" :
+                   section === "ecommerce" ? "E-Ticaret" :
+                   section === "documents" ? "Belgeler" :
+                   section === "billing" ? "Fatura" :
+                   section === "location" ? "Konum" : section}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Content Sections */}
-      <div className="max-w-6xl mx-auto px-4 pb-20">
-        {/* Contact Info */}
-        {(profile.phone || profile.email || profile.website || profile.address) && (
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-16"
-          >
-            <h2 className="text-3xl font-bold mb-8 text-center">İletişim Bilgileri</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {profile.phone && (
-                <a href={`tel:${profile.phone}`} className="bg-white/5 backdrop-blur rounded-xl p-6 hover:bg-white/10 transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                      <Phone className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm">Telefon</p>
-                      <p className="text-lg font-semibold">{profile.phone}</p>
-                    </div>
-                  </div>
-                </a>
-              )}
-              
-              {profile.email && (
-                <a href={`mailto:${profile.email}`} className="bg-white/5 backdrop-blur rounded-xl p-6 hover:bg-white/10 transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                      <Mail className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm">E-posta</p>
-                      <p className="text-lg font-semibold">{profile.email}</p>
-                    </div>
-                  </div>
-                </a>
-              )}
-              
-              {profile.website && (
-                <a href={profile.website} target="_blank" className="bg-white/5 backdrop-blur rounded-xl p-6 hover:bg-white/10 transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                      <Globe className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm">Web Sitesi</p>
-                      <p className="text-lg font-semibold">{profile.website}</p>
-                    </div>
-                  </div>
-                </a>
-              )}
-              
-              {profile.address && (
-                <div className="bg-white/5 backdrop-blur rounded-xl p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                      <MapPin className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-sm">Adres</p>
-                      <p className="text-lg font-semibold">{profile.address}</p>
-                      {(profile.city || profile.district) && (
-                        <p className="text-gray-400">{profile.district} {profile.city}</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Overview Section */}
+            {activeSection === "overview" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                {/* Company Info */}
+                {(profile.companyDescription || profile.companySector || profile.companyFoundedYear) && (
+                  <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                    <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                      <Building2 style={{ color: themeColors.primary }} />
+                      Şirket Bilgileri
+                    </h2>
+                    {profile.companyDescription && (
+                      <p className="mb-4 opacity-80">{profile.companyDescription}</p>
+                    )}
+                    <div className="grid grid-cols-2 gap-4">
+                      {profile.companySector && (
+                        <div>
+                          <p className="text-sm opacity-60">Sektör</p>
+                          <p className="font-medium">{profile.companySector}</p>
+                        </div>
+                      )}
+                      {profile.companyFoundedYear && (
+                        <div>
+                          <p className="text-sm opacity-60">Kuruluş Yılı</p>
+                          <p className="font-medium">{profile.companyFoundedYear}</p>
+                        </div>
+                      )}
+                      {profile.companyEmployeeCount && (
+                        <div>
+                          <p className="text-sm opacity-60">Çalışan Sayısı</p>
+                          <p className="font-medium">{profile.companyEmployeeCount}</p>
+                        </div>
+                      )}
+                      {profile.companyLegalName && (
+                        <div>
+                          <p className="text-sm opacity-60">Ticari Ünvan</p>
+                          <p className="font-medium">{profile.companyLegalName}</p>
+                        </div>
                       )}
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </motion.section>
-        )}
+                )}
 
-        {/* Company Info */}
-        {(profile.companyDescription || profile.companySlogan || profile.companySector) && (
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-16"
-          >
-            <h2 className="text-3xl font-bold mb-8 text-center">Şirket Bilgileri</h2>
-            <div className="bg-white/5 backdrop-blur rounded-xl p-8">
-              {profile.companySlogan && (
-                <p className="text-xl text-gray-300 italic mb-6 text-center">"{profile.companySlogan}"</p>
-              )}
-              {profile.companyDescription && (
-                <p className="text-gray-300 mb-6 leading-relaxed">{profile.companyDescription}</p>
-              )}
-              <div className="grid md:grid-cols-3 gap-6 mt-8">
-                {profile.companySector && (
-                  <div className="text-center">
-                    <Briefcase className="w-8 h-8 mx-auto mb-2 text-blue-400" />
-                    <p className="text-gray-400 text-sm">Sektör</p>
-                    <p className="font-semibold">{profile.companySector}</p>
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
+                    <TrendingUp className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
+                    <p className="text-2xl font-bold">100+</p>
+                    <p className="text-sm opacity-60">Müşteri</p>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
+                    <Award className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
+                    <p className="text-2xl font-bold">5+</p>
+                    <p className="text-sm opacity-60">Yıllık Tecrübe</p>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 text-center backdrop-blur-sm">
+                    <Star className="w-8 h-8 mx-auto mb-2" style={{ color: themeColors.accent }} />
+                    <p className="text-2xl font-bold">4.8</p>
+                    <p className="text-sm opacity-60">Değerlendirme</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Contact Section */}
+            {activeSection === "contact" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <Phone style={{ color: themeColors.primary }} />
+                    İletişim Bilgileri
+                  </h2>
+                  <div className="space-y-4">
+                    {profile.phone && (
+                      <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <Phone className="w-5 h-5" style={{ color: themeColors.primary }} />
+                          <div>
+                            <p className="text-sm opacity-60">Telefon</p>
+                            <p className="font-medium">{profile.phone}</p>
+                          </div>
+                        </div>
+                        <a
+                          href={`tel:${profile.phone}`}
+                          className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition"
+                        >
+                          Ara
+                        </a>
+                      </div>
+                    )}
+                    {profile.alternativePhone && (
+                      <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <Phone className="w-5 h-5" style={{ color: themeColors.primary }} />
+                          <div>
+                            <p className="text-sm opacity-60">Alternatif Telefon</p>
+                            <p className="font-medium">{profile.alternativePhone}</p>
+                          </div>
+                        </div>
+                        <a
+                          href={`tel:${profile.alternativePhone}`}
+                          className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition"
+                        >
+                          Ara
+                        </a>
+                      </div>
+                    )}
+                    {profile.email && (
+                      <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-5 h-5" style={{ color: themeColors.secondary }} />
+                          <div>
+                            <p className="text-sm opacity-60">E-posta</p>
+                            <p className="font-medium">{profile.email}</p>
+                          </div>
+                        </div>
+                        <a
+                          href={`mailto:${profile.email}`}
+                          className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition"
+                        >
+                          Mail Gönder
+                        </a>
+                      </div>
+                    )}
+                    {profile.website && (
+                      <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                        <div className="flex items-center gap-3">
+                          <Globe className="w-5 h-5" style={{ color: themeColors.accent }} />
+                          <div>
+                            <p className="text-sm opacity-60">Web Sitesi</p>
+                            <p className="font-medium">{profile.website}</p>
+                          </div>
+                        </div>
+                        <a
+                          href={profile.website}
+                          target="_blank"
+                          className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition"
+                        >
+                          Ziyaret Et
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Social Media Section */}
+            {activeSection === "social" && profile.socialLinks && profile.socialLinks.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <Share2 style={{ color: themeColors.primary }} />
+                    Sosyal Medya
+                  </h2>
+                  <div className="grid grid-cols-2 gap-4">
+                    {profile.socialLinks.map((link: any, index: number) => (
+                      <a
+                        key={index}
+                        href={link.url}
+                        target="_blank"
+                        className="flex items-center gap-3 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition"
+                      >
+                        {link.platform === "LinkedIn" && <Linkedin className="w-6 h-6" style={{ color: "#0A66C2" }} />}
+                        {link.platform === "Instagram" && <Instagram className="w-6 h-6" style={{ color: "#E4405F" }} />}
+                        {link.platform === "Twitter" && <Twitter className="w-6 h-6" style={{ color: "#1DA1F2" }} />}
+                        {link.platform === "Facebook" && <Facebook className="w-6 h-6" style={{ color: "#1877F2" }} />}
+                        {link.platform === "YouTube" && <Youtube className="w-6 h-6" style={{ color: "#FF0000" }} />}
+                        {link.platform === "GitHub" && <Github className="w-6 h-6" />}
+                        <span className="font-medium">{link.platform}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* E-Commerce Section */}
+            {activeSection === "ecommerce" && (profile.shopUrl || profile.catalogUrl) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <ShoppingBag style={{ color: themeColors.primary }} />
+                    E-Ticaret
+                  </h2>
+                  <div className="space-y-4">
+                    {profile.shopUrl && (
+                      <a
+                        href={profile.shopUrl}
+                        target="_blank"
+                        className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition"
+                      >
+                        <div className="flex items-center gap-3">
+                          <ShoppingBag className="w-6 h-6" style={{ color: themeColors.accent }} />
+                          <div>
+                            <p className="font-medium">Online Mağaza</p>
+                            <p className="text-sm opacity-60">Ürünlerimizi keşfedin</p>
+                          </div>
+                        </div>
+                        <ExternalLink className="w-5 h-5" />
+                      </a>
+                    )}
+                    {profile.catalogUrl && (
+                      <a
+                        href={profile.catalogUrl}
+                        target="_blank"
+                        className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Package className="w-6 h-6" style={{ color: themeColors.accent }} />
+                          <div>
+                            <p className="font-medium">Ürün Kataloğu</p>
+                            <p className="text-sm opacity-60">Tüm ürünlerimiz</p>
+                          </div>
+                        </div>
+                        <ExternalLink className="w-5 h-5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Documents Section */}
+            {activeSection === "documents" && (profile.cvUrl || profile.portfolioUrl || profile.brochureUrl) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <FileText style={{ color: themeColors.primary }} />
+                    Belgeler
+                  </h2>
+                  <div className="space-y-4">
+                    {profile.cvUrl && (
+                      <a
+                        href={profile.cvUrl}
+                        target="_blank"
+                        className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition"
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-6 h-6" style={{ color: themeColors.accent }} />
+                          <div>
+                            <p className="font-medium">CV / Özgeçmiş</p>
+                            <p className="text-sm opacity-60">PDF formatında indir</p>
+                          </div>
+                        </div>
+                        <Download className="w-5 h-5" />
+                      </a>
+                    )}
+                    {profile.portfolioUrl && (
+                      <a
+                        href={profile.portfolioUrl}
+                        target="_blank"
+                        className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Briefcase className="w-6 h-6" style={{ color: themeColors.accent }} />
+                          <div>
+                            <p className="font-medium">Portfolyo</p>
+                            <p className="text-sm opacity-60">Çalışmalarımızı inceleyin</p>
+                          </div>
+                        </div>
+                        <ExternalLink className="w-5 h-5" />
+                      </a>
+                    )}
+                    {profile.brochureUrl && (
+                      <a
+                        href={profile.brochureUrl}
+                        target="_blank"
+                        className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition"
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-6 h-6" style={{ color: themeColors.accent }} />
+                          <div>
+                            <p className="font-medium">Broşür</p>
+                            <p className="text-sm opacity-60">Şirket broşürü</p>
+                          </div>
+                        </div>
+                        <Download className="w-5 h-5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Billing Section */}
+            {activeSection === "billing" && (profile.companyTitle || profile.taxNumber) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <CreditCard style={{ color: themeColors.primary }} />
+                    Fatura Bilgileri
+                  </h2>
+                  <div className="grid grid-cols-1 gap-4">
+                    {profile.companyTitle && (
+                      <div className="p-3 bg-white/5 rounded-xl">
+                        <p className="text-sm opacity-60">Firma Ünvanı</p>
+                        <p className="font-medium">{profile.companyTitle}</p>
+                      </div>
+                    )}
+                    {profile.taxOffice && (
+                      <div className="p-3 bg-white/5 rounded-xl">
+                        <p className="text-sm opacity-60">Vergi Dairesi</p>
+                        <p className="font-medium">{profile.taxOffice}</p>
+                      </div>
+                    )}
+                    {profile.taxNumber && (
+                      <div className="p-3 bg-white/5 rounded-xl">
+                        <p className="text-sm opacity-60">Vergi Numarası</p>
+                        <p className="font-medium">{profile.taxNumber}</p>
+                      </div>
+                    )}
+                    {profile.tradeRegisterNo && (
+                      <div className="p-3 bg-white/5 rounded-xl">
+                        <p className="text-sm opacity-60">Ticaret Sicil No</p>
+                        <p className="font-medium">{profile.tradeRegisterNo}</p>
+                      </div>
+                    )}
+                    {profile.mersisNo && (
+                      <div className="p-3 bg-white/5 rounded-xl">
+                        <p className="text-sm opacity-60">MERSİS No</p>
+                        <p className="font-medium">{profile.mersisNo}</p>
+                      </div>
+                    )}
+                    {profile.billingAddress && (
+                      <div className="p-3 bg-white/5 rounded-xl">
+                        <p className="text-sm opacity-60">Fatura Adresi</p>
+                        <p className="font-medium">{profile.billingAddress}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bank Accounts */}
+                {profile.bankAccounts && profile.bankAccounts.length > 0 && (
+                  <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <DollarSign style={{ color: themeColors.secondary }} />
+                      Banka Hesapları
+                    </h3>
+                    <div className="space-y-3">
+                      {profile.bankAccounts.map((account: any, index: number) => (
+                        <div key={index} className="p-4 bg-white/5 rounded-xl">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium">{account.bankName}</p>
+                              <p className="text-sm opacity-60">{account.accountName}</p>
+                              <p className="text-sm font-mono mt-1">{account.iban}</p>
+                            </div>
+                            <button
+                              onClick={() => handleCopy(account.iban)}
+                              className="p-2 rounded-lg hover:bg-white/10 transition"
+                            >
+                              {copied ? <CheckCircle className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
-                {profile.companyFoundedYear && (
-                  <div className="text-center">
-                    <Calendar className="w-8 h-8 mx-auto mb-2 text-purple-400" />
-                    <p className="text-gray-400 text-sm">Kuruluş Yılı</p>
-                    <p className="font-semibold">{profile.companyFoundedYear}</p>
+              </motion.div>
+            )}
+
+            {/* Location Section */}
+            {activeSection === "location" && (profile.address || profile.googleMapsUrl) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <MapPin style={{ color: themeColors.primary }} />
+                    Konum Bilgileri
+                  </h2>
+                  <div className="space-y-4">
+                    {profile.address && (
+                      <div className="p-4 bg-white/5 rounded-xl">
+                        <div className="flex items-start gap-3">
+                          <MapPin className="w-5 h-5 mt-1" style={{ color: themeColors.accent }} />
+                          <div className="flex-1">
+                            <p className="font-medium mb-1">Adres</p>
+                            <p className="opacity-80">{profile.address}</p>
+                            {(profile.district || profile.city) && (
+                              <p className="opacity-60 text-sm mt-1">
+                                {profile.district && `${profile.district}, `}
+                                {profile.city} {profile.postalCode}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {profile.workingHours && (
+                      <div className="p-4 bg-white/5 rounded-xl">
+                        <div className="flex items-start gap-3">
+                          <Clock className="w-5 h-5 mt-1" style={{ color: themeColors.accent }} />
+                          <div className="flex-1">
+                            <p className="font-medium mb-2">Çalışma Saatleri</p>
+                            <div className="space-y-1 text-sm opacity-80">
+                              {profile.workingHours.weekdays && (
+                                <p>Hafta içi: {profile.workingHours.weekdays}</p>
+                              )}
+                              {profile.workingHours.saturday && (
+                                <p>Cumartesi: {profile.workingHours.saturday}</p>
+                              )}
+                              {profile.workingHours.sunday && (
+                                <p>Pazar: {profile.workingHours.sunday}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {profile.googleMapsUrl && (
+                      <a
+                        href={profile.googleMapsUrl}
+                        target="_blank"
+                        className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Navigation className="w-6 h-6" style={{ color: themeColors.accent }} />
+                          <div>
+                            <p className="font-medium">Google Maps'te Görüntüle</p>
+                            <p className="text-sm opacity-60">Yol tarifi al</p>
+                          </div>
+                        </div>
+                        <ExternalLink className="w-5 h-5" />
+                      </a>
+                    )}
                   </div>
-                )}
-                {profile.companyEmployeeCount && (
-                  <div className="text-center">
-                    <Users className="w-8 h-8 mx-auto mb-2 text-green-400" />
-                    <p className="text-gray-400 text-sm">Çalışan Sayısı</p>
-                    <p className="font-semibold">{profile.companyEmployeeCount}</p>
-                  </div>
-                )}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* QR Code */}
+            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <QrCode style={{ color: themeColors.primary }} />
+                QR Kod
+              </h3>
+              <div className="bg-white p-4 rounded-xl">
+                <div className="aspect-square relative">
+                  <Image
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
+                    alt="QR Code"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
+              <p className="text-sm text-center mt-3 opacity-60">
+                QR kodu tarayarak profili paylaşın
+              </p>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+              <h3 className="text-xl font-bold mb-4">Hızlı Bilgiler</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="opacity-60">Durum</span>
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    Aktif
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="opacity-60">Üyelik</span>
+                  <span style={{ color: themeColors.accent }}>
+                    {profile.isPremium ? "Premium" : "Standart"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="opacity-60">Profil Görüntüleme</span>
+                  <span>1,234</span>
+                </div>
               </div>
             </div>
-          </motion.section>
-        )}
-
-        {/* Social Media */}
-        {profile.socialLinks && profile.socialLinks.length > 0 && (
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-16"
-          >
-            <h2 className="text-3xl font-bold mb-8 text-center">Sosyal Medya</h2>
-            <div className="flex flex-wrap gap-4 justify-center">
-              {profile.socialLinks.map((link: any, index: number) => {
-                const Icon = socialIcons[link.platform] || Globe
-                return (
-                  <motion.a
-                    key={index}
-                    href={link.url}
-                    target="_blank"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="w-14 h-14 bg-white/10 backdrop-blur rounded-full flex items-center justify-center hover:bg-white/20 transition-all"
-                  >
-                    <Icon className="w-6 h-6" />
-                  </motion.a>
-                )
-              })}
-            </div>
-          </motion.section>
-        )}
-
-        {/* QR Code */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-16"
-        >
-          <h2 className="text-3xl font-bold mb-8 text-center">QR Kod</h2>
-          <div className="bg-white/5 backdrop-blur rounded-xl p-8 text-center">
-            <div className="bg-white rounded-xl p-4 inline-block mb-6">
-              <Image src={qrCodeUrl} alt="QR Code" width={200} height={200} />
-            </div>
-            <p className="text-gray-400 mb-4">QR kodu taratarak profili kolayca paylaşabilirsiniz</p>
-            <button
-              onClick={copyProfileLink}
-              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-semibold hover:shadow-xl transition-all inline-flex items-center gap-2"
-            >
-              {copied ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-              {copied ? 'Kopyalandı!' : 'Linki Kopyala'}
-            </button>
           </div>
-        </motion.section>
+        </div>
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 py-8">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <p className="text-gray-500">
-            © {new Date().getFullYear()} QART Digital Business Card
-          </p>
+      <footer className="mt-16 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="w-5 h-5" style={{ color: themeColors.primary }} />
+              <span className="font-medium">Powered by QART NFC</span>
+            </div>
+            <p className="text-sm opacity-60">
+              Dijital kartvizit teknolojisi ile güçlendirilmiştir
+            </p>
+          </div>
         </div>
       </footer>
     </div>

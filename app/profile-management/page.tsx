@@ -463,10 +463,33 @@ export default function ProfileManagementPage() {
           profileImage: profileData.personal.profileImage,
           coverImageUrl: profileData.personal.coverImage,
           logoUrl: profileData.company.logo,
+          // E-Ticaret
+          shopUrl: profileData.ecommerce.shopUrl,
+          catalogUrl: profileData.ecommerce.catalogUrl,
+          whatsappCatalog: profileData.ecommerce.whatsappCatalog,
+          // Fatura Bilgileri
+          companyTitle: profileData.billing.companyTitle,
+          taxOffice: profileData.billing.taxOffice,
+          taxNumber: profileData.billing.taxNumber,
+          tradeRegisterNo: profileData.billing.tradeRegisterNo,
+          mersisNo: profileData.billing.mersisNo,
+          billingAddress: profileData.billing.address,
+          // Google Business
+          googleReviewsUrl: profileData.googleBusiness.reviewsUrl,
+          googleRating: profileData.googleBusiness.rating,
+          googleReviewCount: profileData.googleBusiness.reviewCount,
+          showGoogleReviews: profileData.googleBusiness.showReviews,
+          // Belgeler
+          cvUrl: profileData.documents.cvUrl,
+          portfolioUrl: profileData.documents.portfolio,
+          brochureUrl: profileData.documents.brochure,
           // Diğer
           isPublic: true,
-          theme: profileData.theme || "default",
-          themeId: profileData.theme || "default"
+          theme: selectedTheme || profileData.theme.currentTheme || "default",
+          themeId: selectedTheme || profileData.theme.currentTheme || "default",
+          // Sosyal medya ve banka bilgileri
+          socialLinks: profileData.socialMedia,
+          bankAccounts: profileData.banking
         })
       })
 
@@ -476,33 +499,8 @@ export default function ProfileManagementPage() {
         throw new Error(profileResult.message || 'Profil kaydetme başarısız')
       }
 
-      // Save social media links
-      const socialResponse = await fetch('/api/user/social-links', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: user.email,
-          socialLinks: profileData.socialMedia
-        })
-      })
-
-      if (!socialResponse.ok) {
-        console.warn("❌ Sosyal medya kaydetme hatası")
-      }
-
-      // Save bank accounts
-      const bankResponse = await fetch('/api/user/bank-accounts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: user.email,
-          bankAccounts: profileData.banking
-        })
-      })
-
-      if (!bankResponse.ok) {
-        console.warn("❌ Banka hesapları kaydetme hatası")
-      }
+      // Social media and bank accounts are now saved via main profile API
+      console.log("📱 Sosyal medya ve banka bilgileri ana API ile kaydedildi")
 
       console.log("✅ Tüm profil verileri başarıyla kaydedildi")
       setSaved(true)

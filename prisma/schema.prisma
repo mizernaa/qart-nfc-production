@@ -56,6 +56,25 @@ model Profile {
   longitude         Float?
   taxNumber         String?
   invoiceAddress    String?
+  // E-Ticaret
+  shopUrl           String?
+  catalogUrl        String?
+  whatsappCatalog   Boolean   @default(false)
+  // Fatura Bilgileri  
+  companyTitle      String?
+  taxOffice         String?
+  tradeRegisterNo   String?
+  mersisNo          String?
+  billingAddress    String?
+  // Google Business
+  googleReviewsUrl  String?
+  googleRating      Float?
+  googleReviewCount Int?
+  showGoogleReviews Boolean   @default(false)
+  // Belgeler
+  cvUrl             String?
+  portfolioUrl      String?
+  brochureUrl       String?
   website           String?
   logoUrl           String?
   profileImage      String?

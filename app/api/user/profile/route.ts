@@ -150,7 +150,27 @@ export async function POST(request: NextRequest) {
       theme,
       themeId,
       socialLinks,
-      bankAccounts
+      bankAccounts,
+      // E-Ticaret
+      shopUrl,
+      catalogUrl,
+      whatsappCatalog,
+      // Fatura Bilgileri
+      companyTitle,
+      taxOffice,
+      taxNumber,
+      tradeRegisterNo,
+      mersisNo,
+      billingAddress,
+      // Google Business
+      googleReviewsUrl,
+      googleRating,
+      googleReviewCount,
+      showGoogleReviews,
+      // Belgeler
+      cvUrl,
+      portfolioUrl,
+      brochureUrl
     } = body
 
     if (!userId && !email) {
@@ -224,6 +244,26 @@ export async function POST(request: NextRequest) {
         profileImage: profileImage || user.profile?.profileImage,
         coverImageUrl: coverImageUrl || user.profile?.coverImageUrl,
         logoUrl: logoUrl || user.profile?.logoUrl,
+        // E-Ticaret
+        shopUrl: shopUrl || user.profile?.shopUrl,
+        catalogUrl: catalogUrl || user.profile?.catalogUrl,
+        whatsappCatalog: whatsappCatalog !== undefined ? whatsappCatalog : user.profile?.whatsappCatalog,
+        // Fatura Bilgileri
+        companyTitle: companyTitle || user.profile?.companyTitle,
+        taxOffice: taxOffice || user.profile?.taxOffice,
+        taxNumber: taxNumber || user.profile?.taxNumber,
+        tradeRegisterNo: tradeRegisterNo || user.profile?.tradeRegisterNo,
+        mersisNo: mersisNo || user.profile?.mersisNo,
+        billingAddress: billingAddress || user.profile?.billingAddress,
+        // Google Business
+        googleReviewsUrl: googleReviewsUrl || user.profile?.googleReviewsUrl,
+        googleRating: googleRating || user.profile?.googleRating,
+        googleReviewCount: googleReviewCount || user.profile?.googleReviewCount,
+        showGoogleReviews: showGoogleReviews !== undefined ? showGoogleReviews : user.profile?.showGoogleReviews,
+        // Belgeler
+        cvUrl: cvUrl || user.profile?.cvUrl,
+        portfolioUrl: portfolioUrl || user.profile?.portfolioUrl,
+        brochureUrl: brochureUrl || user.profile?.brochureUrl,
         // Diğer
         isPublic: isPublic !== undefined ? isPublic : (user.profile?.isPublic !== false),
         themeId: themeId || user.profile?.themeId || "default"

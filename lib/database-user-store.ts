@@ -137,7 +137,11 @@ export class DatabaseUserStore {
         portfolioUrl: user.profile.portfolioUrl,
         brochureUrl: user.profile.brochureUrl,
         socialLinks: user.profile.socialLinks || [],
-        bankAccounts: user.profile.bankAccounts || []
+        bankAccounts: user.profile.bankAccounts || [],
+        services: user.profile.services || [],
+        experiences: user.profile.experiences || [],
+        educations: user.profile.educations || [],
+        features: user.profile.features || []
       } : undefined,
       subscription: user.subscription?.plan || (user.isAdmin ? 'QART Lifetime' : 'Free'),
       _count: {
@@ -156,6 +160,18 @@ export class DatabaseUserStore {
             orderBy: { order: 'asc' }
           },
           bankAccounts: {
+            orderBy: { order: 'asc' }
+          },
+          services: {
+            orderBy: { order: 'asc' }
+          },
+          experiences: {
+            orderBy: { order: 'asc' }
+          },
+          educations: {
+            orderBy: { order: 'asc' }
+          },
+          features: {
             orderBy: { order: 'asc' }
           }
         }

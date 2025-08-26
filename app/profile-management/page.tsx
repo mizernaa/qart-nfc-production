@@ -1065,6 +1065,20 @@ export default function ProfileManagementPage() {
                             className="mt-1 rounded bg-gray-700 border-gray-600 text-blue-600"
                           />
                           <div className="flex-1 space-y-3">
+                            {profileData.banking.length > 1 && (
+                              <div className="flex justify-end">
+                                <button
+                                  onClick={() => {
+                                    const updated = profileData.banking.filter((_, i) => i !== index)
+                                    setProfileData({ ...profileData, banking: updated })
+                                  }}
+                                  className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                  <span>Sil</span>
+                                </button>
+                              </div>
+                            )}
                             <div>
                               <label className="block text-sm font-medium text-gray-400 mb-1">Banka Adı</label>
                               <input
@@ -1112,7 +1126,18 @@ export default function ProfileManagementPage() {
                       </div>
                     ))}
                     
-                    <button className="w-full py-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition flex items-center justify-center space-x-2">
+                    <button 
+                      onClick={() => {
+                        setProfileData({
+                          ...profileData,
+                          banking: [
+                            ...profileData.banking,
+                            { bankName: "", iban: "", accountName: "", enabled: false }
+                          ]
+                        })
+                      }}
+                      className="w-full py-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition flex items-center justify-center space-x-2"
+                    >
                       <Plus className="h-4 w-4" />
                       <span>Yeni Banka Hesabı Ekle</span>
                     </button>

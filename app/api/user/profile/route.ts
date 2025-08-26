@@ -190,7 +190,12 @@ export async function POST(request: NextRequest) {
       // Belgeler
       cvUrl,
       portfolioUrl,
-      brochureUrl
+      brochureUrl,
+      // Hizmetler, deneyim, eğitim, özellikler
+      services,
+      experience,
+      education,
+      features
     } = body
 
     if (!userId && !email) {
@@ -358,6 +363,126 @@ export async function POST(request: NextRequest) {
         }
       } catch (error) {
         console.error('❌ Banka hesapları kaydetme hatası:', error)
+      }
+    }
+
+    // Handle services if provided
+    if (services && Array.isArray(services)) {
+      try {
+        console.log('🛍️ Hizmetler güncelleniyor:', services.length)
+        await prisma.service.deleteMany({
+          where: { profileId: updatedUser.profile.id }
+        })
+        
+        const validServices = services.filter((service: any) => 
+          service.title && service.description
+        )
+        
+        if (validServices.length > 0) {
+          await prisma.service.createMany({
+            data: validServices.map((service: any, index: number) => ({
+              profileId: updatedUser.profile.id,
+              name: service.title,
+              description: service.description,
+              price: service.price || null,
+              image: service.imageUrl || null,
+              order: index
+            }))
+          })
+          console.log('✅ Hizmetler kaydedildi:', validServices.length)
+        }
+      } catch (error) {
+        console.error('❌ Hizmetler kaydetme hatası:', error)
+      }
+    }
+
+    // Handle experience if provided
+    if (experience && Array.isArray(experience)) {
+      try {
+        console.log('💼 Deneyimler güncelleniyor:', experience.length)
+        await prisma.experience.deleteMany({
+          where: { profileId: updatedUser.profile.id }
+        })
+        
+        const validExperiences = experience.filter((exp: any) => 
+          exp.title && exp.company && exp.period
+        )
+        
+        if (validExperiences.length > 0) {
+          await prisma.experience.createMany({
+            data: validExperiences.map((exp: any, index: number) => ({
+              profileId: updatedUser.profile.id,
+              title: exp.title,
+              company: exp.company,
+              period: exp.period,
+              description: exp.description || null,
+              order: index
+            }))
+          })
+          console.log('✅ Deneyimler kaydedildi:', validExperiences.length)
+        }
+      } catch (error) {
+        console.error('❌ Deneyimler kaydetme hatası:', error)
+      }
+    }
+
+    // Handle education if provided
+    if (education && Array.isArray(education)) {
+      try {
+        console.log('🎓 Eğitim bilgileri güncelleniyor:', education.length)
+        await prisma.education.deleteMany({
+          where: { profileId: updatedUser.profile.id }
+        })
+        
+        const validEducation = education.filter((edu: any) => 
+          edu.degree && edu.school && edu.year
+        )
+        
+        if (validEducation.length > 0) {
+          await prisma.education.createMany({
+            data: validEducation.map((edu: any, index: number) => ({
+              profileId: updatedUser.profile.id,
+              degree: edu.degree,
+              school: edu.school,
+              year: edu.year,
+              description: edu.description || null,
+              order: index
+            }))
+          })
+          console.log('✅ Eğitim bilgileri kaydedildi:', validEducation.length)
+        }
+      } catch (error) {
+        console.error('❌ Eğitim bilgileri kaydetme hatası:', error)
+      }
+    }
+
+    // Handle features if provided
+    if (features && Array.isArray(features)) {
+      try {
+        console.log('⭐ Özellikler güncelleniyor:', features.length)
+        await prisma.feature.deleteMany({
+          where: { profileId: updatedUser.profile.id }
+        })
+        
+        const validFeatures = features.filter((feature: any) => 
+          feature.name
+        )
+        
+        if (validFeatures.length > 0) {
+          await prisma.feature.createMany({
+            data: validFeatures.map((feature: any, index: number) => ({
+              profileId: updatedUser.profile.id,
+              name: feature.name,
+              description: feature.description || null,
+              icon: feature.icon || null,
+              isEnabled: feature.enabled !== false,
+              order: index
+            }))
+          })
+          console.log('✅ Özellikler kaydedildi:', validFeatures.length)
+        }
+      } catch (error) {
+        console.error('❌ Özellikler kaydetme hatası:', error)
       }
     }
     

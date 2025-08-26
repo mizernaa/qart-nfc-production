@@ -530,7 +530,12 @@ export default function ProfileManagementPage() {
           themeId: selectedTheme || profileData.theme.currentTheme || "default",
           // Sosyal medya ve banka bilgileri
           socialLinks: profileData.socialMedia,
-          bankAccounts: profileData.banking
+          bankAccounts: profileData.banking,
+          // Hizmetler, deneyim, eğitim, özellikler
+          services: profileData.services,
+          experience: profileData.experience,
+          education: profileData.education,
+          features: profileData.features
         })
       })
 

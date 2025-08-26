@@ -92,6 +92,9 @@ model Profile {
   gallery           Gallery[]
   services          Service[]
   testimonials      Testimonial[]
+  experiences       Experience[]
+  educations        Education[]
+  features          Feature[]
   qrCodeStyle       Json?
   isPublic          Boolean   @default(true)
   enableLeadCapture Boolean   @default(false)
@@ -253,6 +256,42 @@ model Testimonial {
   image       String?
   rating      Int?
   order       Int
+}
+
+model Experience {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  title       String
+  company     String
+  period      String
+  description String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+model Education {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  degree      String
+  school      String
+  year        String
+  description String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+}
+
+model Feature {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  icon        String?
+  order       Int       @default(0)
+  isEnabled   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
 }
 
 model EmailVerificationToken {

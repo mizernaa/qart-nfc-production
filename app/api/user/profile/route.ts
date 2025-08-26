@@ -116,7 +116,12 @@ export async function GET(request: NextRequest) {
       // Belgeler
       cvUrl: user.profile?.cvUrl,
       portfolioUrl: user.profile?.portfolioUrl,
-      brochureUrl: user.profile?.brochureUrl
+      brochureUrl: user.profile?.brochureUrl,
+      // Hizmetler, deneyim, eğitim, özellikler
+      services: user.profile?.services || [],
+      experiences: user.profile?.experiences || [],
+      educations: user.profile?.educations || [],
+      features: user.profile?.features || []
     }
     
     return NextResponse.json({

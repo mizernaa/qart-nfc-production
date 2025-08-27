@@ -270,6 +270,42 @@ export default function ProfileManagementPage() {
                   enabled: account.isEnabled !== false
                 }))
               : prevData.banking,
+            // Hizmetler
+            services: data.profile.services && data.profile.services.length > 0
+              ? data.profile.services.map((service: any) => ({
+                  title: service.name,
+                  description: service.description,
+                  price: service.price || "",
+                  imageUrl: service.image || ""
+                }))
+              : prevData.services,
+            // Deneyimler
+            experience: data.profile.experiences && data.profile.experiences.length > 0
+              ? data.profile.experiences.map((exp: any) => ({
+                  title: exp.title,
+                  company: exp.company,
+                  period: exp.period,
+                  description: exp.description || ""
+                }))
+              : prevData.experience,
+            // Eğitim
+            education: data.profile.educations && data.profile.educations.length > 0
+              ? data.profile.educations.map((edu: any) => ({
+                  degree: edu.degree,
+                  school: edu.school,
+                  year: edu.year,
+                  description: edu.description || ""
+                }))
+              : prevData.education,
+            // Özellikler
+            features: data.profile.features && data.profile.features.length > 0
+              ? data.profile.features.map((feature: any) => ({
+                  name: feature.name,
+                  description: feature.description || "",
+                  icon: feature.icon || "",
+                  enabled: feature.isEnabled !== false
+                }))
+              : prevData.features,
             // Theme ve diğer ayarlar
             theme: data.profile.theme || "modern",
             isPublic: data.profile.isPublic !== undefined ? data.profile.isPublic : true

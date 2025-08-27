@@ -87,6 +87,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
       case "contact": return <Phone className="w-4 h-4" />
       case "social": return <Share2 className="w-4 h-4" />
       case "services": return <Briefcase className="w-4 h-4" />
+      case "experience": return <Award className="w-4 h-4" />
+      case "education": return <Award className="w-4 h-4" />
+      case "features": return <Star className="w-4 h-4" />
       case "ecommerce": return <ShoppingBag className="w-4 h-4" />
       case "documents": return <FileText className="w-4 h-4" />
       case "billing": return <CreditCard className="w-4 h-4" />
@@ -282,15 +285,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-2 overflow-x-auto py-4 scrollbar-hide">
             {[
-              "overview", "contact", "social", "services", 
-              "ecommerce", "documents", "billing", "location"
+              "overview", "contact", "social", "services", "experience",
+              "education", "features", "ecommerce", "documents", "billing", "location"
             ].filter(section => {
               // Only show sections that have data
               switch(section) {
                 case "overview": return true // Always show overview
                 case "contact": return profile.phone || profile.email || profile.website || profile.alternativePhone
                 case "social": return profile.socialLinks && profile.socialLinks.length > 0
-                case "services": return false // Will implement when we have services data
+                case "services": return profile.services && profile.services.length > 0
+                case "experience": return profile.experiences && profile.experiences.length > 0
+                case "education": return profile.educations && profile.educations.length > 0
+                case "features": return profile.features && profile.features.length > 0
                 case "ecommerce": return profile.shopUrl || profile.catalogUrl
                 case "documents": return profile.cvUrl || profile.portfolioUrl || profile.brochureUrl
                 case "billing": return profile.companyTitle || profile.taxNumber || (profile.bankAccounts && profile.bankAccounts.length > 0)
@@ -313,6 +319,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                    section === "contact" ? "İletişim" :
                    section === "social" ? "Sosyal Medya" :
                    section === "services" ? "Hizmetler" :
+                   section === "experience" ? "Deneyim" :
+                   section === "education" ? "Eğitim" :
+                   section === "features" ? "Özellikler" :
                    section === "ecommerce" ? "E-Ticaret" :
                    section === "documents" ? "Belgeler" :
                    section === "billing" ? "Fatura" :
@@ -527,6 +536,136 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                         {link.platform === "GitHub" && <Github className="w-6 h-6" />}
                         <span className="font-medium">{link.platform}</span>
                       </a>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Services Section */}
+            {activeSection === "services" && profile.services && profile.services.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <Briefcase style={{ color: themeColors.primary }} />
+                    Hizmetlerimiz
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {profile.services.map((service: any, index: number) => (
+                      <div key={index} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-lg">{service.name}</h3>
+                          {service.price && (
+                            <span className="text-sm font-bold px-2 py-1 rounded-lg" style={{ backgroundColor: themeColors.primary + '20', color: themeColors.primary }}>
+                              {service.price}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm opacity-80">{service.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Experience Section */}
+            {activeSection === "experience" && profile.experiences && profile.experiences.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <Award style={{ color: themeColors.primary }} />
+                    Deneyimler
+                  </h2>
+                  <div className="space-y-4">
+                    {profile.experiences.map((exp: any, index: number) => (
+                      <div key={index} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold text-lg">{exp.title}</h3>
+                            <p className="text-sm font-medium" style={{ color: themeColors.accent }}>{exp.company}</p>
+                          </div>
+                          <span className="text-sm opacity-60">{exp.period}</span>
+                        </div>
+                        {exp.description && (
+                          <p className="text-sm opacity-80 mt-2">{exp.description}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Education Section */}
+            {activeSection === "education" && profile.educations && profile.educations.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <Award style={{ color: themeColors.primary }} />
+                    Eğitim
+                  </h2>
+                  <div className="space-y-4">
+                    {profile.educations.map((edu: any, index: number) => (
+                      <div key={index} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h3 className="font-semibold text-lg">{edu.degree}</h3>
+                            <p className="text-sm font-medium" style={{ color: themeColors.accent }}>{edu.school}</p>
+                          </div>
+                          <span className="text-sm opacity-60">{edu.year}</span>
+                        </div>
+                        {edu.description && (
+                          <p className="text-sm opacity-80 mt-2">{edu.description}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Features Section */}
+            {activeSection === "features" && profile.features && profile.features.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <Star style={{ color: themeColors.primary }} />
+                    Özellikler
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {profile.features.map((feature: any, index: number) => (
+                      <div key={index} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition flex items-start gap-3">
+                        {feature.icon ? (
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: themeColors.primary + '20' }}>
+                            <span className="text-xl">{feature.icon}</span>
+                          </div>
+                        ) : (
+                          <Star className="w-5 h-5 mt-1" style={{ color: themeColors.accent }} />
+                        )}
+                        <div>
+                          <h3 className="font-semibold">{feature.name}</h3>
+                          {feature.description && (
+                            <p className="text-sm opacity-80 mt-1">{feature.description}</p>
+                          )}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>

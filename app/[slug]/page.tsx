@@ -550,23 +550,47 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                 className="space-y-6"
               >
                 <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
-                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <Briefcase style={{ color: themeColors.primary }} />
                     Hizmetlerimiz
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {profile.services.map((service: any, index: number) => (
-                      <div key={index} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-semibold text-lg">{service.name}</h3>
+                      <motion.div 
+                        key={index} 
+                        whileHover={{ scale: 1.02, y: -5 }}
+                        className="bg-gradient-to-br from-white/10 to-white/5 rounded-2xl p-6 hover:from-white/15 hover:to-white/10 transition-all duration-300 border border-white/10 hover:border-white/20"
+                      >
+                        {service.image && (
+                          <div className="w-full h-40 rounded-xl overflow-hidden mb-4">
+                            <Image
+                              src={service.image}
+                              alt={service.name}
+                              width={400}
+                              height={160}
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        )}
+                        <div className="flex justify-between items-start mb-3">
+                          <h3 className="font-bold text-xl">{service.name}</h3>
                           {service.price && (
-                            <span className="text-sm font-bold px-2 py-1 rounded-lg" style={{ backgroundColor: themeColors.primary + '20', color: themeColors.primary }}>
+                            <span className="text-sm font-bold px-3 py-1.5 rounded-full animate-pulse" style={{ 
+                              background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary})`,
+                              color: themeColors.background 
+                            }}>
                               {service.price}
                             </span>
                           )}
                         </div>
-                        <p className="text-sm opacity-80">{service.description}</p>
-                      </div>
+                        <p className="text-sm opacity-80 line-clamp-3">{service.description}</p>
+                        <button className="mt-4 w-full py-2 rounded-lg font-medium transition hover:scale-105" style={{
+                          backgroundColor: themeColors.primary + '20',
+                          color: themeColors.primary
+                        }}>
+                          Detaylı Bilgi
+                        </button>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -581,25 +605,50 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                 className="space-y-6"
               >
                 <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
-                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <Award style={{ color: themeColors.primary }} />
                     Deneyimler
                   </h2>
-                  <div className="space-y-4">
-                    {profile.experiences.map((exp: any, index: number) => (
-                      <div key={index} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-semibold text-lg">{exp.title}</h3>
-                            <p className="text-sm font-medium" style={{ color: themeColors.accent }}>{exp.company}</p>
+                  <div className="relative">
+                    {/* Timeline line */}
+                    <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+                    
+                    <div className="space-y-6">
+                      {profile.experiences.map((exp: any, index: number) => (
+                        <motion.div 
+                          key={index} 
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="relative flex gap-4"
+                        >
+                          {/* Timeline dot */}
+                          <div className="relative z-10 flex-shrink-0">
+                            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ 
+                              background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary})` 
+                            }}>
+                              <Briefcase className="w-6 h-6" style={{ color: themeColors.background }} />
+                            </div>
                           </div>
-                          <span className="text-sm opacity-60">{exp.period}</span>
-                        </div>
-                        {exp.description && (
-                          <p className="text-sm opacity-80 mt-2">{exp.description}</p>
-                        )}
-                      </div>
-                    ))}
+                          
+                          {/* Content */}
+                          <div className="flex-1 bg-gradient-to-r from-white/10 to-white/5 rounded-xl p-5 hover:from-white/15 hover:to-white/10 transition-all">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h3 className="font-bold text-xl mb-1">{exp.title}</h3>
+                                <p className="font-medium text-lg" style={{ color: themeColors.accent }}>{exp.company}</p>
+                              </div>
+                              <span className="text-sm font-medium px-3 py-1 rounded-full bg-white/10">
+                                {exp.period}
+                              </span>
+                            </div>
+                            {exp.description && (
+                              <p className="text-sm opacity-80 leading-relaxed">{exp.description}</p>
+                            )}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -613,24 +662,42 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                 className="space-y-6"
               >
                 <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
-                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <Award style={{ color: themeColors.primary }} />
                     Eğitim
                   </h2>
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {profile.educations.map((edu: any, index: number) => (
-                      <div key={index} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="font-semibold text-lg">{edu.degree}</h3>
-                            <p className="text-sm font-medium" style={{ color: themeColors.accent }}>{edu.school}</p>
-                          </div>
-                          <span className="text-sm opacity-60">{edu.year}</span>
+                      <motion.div 
+                        key={index}
+                        whileHover={{ scale: 1.02 }}
+                        className="relative bg-gradient-to-br from-white/10 to-white/5 rounded-2xl p-6 hover:from-white/15 hover:to-white/10 transition-all border border-white/10 hover:border-white/20 overflow-hidden"
+                      >
+                        {/* Background decoration */}
+                        <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+                          <Award className="w-full h-full" style={{ color: themeColors.primary }} />
                         </div>
-                        {edu.description && (
-                          <p className="text-sm opacity-80 mt-2">{edu.description}</p>
-                        )}
-                      </div>
+                        
+                        <div className="relative z-10">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h3 className="font-bold text-xl mb-1">{edu.degree}</h3>
+                              <p className="font-medium text-lg" style={{ color: themeColors.accent }}>
+                                {edu.school}
+                              </p>
+                            </div>
+                            <span className="text-sm font-medium px-3 py-1 rounded-full" style={{ 
+                              backgroundColor: themeColors.primary + '20',
+                              color: themeColors.primary
+                            }}>
+                              {edu.year}
+                            </span>
+                          </div>
+                          {edu.description && (
+                            <p className="text-sm opacity-80 leading-relaxed mt-3">{edu.description}</p>
+                          )}
+                        </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -645,27 +712,46 @@ export default function PublicProfilePage({ params }: { params: Promise<{ slug: 
                 className="space-y-6"
               >
                 <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
-                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                     <Star style={{ color: themeColors.primary }} />
                     Özellikler
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {profile.features.map((feature: any, index: number) => (
-                      <div key={index} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition flex items-start gap-3">
-                        {feature.icon ? (
-                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: themeColors.primary + '20' }}>
-                            <span className="text-xl">{feature.icon}</span>
-                          </div>
-                        ) : (
-                          <Star className="w-5 h-5 mt-1" style={{ color: themeColors.accent }} />
-                        )}
-                        <div>
-                          <h3 className="font-semibold">{feature.name}</h3>
-                          {feature.description && (
-                            <p className="text-sm opacity-80 mt-1">{feature.description}</p>
-                          )}
+                      <motion.div 
+                        key={index}
+                        whileHover={{ scale: 1.05, rotate: 1 }}
+                        className="relative bg-gradient-to-br from-white/10 to-white/5 rounded-2xl p-6 hover:from-white/15 hover:to-white/10 transition-all border border-white/10 hover:border-white/20 overflow-hidden group"
+                      >
+                        {/* Animated background */}
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                          <div className="absolute inset-0" style={{
+                            background: `radial-gradient(circle at 50% 50%, ${themeColors.primary}20, transparent 70%)`
+                          }} />
                         </div>
-                      </div>
+                        
+                        <div className="relative z-10 flex items-start gap-4">
+                          {feature.icon ? (
+                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ 
+                              background: `linear-gradient(135deg, ${themeColors.primary}, ${themeColors.secondary})` 
+                            }}>
+                              <span className="text-2xl">{feature.icon}</span>
+                            </div>
+                          ) : (
+                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110" style={{ 
+                              backgroundColor: themeColors.accent + '20' 
+                            }}>
+                              <Star className="w-6 h-6" style={{ color: themeColors.accent }} />
+                            </div>
+                          )}
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg mb-1">{feature.name}</h3>
+                            {feature.description && (
+                              <p className="text-sm opacity-80 leading-relaxed">{feature.description}</p>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>

@@ -144,7 +144,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       // Belgeler
       cvUrl: user.profile?.cvUrl,
       portfolioUrl: user.profile?.portfolioUrl,
-      brochureUrl: user.profile?.brochureUrl
+      brochureUrl: user.profile?.brochureUrl,
+      
+      // Yeni eklenen alanlar
+      services: user.profile?.services || [],
+      experiences: user.profile?.experiences || [],
+      educations: user.profile?.educations || [],
+      features: user.profile?.features || []
     }
     
     // Record view analytics (optional - could be implemented later)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import DocumentUpload from "@/components/DocumentUpload"
 import { 
   User, Save, ArrowLeft, Building, Phone, Mail, Globe, MapPin,
@@ -18,6 +18,19 @@ export default function ProfileManagementPage() {
   const [user, setUser] = useState<any>(null)
   const [themes, setThemes] = useState<any[]>([])
   const [selectedTheme, setSelectedTheme] = useState("default")
+  
+  // Auto-save debounce ref
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Auto-save function with debounce
+  const autoSave = () => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      handleSave()
+    }, 1000) // 1 saniye bekle
+  }
 
   // Comprehensive Profile Data
   const [profileData, setProfileData] = useState({
@@ -1200,6 +1213,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.services]
                               updated[index].title = e.target.value
                               setProfileData({ ...profileData, services: updated })
+                              autoSave()
                             }}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm font-medium"
                             placeholder="Hizmet başlığı"
@@ -1210,6 +1224,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.services]
                               updated[index].description = e.target.value
                               setProfileData({ ...profileData, services: updated })
+                              autoSave()
                             }}
                             rows={2}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
@@ -1222,6 +1237,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.services]
                               updated[index].price = e.target.value
                               setProfileData({ ...profileData, services: updated })
+                              autoSave()
                             }}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                             placeholder="Fiyat bilgisi"
@@ -1234,6 +1250,7 @@ export default function ProfileManagementPage() {
                                 const updated = [...profileData.services]
                                 updated[index].imageUrl = e.target.value
                                 setProfileData({ ...profileData, services: updated })
+                                autoSave()
                               }}
                               className="flex-1 px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                               placeholder="Hizmet görseli URL'si"
@@ -1266,9 +1283,11 @@ export default function ProfileManagementPage() {
                             </label>
                           </div>
                           <button 
-                            onClick={() => {
+                            onClick={async () => {
                               const updated = profileData.services.filter((_, i) => i !== index)
                               setProfileData({ ...profileData, services: updated })
+                              // Otomatik kaydet
+                              setTimeout(() => handleSave(), 100)
                             }}
                             className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
                           >
@@ -1280,11 +1299,14 @@ export default function ProfileManagementPage() {
                     ))}
                     
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
+                        const newService = { title: "", description: "", price: "", imageUrl: "" }
                         setProfileData({
                           ...profileData,
-                          services: [...profileData.services, { title: "", description: "", price: "", imageUrl: "" }]
+                          services: [...profileData.services, newService]
                         })
+                        // Otomatik kaydet
+                        setTimeout(() => handleSave(), 100)
                       }}
                       className="p-4 bg-gray-800 rounded-lg border-2 border-dashed border-gray-700 hover:border-gray-600 transition flex flex-col items-center justify-center space-y-2 text-gray-400 hover:text-white"
                     >
@@ -1701,6 +1723,7 @@ export default function ProfileManagementPage() {
                                 const updated = [...profileData.experience]
                                 updated[index].title = e.target.value
                                 setProfileData({ ...profileData, experience: updated })
+                                autoSave()
                               }}
                               className="px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                               placeholder="Pozisyon / Ünvan"
@@ -1712,6 +1735,7 @@ export default function ProfileManagementPage() {
                                 const updated = [...profileData.experience]
                                 updated[index].company = e.target.value
                                 setProfileData({ ...profileData, experience: updated })
+                                autoSave()
                               }}
                               className="px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                               placeholder="Şirket adı"
@@ -1724,6 +1748,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.experience]
                               updated[index].period = e.target.value
                               setProfileData({ ...profileData, experience: updated })
+                              autoSave()
                             }}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                             placeholder="Çalışma dönemi (Örn: 2020 - 2023)"
@@ -1734,15 +1759,18 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.experience]
                               updated[index].description = e.target.value
                               setProfileData({ ...profileData, experience: updated })
+                              autoSave()
                             }}
                             rows={2}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                             placeholder="İş tanımı ve sorumluluklar"
                           />
                           <button 
-                            onClick={() => {
+                            onClick={async () => {
                               const updated = profileData.experience.filter((_, i) => i !== index)
                               setProfileData({ ...profileData, experience: updated })
+                              // Otomatik kaydet
+                              setTimeout(() => handleSave(), 100)
                             }}
                             className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
                           >
@@ -1754,11 +1782,13 @@ export default function ProfileManagementPage() {
                     ))}
                     
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         setProfileData({
                           ...profileData,
                           experience: [...profileData.experience, { title: "", company: "", period: "", description: "" }]
                         })
+                        // Otomatik kaydet
+                        setTimeout(() => handleSave(), 100)
                       }}
                       className="w-full py-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition flex items-center justify-center space-x-2"
                     >
@@ -1788,6 +1818,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.education]
                               updated[index].degree = e.target.value
                               setProfileData({ ...profileData, education: updated })
+                              autoSave()
                             }}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                             placeholder="Bölüm / Program"
@@ -1799,6 +1830,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.education]
                               updated[index].school = e.target.value
                               setProfileData({ ...profileData, education: updated })
+                              autoSave()
                             }}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                             placeholder="Okul / Üniversite adı"
@@ -1810,14 +1842,17 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.education]
                               updated[index].year = e.target.value
                               setProfileData({ ...profileData, education: updated })
+                              autoSave()
                             }}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                             placeholder="Mezuniyet yılı veya dönemi"
                           />
                           <button 
-                            onClick={() => {
+                            onClick={async () => {
                               const updated = profileData.education.filter((_, i) => i !== index)
                               setProfileData({ ...profileData, education: updated })
+                              // Otomatik kaydet
+                              setTimeout(() => handleSave(), 100)
                             }}
                             className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
                           >
@@ -1829,11 +1864,13 @@ export default function ProfileManagementPage() {
                     ))}
                     
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         setProfileData({
                           ...profileData,
                           education: [...profileData.education, { degree: "", school: "", year: "" }]
                         })
+                        // Otomatik kaydet
+                        setTimeout(() => handleSave(), 100)
                       }}
                       className="w-full py-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition flex items-center justify-center space-x-2"
                     >
@@ -1863,6 +1900,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.features]
                               updated[index].title = e.target.value
                               setProfileData({ ...profileData, features: updated })
+                              autoSave()
                             }}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm font-medium"
                             placeholder="Özellik başlığı"
@@ -1873,6 +1911,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.features]
                               updated[index].description = e.target.value
                               setProfileData({ ...profileData, features: updated })
+                              autoSave()
                             }}
                             rows={2}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
@@ -1884,6 +1923,7 @@ export default function ProfileManagementPage() {
                               const updated = [...profileData.features]
                               updated[index].icon = e.target.value
                               setProfileData({ ...profileData, features: updated })
+                              autoSave()
                             }}
                             className="w-full px-3 py-1.5 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 text-sm"
                           >
@@ -1895,9 +1935,11 @@ export default function ProfileManagementPage() {
                             <option value="zap">Şimşek (Hız)</option>
                           </select>
                           <button 
-                            onClick={() => {
+                            onClick={async () => {
                               const updated = profileData.features.filter((_, i) => i !== index)
                               setProfileData({ ...profileData, features: updated })
+                              // Otomatik kaydet
+                              setTimeout(() => handleSave(), 100)
                             }}
                             className="text-red-400 hover:text-red-300 text-sm"
                           >
@@ -1908,11 +1950,13 @@ export default function ProfileManagementPage() {
                     ))}
                     
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         setProfileData({
                           ...profileData,
                           features: [...profileData.features, { icon: "star", title: "", description: "" }]
                         })
+                        // Otomatik kaydet
+                        setTimeout(() => handleSave(), 100)
                       }}
                       className="p-4 bg-gray-800 rounded-lg border-2 border-dashed border-gray-700 hover:border-gray-600 transition flex flex-col items-center justify-center space-y-2 text-gray-400 hover:text-white"
                     >

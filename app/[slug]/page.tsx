@@ -73,11 +73,26 @@ const EpicHero = ({ profile }: any) => {
   
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4">
-      <EpicBackground colors={{
-        primary: '#3b82f6',
-        secondary: '#8b5cf6', 
-        accent: '#06b6d4'
-      }} />
+      {/* Cover Image Background */}
+      {profile?.coverImageUrl && (
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={profile.coverImageUrl}
+            alt="Cover"
+            fill
+            className="object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/70 to-black/90" />
+        </div>
+      )}
+      
+      {!profile?.coverImageUrl && (
+        <EpicBackground colors={{
+          primary: '#3b82f6',
+          secondary: '#8b5cf6', 
+          accent: '#06b6d4'
+        }} />
+      )}
       
       <div className="relative z-10 text-center max-w-4xl mx-auto">
         {/* Floating Icons */}
@@ -160,18 +175,45 @@ const EpicHero = ({ profile }: any) => {
           </motion.span>
         </motion.h1>
         
-        {/* Company with crown */}
-        {profile?.companyName && (
+        {/* Company Logo and Name */}
+        {(profile?.companyName || profile?.logoUrl) && (
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="flex items-center justify-center gap-2 mb-6"
+            className="flex flex-col items-center mb-6"
           >
-            <Crown className="w-6 h-6 text-amber-400" />
-            <h2 className="text-2xl md:text-3xl font-bold text-blue-200">
-              {profile.companyName}
-            </h2>
+            {/* Company Logo */}
+            {profile?.logoUrl && (
+              <motion.div
+                initial={{ scale: 0, rotate: -90 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.6, delay: 0.5, ease: "backOut" }}
+                className="mb-4"
+              >
+                <div className="relative w-24 h-24 md:w-32 md:h-32">
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-2xl animate-pulse opacity-30" />
+                  <div className="absolute inset-1 bg-black/60 backdrop-blur-sm rounded-xl overflow-hidden border border-amber-400/30">
+                    <Image
+                      src={profile.logoUrl}
+                      alt={profile.companyName || "Company Logo"}
+                      fill
+                      className="object-contain p-2"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+            
+            {/* Company Name */}
+            {profile?.companyName && (
+              <div className="flex items-center justify-center gap-2">
+                <Crown className="w-6 h-6 text-amber-400" />
+                <h2 className="text-2xl md:text-3xl font-bold text-blue-200">
+                  {profile.companyName}
+                </h2>
+              </div>
+            )}
           </motion.div>
         )}
         

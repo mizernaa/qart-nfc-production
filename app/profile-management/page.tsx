@@ -1285,9 +1285,29 @@ export default function ProfileManagementPage() {
                           <button 
                             onClick={async () => {
                               const updated = profileData.services.filter((_, i) => i !== index)
-                              setProfileData({ ...profileData, services: updated })
-                              // Otomatik kaydet
-                              setTimeout(() => handleSave(), 100)
+                              // Güncellenmiş state'i doğrudan kullan
+                              const updatedProfileData = { ...profileData, services: updated }
+                              setProfileData(updatedProfileData)
+                              
+                              // API'ye doğrudan güncellenmiş veriyi gönder
+                              if (user?.email) {
+                                try {
+                                  const response = await fetch('/api/user/profile', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      email: user.email,
+                                      services: updated
+                                    })
+                                  })
+                                  const result = await response.json()
+                                  if (result.success) {
+                                    console.log('✅ Hizmet başarıyla silindi')
+                                  }
+                                } catch (error) {
+                                  console.error('❌ Hizmet silme hatası:', error)
+                                }
+                              }
                             }}
                             className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
                           >
@@ -1768,9 +1788,28 @@ export default function ProfileManagementPage() {
                           <button 
                             onClick={async () => {
                               const updated = profileData.experience.filter((_, i) => i !== index)
-                              setProfileData({ ...profileData, experience: updated })
-                              // Otomatik kaydet
-                              setTimeout(() => handleSave(), 100)
+                              const updatedProfileData = { ...profileData, experience: updated }
+                              setProfileData(updatedProfileData)
+                              
+                              // API'ye doğrudan güncellenmiş veriyi gönder
+                              if (user?.email) {
+                                try {
+                                  const response = await fetch('/api/user/profile', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      email: user.email,
+                                      experience: updated
+                                    })
+                                  })
+                                  const result = await response.json()
+                                  if (result.success) {
+                                    console.log('✅ Deneyim başarıyla silindi')
+                                  }
+                                } catch (error) {
+                                  console.error('❌ Deneyim silme hatası:', error)
+                                }
+                              }
                             }}
                             className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
                           >
@@ -1850,9 +1889,28 @@ export default function ProfileManagementPage() {
                           <button 
                             onClick={async () => {
                               const updated = profileData.education.filter((_, i) => i !== index)
-                              setProfileData({ ...profileData, education: updated })
-                              // Otomatik kaydet
-                              setTimeout(() => handleSave(), 100)
+                              const updatedProfileData = { ...profileData, education: updated }
+                              setProfileData(updatedProfileData)
+                              
+                              // API'ye doğrudan güncellenmiş veriyi gönder
+                              if (user?.email) {
+                                try {
+                                  const response = await fetch('/api/user/profile', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      email: user.email,
+                                      education: updated
+                                    })
+                                  })
+                                  const result = await response.json()
+                                  if (result.success) {
+                                    console.log('✅ Eğitim başarıyla silindi')
+                                  }
+                                } catch (error) {
+                                  console.error('❌ Eğitim silme hatası:', error)
+                                }
+                              }
                             }}
                             className="text-red-400 hover:text-red-300 text-sm flex items-center space-x-1"
                           >
@@ -1937,9 +1995,28 @@ export default function ProfileManagementPage() {
                           <button 
                             onClick={async () => {
                               const updated = profileData.features.filter((_, i) => i !== index)
-                              setProfileData({ ...profileData, features: updated })
-                              // Otomatik kaydet
-                              setTimeout(() => handleSave(), 100)
+                              const updatedProfileData = { ...profileData, features: updated }
+                              setProfileData(updatedProfileData)
+                              
+                              // API'ye doğrudan güncellenmiş veriyi gönder
+                              if (user?.email) {
+                                try {
+                                  const response = await fetch('/api/user/profile', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      email: user.email,
+                                      features: updated
+                                    })
+                                  })
+                                  const result = await response.json()
+                                  if (result.success) {
+                                    console.log('✅ Özellik başarıyla silindi')
+                                  }
+                                } catch (error) {
+                                  console.error('❌ Özellik silme hatası:', error)
+                                }
+                              }
                             }}
                             className="text-red-400 hover:text-red-300 text-sm"
                           >

@@ -92,6 +92,7 @@ export async function GET(request: NextRequest) {
       profileImage: user.profile?.profileImage || "",
       theme: user.profile?.theme || "modern",
       themeId: user.profile?.themeId || "default",
+      themeSettings: user.profile?.themeSettings,
       isPublic: user.profile?.isPublic !== false, // Default true
       
       // Sosyal medya ve banka verileri
@@ -200,7 +201,9 @@ export async function POST(request: NextRequest) {
       services,
       experience,
       education,
-      features
+      features,
+      // Tema ayarları
+      themeSettings
     } = body
 
     if (!userId && !email) {
@@ -296,7 +299,8 @@ export async function POST(request: NextRequest) {
         brochureUrl: brochureUrl || user.profile?.brochureUrl,
         // Diğer
         isPublic: isPublic !== undefined ? isPublic : (user.profile?.isPublic !== false),
-        themeId: themeId || user.profile?.themeId || "default"
+        themeId: themeId || user.profile?.themeId || "default",
+        themeSettings: themeSettings || user.profile?.themeSettings
       }
     }
 

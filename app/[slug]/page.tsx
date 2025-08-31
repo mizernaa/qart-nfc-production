@@ -68,7 +68,7 @@ const EpicCard = ({ children, className = "", delay = 0, hover = true }: any) =>
 )
 
 // Epic Hero Section
-const EpicHero = ({ profile }: any) => {
+const EpicHero = ({ profile, themeConfig }: any) => {
   const floatingIcons = [Crown, Diamond, Sparkles, Gem]
   
   return (
@@ -87,11 +87,7 @@ const EpicHero = ({ profile }: any) => {
       )}
       
       {!profile?.coverImageUrl && (
-        <EpicBackground colors={{
-          primary: '#3b82f6',
-          secondary: '#8b5cf6', 
-          accent: '#06b6d4'
-        }} />
+        <EpicBackground colors={themeConfig.colors} />
       )}
       
       <div className="relative z-10 text-center max-w-4xl mx-auto">
@@ -143,7 +139,7 @@ const EpicHero = ({ profile }: any) => {
         )}
         
         {/* Status Badge */}
-        {profile?.isPremium && (
+        {themeConfig.visibility.elements.premiumBadge && profile?.isPremium && (
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -157,23 +153,32 @@ const EpicHero = ({ profile }: any) => {
         )}
         
         {/* Name with epic animation */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-6xl md:text-8xl font-black mb-4 leading-tight"
-        >
-          <span className="bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent">
-            {profile?.name || 'Kullanıcı'}
-          </span>
-          <motion.span
-            animate={{ opacity: [1, 0.5, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="inline-block ml-2 text-blue-400"
+        {themeConfig.visibility.elements.name && (
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-6xl md:text-8xl font-black mb-4 leading-tight"
           >
-            ✨
-          </motion.span>
-        </motion.h1>
+            <span 
+              className="bg-gradient-to-r from-white via-blue-100 to-purple-200 bg-clip-text text-transparent"
+              style={{
+                background: `linear-gradient(to right, ${themeConfig.colors.text}, ${themeConfig.colors.primary}, ${themeConfig.colors.secondary})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              {profile?.name || 'Kullanıcı'}
+            </span>
+            <motion.span
+              animate={{ opacity: [1, 0.5, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-block ml-2 text-blue-400"
+            >
+              ✨
+            </motion.span>
+          </motion.h1>
+        )}
         
         {/* Company Logo and Name */}
         {(profile?.companyName || profile?.logoUrl) && (
@@ -272,7 +277,7 @@ const EpicHero = ({ profile }: any) => {
 }
 
 // Epic Contact Section
-const EpicContact = ({ profile }: any) => {
+const EpicContact = ({ profile, themeConfig }: any) => {
   const [copied, setCopied] = useState('')
   
   const handleCopy = (text: string, type: string) => {
@@ -337,7 +342,7 @@ const EpicContact = ({ profile }: any) => {
 }
 
 // Epic Services Section
-const EpicServices = ({ profile }: any) => {
+const EpicServices = ({ profile, themeConfig }: any) => {
   if (!profile?.services || profile.services.length === 0) return null
   
   return (
@@ -392,7 +397,7 @@ const EpicServices = ({ profile }: any) => {
 }
 
 // Epic Experience Section  
-const EpicExperience = ({ profile }: any) => {
+const EpicExperience = ({ profile, themeConfig }: any) => {
   if (!profile?.experiences || profile.experiences.length === 0) return null
   
   return (
@@ -459,7 +464,7 @@ const EpicExperience = ({ profile }: any) => {
 }
 
 // Epic Education Section
-const EpicEducation = ({ profile }: any) => {
+const EpicEducation = ({ profile, themeConfig }: any) => {
   if (!profile?.educations || profile.educations.length === 0) return null
   
   return (
@@ -505,7 +510,7 @@ const EpicEducation = ({ profile }: any) => {
 }
 
 // Epic Features Section
-const EpicFeatures = ({ profile }: any) => {
+const EpicFeatures = ({ profile, themeConfig }: any) => {
   if (!profile?.features || profile.features.length === 0) return null
   
   const getFeatureIcon = (iconName: string) => {
@@ -560,7 +565,7 @@ const EpicFeatures = ({ profile }: any) => {
 }
 
 // Epic Social Media Section
-const EpicSocial = ({ profile }: any) => {
+const EpicSocial = ({ profile, themeConfig }: any) => {
   if (!profile?.socialLinks || profile.socialLinks.length === 0) return null
   
   const getSocialIcon = (platform: string) => {
@@ -648,7 +653,7 @@ const EpicSocial = ({ profile }: any) => {
 }
 
 // Epic Location Section
-const EpicLocation = ({ profile }: any) => {
+const EpicLocation = ({ profile, themeConfig }: any) => {
   if (!profile?.address && !profile?.city && !profile?.googleMapsUrl) return null
   
   return (
@@ -708,7 +713,7 @@ const EpicLocation = ({ profile }: any) => {
 }
 
 // Epic QR Code Section
-const EpicQR = ({ profile, slug }: any) => {
+const EpicQR = ({ profile, themeConfig, slug }: any) => {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`
   
   return (
@@ -788,6 +793,100 @@ export default function EpicPublicProfilePage({ params }: { params: Promise<{ sl
     }
   }
 
+  // Process theme settings and get theme configuration
+  const getThemeConfig = () => {
+    // Default theme configuration
+    const defaultTheme = {
+      colors: {
+        primary: '#3b82f6',
+        secondary: '#8b5cf6', 
+        accent: '#06b6d4',
+        background: '#0f172a',
+        text: '#e2e8f0'
+      },
+      layout: 'centered',
+      animation: 'smooth',
+      typography: 'sans',
+      visibility: {
+        sections: {
+          hero: true,
+          contact: true,
+          services: true,
+          experience: true,
+          education: true,
+          features: true,
+          social: true,
+          location: true,
+          qrCode: true
+        },
+        elements: {
+          profileImage: true,
+          coverImage: true,
+          companyLogo: true,
+          name: true,
+          title: true,
+          bio: true,
+          companyName: true,
+          companySlogan: true,
+          phone: true,
+          whatsapp: true,
+          email: true,
+          website: true,
+          address: true,
+          workingHours: true,
+          socialLinks: true,
+          bankAccounts: true,
+          downloadCV: true,
+          shareButton: true,
+          viewCount: true,
+          premiumBadge: true
+        }
+      },
+      advanced: {
+        animations: { enabled: true, speed: 'normal', type: 'smooth' },
+        spacing: { padding: 'normal', margins: 'normal' },
+        shadows: { enabled: true, intensity: 'medium' },
+        borders: { style: 'rounded', width: 'normal' },
+        filters: { blur: false, grayscale: false, brightness: 100 }
+      }
+    }
+    
+    // If user has theme settings, merge with defaults
+    if (profile?.themeSettings) {
+      try {
+        const userSettings = typeof profile.themeSettings === 'string' 
+          ? JSON.parse(profile.themeSettings) 
+          : profile.themeSettings
+        
+        return {
+          colors: { ...defaultTheme.colors, ...userSettings.colors },
+          layout: userSettings.layout || defaultTheme.layout,
+          animation: userSettings.animation || defaultTheme.animation,
+          typography: userSettings.typography || defaultTheme.typography,
+          visibility: {
+            sections: { ...defaultTheme.visibility.sections, ...userSettings.visibility?.sections },
+            elements: { ...defaultTheme.visibility.elements, ...userSettings.visibility?.elements }
+          },
+          advanced: {
+            animations: { ...defaultTheme.advanced.animations, ...userSettings.advanced?.animations },
+            spacing: { ...defaultTheme.advanced.spacing, ...userSettings.advanced?.spacing },
+            shadows: { ...defaultTheme.advanced.shadows, ...userSettings.advanced?.shadows },
+            borders: { ...defaultTheme.advanced.borders, ...userSettings.advanced?.borders },
+            filters: { ...defaultTheme.advanced.filters, ...userSettings.advanced?.filters }
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing theme settings:', error)
+        return defaultTheme
+      }
+    }
+    
+    return defaultTheme
+  }
+
+  // Get theme configuration
+  const themeConfig = getThemeConfig()
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
@@ -813,15 +912,15 @@ export default function EpicPublicProfilePage({ params }: { params: Promise<{ sl
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white overflow-hidden">
-      <EpicHero profile={profile} />
-      <EpicContact profile={profile} />
-      <EpicServices profile={profile} />
-      <EpicExperience profile={profile} />
-      <EpicEducation profile={profile} />
-      <EpicFeatures profile={profile} />
-      <EpicSocial profile={profile} />
-      <EpicLocation profile={profile} />
-      <EpicQR profile={profile} slug={slug} />
+      {themeConfig.visibility.sections.hero && <EpicHero profile={profile} themeConfig={themeConfig} />}
+      {themeConfig.visibility.sections.contact && <EpicContact profile={profile} themeConfig={themeConfig} />}
+      {themeConfig.visibility.sections.services && <EpicServices profile={profile} themeConfig={themeConfig} />}
+      {themeConfig.visibility.sections.experience && <EpicExperience profile={profile} themeConfig={themeConfig} />}
+      {themeConfig.visibility.sections.education && <EpicEducation profile={profile} themeConfig={themeConfig} />}
+      {themeConfig.visibility.sections.features && <EpicFeatures profile={profile} themeConfig={themeConfig} />}
+      {themeConfig.visibility.sections.social && <EpicSocial profile={profile} themeConfig={themeConfig} />}
+      {themeConfig.visibility.sections.location && <EpicLocation profile={profile} themeConfig={themeConfig} />}
+      {themeConfig.visibility.sections.qrCode && <EpicQR profile={profile} themeConfig={themeConfig} slug={slug} />}
       
       {/* Epic Footer */}
       <footer className="py-12 px-4 border-t border-white/10">

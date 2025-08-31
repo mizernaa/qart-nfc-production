@@ -111,7 +111,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       
       // Settings
       theme: user.profile?.themeId || "default",
-      themeId: user.profile?.themeId || "default", 
+      themeId: user.profile?.themeId || "default",
+      themeSettings: user.profile?.themeSettings,
       slug: user.profile?.slug || createSlug(user.name || ''),
       
       // Meta info

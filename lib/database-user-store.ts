@@ -116,6 +116,7 @@ export class DatabaseUserStore {
         isPublic: user.profile.isPublic !== false,
         theme: user.profile.themeId || 'default',
         themeId: user.profile.themeId || 'default',
+        themeSettings: user.profile.themeSettings,
         // E-Ticaret alanları
         shopUrl: user.profile.shopUrl,
         catalogUrl: user.profile.catalogUrl,

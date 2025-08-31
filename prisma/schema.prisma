@@ -96,6 +96,7 @@ model Profile {
   educations        Education[]
   features          Feature[]
   qrCodeStyle       Json?
+  themeSettings     Json?     // Stores comprehensive theme configuration
   isPublic          Boolean   @default(true)
   enableLeadCapture Boolean   @default(false)
   enableAnalytics   Boolean   @default(true)

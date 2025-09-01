@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
   },
   
   // Build optimizasyonları
-  swcMinify: true,
   compress: true,
   poweredByHeader: false,
   generateEtags: false,

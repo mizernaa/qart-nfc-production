@@ -1,20 +1,25 @@
 {
-  "buildCommand": "npm run build",
-  "installCommand": "npm install --force",
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "npm ci --ignore-scripts",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD",
   "env": {
     "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true",
-    "NEXT_TELEMETRY_DISABLED": "1"
+    "NEXT_TELEMETRY_DISABLED": "1",
+    "DISABLE_ESLINT_PLUGIN": "true"
   },
   "build": {
     "env": {
-      "NODE_OPTIONS": "--max-old-space-size=8192",
-      "NEXT_TELEMETRY_DISABLED": "1"
+      "NODE_OPTIONS": "--max-old-space-size=8192 --no-deprecation",
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "CI": "true",
+      "NODE_ENV": "production"
     }
   },
   "functions": {
     "app/api/**/*": {
-      "maxDuration": 60
+      "maxDuration": 30
     }
   },
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "outputDirectory": ".next"
 }

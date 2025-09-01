@@ -9,6 +9,49 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
+  // Build optimizasyonları
+  swcMinify: true,
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: false,
+  
+  // Output configuration
+  output: 'standalone',
+  
+  // Webpack optimizasyonları
+  webpack: (config, { isServer }) => {
+    // Disable source maps in production
+    if (!isServer) {
+      config.resolve.fallback = {
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    
+    // Optimize bundle size
+    config.optimization = {
+      ...config.optimization,
+      minimize: true,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          framework: {
+            name: 'framework',
+            chunks: 'all',
+            test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
+            priority: 40,
+            enforce: true,
+          },
+        },
+      },
+    };
+    
+    return config;
+  },
+  
   // Security Headers
   async headers() {
     return [

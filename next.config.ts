@@ -19,49 +19,15 @@ const nextConfig: NextConfig = {
   
   // Experimental optimizations
   experimental: {
-    optimizeCss: false,
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
+    optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-dialog'],
   },
   
-  // Webpack optimizasyonları
-  webpack: (config, { isServer }) => {
-    // Disable source maps in production
-    if (!isServer) {
-      config.resolve.fallback = {
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    
-    // Optimize bundle size
-    config.optimization = {
-      ...config.optimization,
-      minimize: true,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          default: false,
-          vendors: false,
-          framework: {
-            name: 'framework',
-            chunks: 'all',
-            test: /(?<!node_modules.*)[\\/]node_modules[\\/](react|react-dom|scheduler|prop-types|use-subscription)[\\/]/,
-            priority: 40,
-            enforce: true,
-          },
-        },
-      },
+  // Webpack optimizasyonları - simplified
+  webpack: (config) => {
+    config.resolve.fallback = { 
+      ...config.resolve.fallback,
+      fs: false,
     };
-    
     return config;
   },
   

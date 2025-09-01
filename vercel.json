@@ -1,5 +1,5 @@
 {
-  "buildCommand": "echo 'Starting build...' && prisma generate && echo 'Building Next.js...' && next build --experimental-turbo",
+  "buildCommand": "prisma generate && next build",
   "installCommand": "npm ci --ignore-scripts",
   "env": {
     "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true",

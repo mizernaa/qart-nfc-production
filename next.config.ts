@@ -17,6 +17,20 @@ const nextConfig: NextConfig = {
   // Output configuration
   output: 'standalone',
   
+  // Experimental optimizations
+  experimental: {
+    optimizeCss: false,
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+  
   // Webpack optimizasyonları
   webpack: (config, { isServer }) => {
     // Disable source maps in production

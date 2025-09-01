@@ -1,7 +1,6 @@
 {
-  "buildCommand": "prisma generate && next build",
+  "buildCommand": "echo 'Starting build...' && prisma generate && echo 'Building Next.js...' && next build --experimental-turbo",
   "installCommand": "npm ci --ignore-scripts",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD",
   "env": {
     "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true",
     "NEXT_TELEMETRY_DISABLED": "1",
@@ -9,17 +8,14 @@
   },
   "build": {
     "env": {
-      "NODE_OPTIONS": "--max-old-space-size=8192 --no-deprecation",
-      "NEXT_TELEMETRY_DISABLED": "1",
-      "CI": "true",
-      "NODE_ENV": "production"
+      "NODE_OPTIONS": "--max-old-space-size=8192",
+      "NEXT_TELEMETRY_DISABLED": "1"
     }
   },
   "functions": {
     "app/api/**/*": {
-      "maxDuration": 30
+      "maxDuration": 10
     }
   },
-  "framework": "nextjs",
-  "outputDirectory": ".next"
+  "framework": "nextjs"
 }

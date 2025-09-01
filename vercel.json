@@ -4,9 +4,19 @@
   "env": {
     "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
   },
+  "build": {
+    "env": {
+      "NODE_OPTIONS": "--max-old-space-size=4096"
+    }
+  },
   "functions": {
     "app/**": {
-      "maxDuration": 30
+      "maxDuration": 60
+    },
+    "app/api/**/*.ts": {
+      "maxDuration": 60
     }
-  }
+  },
+  "framework": "nextjs",
+  "regions": ["iad1"]
 }

@@ -1,22 +1,20 @@
 {
-  "buildCommand": "prisma generate && next build",
-  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install --force",
   "env": {
-    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
+    "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true",
+    "NEXT_TELEMETRY_DISABLED": "1"
   },
   "build": {
     "env": {
-      "NODE_OPTIONS": "--max-old-space-size=4096"
+      "NODE_OPTIONS": "--max-old-space-size=8192",
+      "NEXT_TELEMETRY_DISABLED": "1"
     }
   },
   "functions": {
-    "app/**": {
-      "maxDuration": 60
-    },
-    "app/api/**/*.ts": {
+    "app/api/**/*": {
       "maxDuration": 60
     }
   },
-  "framework": "nextjs",
-  "regions": ["iad1"]
+  "framework": "nextjs"
 }

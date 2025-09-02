@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { notFound } from "next/navigation"
-import { motion } from "framer-motion"
 import { 
   Phone, Mail, Globe, MapPin, Clock, Star, MessageSquare,
   Instagram, Linkedin, Twitter, Facebook, Youtube, Github,
@@ -145,18 +144,10 @@ export default function ProfilePage({ params }: { params: Promise<{ slug: string
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full mx-auto mb-4"
-          />
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full mx-auto mb-4 animate-spin" />
           <p className="text-xl text-gray-400">Profil yükleniyor...</p>
-        </motion.div>
+        </div>
       </div>
     )
   }
@@ -185,76 +176,56 @@ export default function ProfilePage({ params }: { params: Promise<{ slug: string
           
           <div className="relative z-10 text-center max-w-4xl mx-auto">
             {themeConfig.visibility.elements.name && (
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+              <h1
                 className="text-4xl md:text-6xl font-black mb-4 leading-tight"
                 style={{ 
                   color: themeConfig.colors.text 
                 }}
               >
                 {profile?.name || 'Kullanıcı'}
-              </motion.h1>
+              </h1>
             )}
             
             {themeConfig.visibility.elements.title && profile?.title && (
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="text-xl text-gray-400 mb-4"
-              >
+              <p className="text-xl text-gray-400 mb-4">
                 {profile.title}
-              </motion.p>
+              </p>
             )}
             
             {themeConfig.visibility.elements.bio && profile?.bio && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6, duration: 1 }}
-                className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed"
-              >
+              <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
                 {profile.bio}
-              </motion.p>
+              </p>
             )}
             
             {/* Basic Contact Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="flex flex-wrap items-center justify-center gap-4"
-            >
+            <div className="flex flex-wrap items-center justify-center gap-4">
               {profile?.phone && (
-                <motion.a
+                <a
                   href={`tel:${profile.phone}`}
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-white shadow-lg transition-all"
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-white shadow-lg transition-all hover:scale-105"
                   style={{ 
                     background: `linear-gradient(to right, ${themeConfig.colors.primary}, ${themeConfig.colors.secondary})` 
                   }}
                 >
                   <Phone className="w-5 h-5" />
                   <span>Ara</span>
-                </motion.a>
+                </a>
               )}
               
               {profile?.email && (
-                <motion.a
+                <a
                   href={`mailto:${profile.email}`}
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-white shadow-lg transition-all"
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-white shadow-lg transition-all hover:scale-105"
                   style={{ 
                     background: `linear-gradient(to right, ${themeConfig.colors.secondary}, ${themeConfig.colors.accent})` 
                   }}
                 >
                   <Mail className="w-5 h-5" />
                   <span>Email</span>
-                </motion.a>
+                </a>
               )}
-            </motion.div>
+            </div>
           </div>
         </section>
       )}
@@ -263,17 +234,12 @@ export default function ProfilePage({ params }: { params: Promise<{ slug: string
       {themeConfig.visibility.sections.contact && (profile?.phone || profile?.email || profile?.website) && (
         <section className="py-20 px-4">
           <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-16"
-            >
+            <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4" 
                   style={{ color: themeConfig.colors.primary }}>
                 İletişim
               </h2>
-            </motion.div>
+            </div>
             
             <div className="grid gap-4">
               {profile?.phone && (

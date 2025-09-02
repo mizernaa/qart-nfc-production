@@ -1,62 +1,36 @@
-"use client"
-
-import { useEffect, useState } from "react"
 import { notFound } from "next/navigation"
 import { Phone, Mail, Globe } from "lucide-react"
 
-export default function ProfilePage({ params }: { params: Promise<{ slug: string }> }) {
-  const [profile, setProfile] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [slug, setSlug] = useState<string>("")
-  
-  useEffect(() => {
-    const getSlugAndFetch = async () => {
-      const resolvedParams = await params
-      setSlug(resolvedParams.slug)
-      fetchProfile(resolvedParams.slug)
-    }
-    getSlugAndFetch()
-  }, [params])
-
-  const fetchProfile = async (profileSlug: string) => {
-    try {
-      const response = await fetch(`/api/profile/${profileSlug}`)
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success && data.profile) {
-          setProfile(data.profile)
-        }
-      } else {
-        notFound()
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error)
-      notFound()
-    } finally {
-      setLoading(false)
-    }
+async function getProfile(slug: string) {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3004'
+    const res = await fetch(`${baseUrl}/api/profile/${slug}`, {
+      cache: 'no-store'
+    })
+    
+    if (!res.ok) return null
+    
+    const data = await res.json()
+    return data.profile
+  } catch (error) {
+    console.error('Error fetching profile:', error)
+    return null
   }
+}
 
+export default async function ProfilePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const profile = await getProfile(slug)
+  
+  if (!profile) {
+    notFound()
+  }
+  
   // Simple theme configuration
   const themeColors = {
     primary: profile?.themeSettings?.colors?.primary || '#3b82f6',
     secondary: profile?.themeSettings?.colors?.secondary || '#8b5cf6',
     accent: profile?.themeSettings?.colors?.accent || '#06b6d4'
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full mx-auto mb-4 animate-spin" />
-          <p className="text-xl text-gray-400">Profil yükleniyor...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!profile) {
-    notFound()
   }
 
   return (
